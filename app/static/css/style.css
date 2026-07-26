@@ -230,6 +230,19 @@ label { font-size: 0.82rem; font-weight: 500; color: var(--ink-soft); display: b
 }
 .course-card-cta { font-size: 0.78rem; color: var(--gold-deep); }
 
+/* Progress bars on dashboard */
+.progress-track {
+  width: 100%; max-width: 320px; height: 6px; background: var(--hairline); border-radius: 100px; overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--gold); border-radius: 100px; }
+.progress-label { font-size: 0.75rem; color: var(--ink-soft); margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+
+/* Certificate note */
+.cert-note {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--ink-soft);
+}
+.cert-note::before { content: "🎓"; font-size: 0.9rem; }
+
 .section { padding: 44px 0; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
 

@@ -90,3 +90,13 @@ class Payment(Base):
     updated_at = Column(DateTime, default=now, onupdate=now)
 
     enrollment = relationship("Enrollment", back_populates="payments")
+
+
+class LessonProgress(Base):
+    __tablename__ = "lesson_progress"
+    __table_args__ = (UniqueConstraint("user_id", "lesson_id", name="uq_user_lesson"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    completed_at = Column(DateTime, default=now)

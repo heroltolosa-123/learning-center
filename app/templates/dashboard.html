@@ -8,17 +8,31 @@
   {% if enrollments %}
   <div class="ledger">
     {% for e in enrollments %}
-    <a href="/courses/{{ e.course.slug }}" class="ledger-row">
+    {% set p = progress_by_enrollment[e.id] %}
+    <div class="ledger-row" style="align-items:flex-start;">
       <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
       <span class="ledger-body">
-        <div class="ledger-title">{{ e.course.title }}</div>
-        <div class="ledger-meta">{{ e.course.lessons|length }} lessons</div>
+        <a href="/courses/{{ e.course.slug }}" style="text-decoration:none; color:inherit;">
+          <div class="ledger-title">{{ e.course.title }}</div>
+        </a>
+        <div class="ledger-meta" style="margin-bottom:8px;">{{ e.course.lessons|length }} lessons</div>
+        {% if e.status == 'paid' and p.total > 0 %}
+        <div class="progress-track">
+          <div class="progress-fill" style="width:{{ p.percent }}%;"></div>
+        </div>
+        <div class="progress-label">{{ p.completed }}/{{ p.total }} lessons complete</div>
+        {% endif %}
       </span>
       <span class="ledger-price">
-        {% if e.status == 'paid' %}<span class="seal">Enrolled</span>
+        {% if e.status == 'paid' %}
+          {% if p.is_complete %}
+            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Get certificate</a>
+          {% else %}
+            <span class="seal">Enrolled</span>
+          {% endif %}
         {% else %}<span class="seal seal-pending">Pending</span>{% endif %}
       </span>
-    </a>
+    </div>
     {% endfor %}
   </div>
   {% else %}

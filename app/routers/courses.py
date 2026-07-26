@@ -1,12 +1,28 @@
 import datetime
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models
 from ..auth import get_current_user
+from ..certificates import generate_certificate_pdf
 
 router = APIRouter()
+
+
+def course_progress(db: Session, user: models.User, course: models.Course):
+    """Returns (completed_count, total_count, percent, is_complete) for a user's progress in a course."""
+    total = len(course.lessons)
+    if total == 0 or not user:
+        return 0, total, 0, False
+    lesson_ids = [l.id for l in course.lessons]
+    completed = (
+        db.query(models.LessonProgress)
+        .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id.in_(lesson_ids))
+        .count()
+    )
+    percent = int(round((completed / total) * 100)) if total else 0
+    return completed, total, percent, completed >= total
 
 
 @router.get("/")
@@ -120,6 +136,16 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db))
     prev_lesson = ordered_lessons[idx - 1] if idx > 0 else None
     next_lesson = ordered_lessons[idx + 1] if idx < len(ordered_lessons) - 1 else None
 
+    if user:
+        already = (
+            db.query(models.LessonProgress)
+            .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id == lesson.id)
+            .first()
+        )
+        if not already:
+            db.add(models.LessonProgress(user_id=user.id, lesson_id=lesson.id))
+            db.commit()
+
     return templates.TemplateResponse(
         "lesson.html",
         {
@@ -143,7 +169,60 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         .order_by(models.Enrollment.created_at.desc())
         .all()
     )
+    progress_by_enrollment = {}
+    for e in enrollments:
+        completed, total, percent, is_complete = course_progress(db, user, e.course)
+        progress_by_enrollment[e.id] = {
+            "completed": completed, "total": total, "percent": percent, "is_complete": is_complete,
+        }
+
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "user": user, "enrollments": enrollments, "site_name": request.app.state.site_name},
+        {
+            "request": request, "user": user, "enrollments": enrollments,
+            "progress_by_enrollment": progress_by_enrollment, "site_name": request.app.state.site_name,
+        },
+    )
+
+
+@router.get("/certificates/{slug}")
+def download_certificate(slug: str, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(f"/login?next=/courses/{slug}", status_code=303)
+
+    course = db.query(models.Course).filter(models.Course.slug == slug).first()
+    if not course:
+        return RedirectResponse("/?error=Course+not+found", status_code=303)
+
+    enrollment = (
+        db.query(models.Enrollment)
+        .filter(
+            models.Enrollment.user_id == user.id,
+            models.Enrollment.course_id == course.id,
+            models.Enrollment.status == "paid",
+        )
+        .first()
+    )
+    if not enrollment:
+        return RedirectResponse(f"/courses/{slug}?error=Enroll+to+earn+a+certificate", status_code=303)
+
+    completed, total, percent, is_complete = course_progress(db, user, course)
+    if not is_complete:
+        return RedirectResponse(
+            f"/courses/{slug}?error=Finish+all+lessons+to+unlock+your+certificate+({completed}/{total}+done)",
+            status_code=303,
+        )
+
+    pdf_bytes = generate_certificate_pdf(
+        student_name=user.name,
+        course_title=course.title,
+        site_name=request.app.state.site_name,
+        completed_date=(enrollment.paid_at or datetime.datetime.utcnow()).date(),
+    )
+    filename = f"certificate-{course.slug}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
