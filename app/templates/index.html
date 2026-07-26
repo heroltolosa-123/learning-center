@@ -1,17 +1,32 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }} — Courses{% endblock %}
+{% block title %}{{ site_name }} — Statistics, Research & Data Courses{% endblock %}
 {% block content %}
 <div class="hero">
   <div class="wrap">
-    <span class="eyebrow">Vol. I — Course Catalog</span>
-    <h1 class="display" style="font-size:2.3rem;">Learn from people who've actually done it.</h1>
-    <p>Paid, self-paced courses. Enroll once, keep access, learn on your schedule.</p>
+    <span class="eyebrow">Est. by a licensed statistician, 16+ years in the field</span>
+    <h1 class="display" style="font-size:2.5rem; max-width:680px;">Research and data skills, taught by someone who does this for a living.</h1>
+    <p style="max-width:600px;">From your first regression to defending a PLS-SEM model in front of a panel — structured courses in research, statistics, AI/ML, and business intelligence. Enroll once, keep access for good, learn at your own pace.</p>
+
+    <div class="trust-strip">
+      <div class="trust-item">
+        <span class="trust-num">16+</span>
+        <span class="trust-label">years across banking, government &amp; academe</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-num">RIS</span>
+        <span class="trust-label">Senior Member, Royal Institute of Statisticians</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-num">1:1</span>
+        <span class="trust-label">built from real thesis &amp; consulting work, not slides</span>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="wrap section">
   <div class="section-head">
-    <h2 style="font-size:1.1rem;">Available courses</h2>
+    <h2 style="font-size:1.1rem;">Course catalog</h2>
     <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} listed</span>
   </div>
 
@@ -22,7 +37,11 @@
       <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
       <span class="ledger-body">
         <div class="ledger-title">{{ course.title }}</div>
-        <div class="ledger-meta">{{ course.instructor_name or "Self-paced" }} · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</div>
+        <div class="ledger-meta">
+          {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
+          {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
+          <span>{{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</span>
+        </div>
       </span>
       <span class="ledger-price">
         {% if course.is_free %}<span class="free">Free</span>{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}

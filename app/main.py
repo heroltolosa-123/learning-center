@@ -17,7 +17,7 @@ from .routers import auth as auth_router, courses as courses_router, admin as ad
 BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Learning Center")
-app.state.site_name = os.getenv("SITE_NAME", "The Learning Center")
+app.state.site_name = os.getenv("SITE_NAME", "Hero Academy Learning System")
 
 session_secret = os.getenv("SESSION_SECRET", "dev-only-insecure-secret-change-me")
 app.add_middleware(SessionMiddleware, secret_key=session_secret, same_site="lax")

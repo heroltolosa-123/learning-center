@@ -34,6 +34,8 @@ class Course(Base):
     price_php = Column(Numeric(10, 2), nullable=False, default=0)
     is_published = Column(Boolean, default=False, nullable=False)
     instructor_name = Column(String(255), default="")
+    category = Column(String(100), default="")
+    level = Column(String(20), default="")  # Beginner | Intermediate | Advanced | ""
     created_at = Column(DateTime, default=now)
 
     lessons = relationship("Lesson", back_populates="course", order_by="Lesson.order", cascade="all, delete-orphan")

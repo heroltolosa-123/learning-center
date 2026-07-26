@@ -50,6 +50,8 @@ def create_course(
     slug: str = Form(...),
     description: str = Form(""),
     instructor_name: str = Form(""),
+    category: str = Form(""),
+    level: str = Form(""),
     price_php: float = Form(0),
     is_published: str = Form(None),
     db: Session = Depends(get_db),
@@ -64,8 +66,8 @@ def create_course(
 
     course = models.Course(
         title=title.strip(), slug=clean_slug, description=description.strip(),
-        instructor_name=instructor_name.strip(), price_php=price_php,
-        is_published=bool(is_published),
+        instructor_name=instructor_name.strip(), category=category.strip(), level=level.strip(),
+        price_php=price_php, is_published=bool(is_published),
     )
     db.add(course)
     db.commit()
@@ -97,6 +99,8 @@ def update_course(
     slug: str = Form(...),
     description: str = Form(""),
     instructor_name: str = Form(""),
+    category: str = Form(""),
+    level: str = Form(""),
     price_php: float = Form(0),
     is_published: str = Form(None),
     db: Session = Depends(get_db),
@@ -118,6 +122,8 @@ def update_course(
     course.slug = clean_slug
     course.description = description.strip()
     course.instructor_name = instructor_name.strip()
+    course.category = category.strip()
+    course.level = level.strip()
     course.price_php = price_php
     course.is_published = bool(is_published)
     db.commit()

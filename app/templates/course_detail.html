@@ -5,6 +5,10 @@
   <div class="wrap">
     <span class="eyebrow">{{ course.instructor_name or "Self-paced course" }}</span>
     <h1 class="display" style="font-size:2rem;">{{ course.title }}</h1>
+    <div style="margin-bottom:12px;">
+      {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
+      {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
+    </div>
     <p>{{ course.description }}</p>
 
     <div style="margin-top:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
