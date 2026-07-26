@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand">
+        <span class="brand-seal">LC</span>
+        {{ site_name }}
+      </a>
+      <div class="nav">
+        <a href="/">Courses</a>
+        {% if user %}
+          <a href="/dashboard">My Learning</a>
+          {% if user.is_admin %}<a href="/admin">Admin</a>{% endif %}
+          <a href="/logout">Log out</a>
+        {% else %}
+          <a href="/login">Log in</a>
+          <a href="/register" class="btn btn-sm btn-gold">Get started</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% if request.query_params.get('flash') %}
+      <div class="flash flash-success" style="margin-top:24px;">{{ request.query_params.get('flash') }}</div>
+    {% endif %}
+    {% if request.query_params.get('error') %}
+      <div class="flash flash-error" style="margin-top:24px;">{{ request.query_params.get('error') }}</div>
+    {% endif %}
+  </div>
+
+  {% block content %}{% endblock %}
+
+  <div class="footer">
+    <div class="wrap">
+      <p>{{ site_name }} &mdash; built on a platform you own outright.</p>
+    </div>
+  </div>
+</body>
+</html>

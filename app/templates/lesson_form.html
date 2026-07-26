@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if lesson else "New" }} lesson — {{ site_name }}{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <a href="/admin/courses/{{ course.id }}" style="font-size:0.85rem; color:var(--ink-soft); text-decoration:none;">&larr; Back to {{ course.title }}</a>
+  <h1 style="font-size:1.5rem; margin-top:14px;">{{ "Edit lesson" if lesson else "New lesson" }}</h1>
+
+  <form method="post"
+        action="{{ '/admin/courses/' + course.id|string + '/lessons/' + lesson.id|string if lesson else '/admin/courses/' + course.id|string + '/lessons/new' }}"
+        class="card" style="max-width:640px;">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" value="{{ lesson.title if lesson else '' }}" required>
+    </div>
+    <div class="field">
+      <label>Video URL (embeddable — YouTube/Vimeo embed link, optional)</label>
+      <input type="text" name="video_url" value="{{ lesson.video_url if lesson else '' }}" placeholder="https://www.youtube.com/embed/...">
+    </div>
+    <div class="field">
+      <label>Lesson content / notes</label>
+      <textarea name="content" rows="8">{{ lesson.content if lesson else '' }}</textarea>
+    </div>
+    <div class="field">
+      <label>Order (lower numbers appear first)</label>
+      <input type="number" name="order" value="{{ lesson.order if lesson else 0 }}">
+    </div>
+    <div class="field">
+      <label style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" name="is_preview" value="1" {% if lesson and lesson.is_preview %}checked{% endif %} style="width:auto;">
+        Free preview (viewable without paying)
+      </label>
+    </div>
+    <button type="submit" class="btn btn-gold">{{ "Save changes" if lesson else "Add lesson" }}</button>
+    {% if lesson %}
+    <a href="/admin/courses/{{ course.id }}/lessons/{{ lesson.id }}/delete" onclick="return confirm('Delete this lesson?')" class="btn btn-outline btn-sm" style="margin-left:10px;">Delete</a>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

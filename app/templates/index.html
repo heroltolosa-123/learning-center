@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ site_name }} — Courses{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Vol. I — Course Catalog</span>
+    <h1 class="display" style="font-size:2.3rem;">Learn from people who've actually done it.</h1>
+    <p>Paid, self-paced courses. Enroll once, keep access, learn on your schedule.</p>
+  </div>
+</div>
+
+<div class="wrap section">
+  <div class="section-head">
+    <h2 style="font-size:1.1rem;">Available courses</h2>
+    <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} listed</span>
+  </div>
+
+  {% if courses %}
+  <div class="ledger">
+    {% for course in courses %}
+    <a href="/courses/{{ course.slug }}" class="ledger-row">
+      <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
+      <span class="ledger-body">
+        <div class="ledger-title">{{ course.title }}</div>
+        <div class="ledger-meta">{{ course.instructor_name or "Self-paced" }} · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</div>
+      </span>
+      <span class="ledger-price">
+        {% if course.is_free %}<span class="free">Free</span>{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No courses published yet.{% if user and user.is_admin %} <a href="/admin/courses/new">Create your first one →</a>{% endif %}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

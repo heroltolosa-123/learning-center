@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My Learning — {{ site_name }}{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <span class="eyebrow">Signed in as {{ user.name }}</span>
+  <h1 style="font-size:1.6rem;">My Learning</h1>
+
+  {% if enrollments %}
+  <div class="ledger">
+    {% for e in enrollments %}
+    <a href="/courses/{{ e.course.slug }}" class="ledger-row">
+      <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
+      <span class="ledger-body">
+        <div class="ledger-title">{{ e.course.title }}</div>
+        <div class="ledger-meta">{{ e.course.lessons|length }} lessons</div>
+      </span>
+      <span class="ledger-price">
+        {% if e.status == 'paid' %}<span class="seal">Enrolled</span>
+        {% else %}<span class="seal seal-pending">Pending</span>{% endif %}
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>You haven't enrolled in anything yet. <a href="/" style="color:var(--gold-deep);">Browse courses →</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

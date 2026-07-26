@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Admin — {{ site_name }}{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Administration</span>
+      <h1 style="font-size:1.6rem;">Courses</h1>
+    </div>
+    <a href="/admin/courses/new" class="btn btn-gold">New course</a>
+  </div>
+
+  <table class="admin-table">
+    <thead>
+      <tr><th>Title</th><th>Price</th><th>Lessons</th><th>Status</th><th>Enrollments (paid)</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>{{ c.title }}</td>
+        <td class="mono">{% if c.is_free %}Free{% else %}₱{{ "%.2f"|format(c.price_php) }}{% endif %}</td>
+        <td>{{ c.lessons|length }}</td>
+        <td>
+          {% if c.is_published %}<span class="pill pill-live">Live</span>{% else %}<span class="pill pill-draft">Draft</span>{% endif %}
+        </td>
+        <td>{{ c.paid_count }}</td>
+        <td><a href="/admin/courses/{{ c.id }}" style="font-size:0.85rem; color:var(--gold-deep);">Manage →</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" style="color:var(--ink-soft);">No courses yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

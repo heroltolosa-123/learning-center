@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} — {{ course.title }}{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <a href="/courses/{{ course.slug }}" style="font-size:0.85rem; color:var(--ink-soft); text-decoration:none;">&larr; Back to {{ course.title }}</a>
+  <span class="eyebrow" style="margin-top:20px;">Lesson {{ "%02d"|format(lesson_index) }}</span>
+  <h1 style="font-size:1.7rem;">{{ lesson.title }}</h1>
+
+  {% if lesson.video_url %}
+  <div style="position:relative; padding-bottom:56.25%; height:0; margin:24px 0; background:#000; border-radius:var(--radius);">
+    <iframe src="{{ lesson.video_url }}" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0; border-radius:var(--radius);" allowfullscreen></iframe>
+  </div>
+  {% endif %}
+
+  <div class="card" style="white-space:pre-wrap; line-height:1.7;">{{ lesson.content }}</div>
+
+  <div style="margin-top:28px; display:flex; justify-content:space-between;">
+    {% if prev_lesson %}<a href="/lessons/{{ prev_lesson.id }}" class="btn btn-outline btn-sm">&larr; Previous</a>{% else %}<span></span>{% endif %}
+    {% if next_lesson %}<a href="/lessons/{{ next_lesson.id }}" class="btn btn-outline btn-sm">Next &rarr;</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

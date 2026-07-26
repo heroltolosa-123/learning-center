@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — {{ site_name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">{{ course.instructor_name or "Self-paced course" }}</span>
+    <h1 class="display" style="font-size:2rem;">{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+
+    <div style="margin-top:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="mono" style="font-size:1.3rem;">
+        {% if course.is_free %}Free{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}
+      </span>
+
+      {% if enrollment and enrollment.status == 'paid' %}
+        <span class="seal">Enrolled</span>
+      {% elif enrollment and enrollment.status == 'pending' %}
+        <span class="seal seal-pending">Payment pending</span>
+        <form method="post" action="/courses/{{ course.slug }}/checkout">
+          <button type="submit" class="btn btn-outline btn-sm">Retry payment</button>
+        </form>
+      {% elif user %}
+        {% if course.is_free %}
+          <form method="post" action="/courses/{{ course.slug }}/enroll-free">
+            <button type="submit" class="btn btn-gold">Enroll free</button>
+          </form>
+        {% else %}
+          <form method="post" action="/courses/{{ course.slug }}/checkout">
+            <button type="submit" class="btn btn-gold">Enroll — pay with GCash, Maya or card</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <a href="/login?next=/courses/{{ course.slug }}" class="btn btn-gold">Log in to enroll</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="wrap section">
+  <h2 style="font-size:1.05rem;">Lessons</h2>
+  <ul class="lesson-list">
+    {% for lesson in course.lessons %}
+      {% set unlocked = (enrollment and enrollment.status == 'paid') or lesson.is_preview or (user and user.is_admin) %}
+      {% if unlocked %}
+        <a href="/lessons/{{ lesson.id }}" class="lesson-item">
+          <span class="lesson-idx">{{ "%02d"|format(loop.index) }}</span>
+          <span>{{ lesson.title }}</span>
+          {% if lesson.is_preview %}<span class="preview-tag">Preview</span>{% endif %}
+        </a>
+      {% else %}
+        <span class="lesson-item locked">
+          <span class="lesson-idx">{{ "%02d"|format(loop.index) }}</span>
+          <span>{{ lesson.title }}</span>
+          <span class="lock-icon">🔒</span>
+        </span>
+      {% endif %}
+    {% else %}
+      <li style="color:var(--ink-soft); padding:14px 0;">No lessons added yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
