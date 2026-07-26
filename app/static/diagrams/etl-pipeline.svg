@@ -1,0 +1,29 @@
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="200" fill="#FFFFFF"/>
+  <g>
+    <rect x="30" y="65" width="150" height="70" rx="4" fill="#EEF1F6" stroke="#16213E" stroke-width="1.5"/>
+    <text x="105" y="95" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Extract</text>
+    <text x="105" y="112" text-anchor="middle" font-size="10" fill="#4A5578">Source systems,</text>
+    <text x="105" y="125" text-anchor="middle" font-size="10" fill="#4A5578">APIs, files</text>
+
+    <rect x="275" y="65" width="150" height="70" rx="4" fill="#B9822F" opacity="0.15" stroke="#B9822F" stroke-width="1.5"/>
+    <text x="350" y="95" text-anchor="middle" font-size="13" font-weight="600" fill="#8F6421">Transform</text>
+    <text x="350" y="112" text-anchor="middle" font-size="10" fill="#8F6421">Clean, validate,</text>
+    <text x="350" y="125" text-anchor="middle" font-size="10" fill="#8F6421">restructure</text>
+
+    <rect x="520" y="65" width="150" height="70" rx="4" fill="#16213E" stroke="#16213E" stroke-width="1.5"/>
+    <text x="595" y="95" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Load</text>
+    <text x="595" y="112" text-anchor="middle" font-size="10" fill="#D3D8E4">Into warehouse</text>
+    <text x="595" y="125" text-anchor="middle" font-size="10" fill="#D3D8E4">tables</text>
+  </g>
+  <g stroke="#8F6421" stroke-width="2" marker-end="url(#etlarrow)">
+    <line x1="180" y1="100" x2="273" y2="100"/>
+    <line x1="425" y1="100" x2="518" y2="100"/>
+  </g>
+  <defs>
+    <marker id="etlarrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#8F6421"/>
+    </marker>
+  </defs>
+  <text x="350" y="175" text-anchor="middle" font-size="12" fill="#4A5578">ETL: Moving Data Into the Warehouse</text>
+</svg>

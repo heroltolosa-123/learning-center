@@ -1,0 +1,39 @@
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="320" fill="#FFFFFF"/>
+  <g stroke="#B9822F" stroke-width="1.5" fill="none">
+    <line x1="350" y1="70" x2="200" y2="150"/>
+    <line x1="350" y1="70" x2="500" y2="150"/>
+    <line x1="200" y1="180" x2="120" y2="250"/>
+    <line x1="200" y1="180" x2="280" y2="250"/>
+    <line x1="500" y1="180" x2="420" y2="250"/>
+    <line x1="500" y1="180" x2="580" y2="250"/>
+  </g>
+  <g>
+    <rect x="280" y="45" width="140" height="46" rx="4" fill="#16213E"/>
+    <text x="350" y="64" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="600">Feature X &lt; 5?</text>
+    <text x="350" y="80" text-anchor="middle" font-size="10" fill="#D3D8E4">Root node</text>
+
+    <rect x="135" y="150" width="130" height="42" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="200" y="167" text-anchor="middle" font-size="11" fill="#16213E" font-weight="600">Feature Y &lt; 2?</text>
+    <text x="200" y="182" text-anchor="middle" font-size="9.5" fill="#4A5578">Decision node</text>
+
+    <rect x="435" y="150" width="130" height="42" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="500" y="167" text-anchor="middle" font-size="11" fill="#16213E" font-weight="600">Feature Z &lt; 10?</text>
+    <text x="500" y="182" text-anchor="middle" font-size="9.5" fill="#4A5578">Decision node</text>
+
+    <rect x="65" y="250" width="110" height="40" rx="20" fill="#2F7A4F" opacity="0.15" stroke="#2F7A4F"/>
+    <text x="120" y="274" text-anchor="middle" font-size="11" fill="#1F5236" font-weight="600">Class A</text>
+
+    <rect x="225" y="250" width="110" height="40" rx="20" fill="#B23A3A" opacity="0.12" stroke="#B23A3A"/>
+    <text x="280" y="274" text-anchor="middle" font-size="11" fill="#7A2727" font-weight="600">Class B</text>
+
+    <rect x="365" y="250" width="110" height="40" rx="20" fill="#2F7A4F" opacity="0.15" stroke="#2F7A4F"/>
+    <text x="420" y="274" text-anchor="middle" font-size="11" fill="#1F5236" font-weight="600">Class A</text>
+
+    <rect x="525" y="250" width="110" height="40" rx="20" fill="#B23A3A" opacity="0.12" stroke="#B23A3A"/>
+    <text x="580" y="274" text-anchor="middle" font-size="11" fill="#7A2727" font-weight="600">Class B</text>
+  </g>
+  <text x="255" y="115" font-size="10.5" fill="#4A5578">Yes</text>
+  <text x="435" y="115" font-size="10.5" fill="#4A5578">No</text>
+  <text x="350" y="310" text-anchor="middle" font-size="12" fill="#4A5578">A Decision Tree Splits Data Into Purer Groups</text>
+</svg>

@@ -61,10 +61,8 @@ h1, h2, h3, .display {
   text-decoration: none; color: var(--ink);
   display: flex; align-items: center; gap: 10px;
 }
-.brand-seal {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center;
-  font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--gold-deep);
+.brand-mark {
+  flex-shrink: 0;
 }
 .nav { display: flex; gap: 22px; align-items: center; font-size: 0.92rem; }
 .nav a { text-decoration: none; color: var(--ink-soft); }
@@ -242,6 +240,45 @@ label { font-size: 0.82rem; font-weight: 500; color: var(--ink-soft); display: b
   display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--ink-soft);
 }
 .cert-note::before { content: "🎓"; font-size: 0.9rem; }
+
+/* Rendered lesson content (from markdown) */
+.lesson-content {
+  background: var(--paper-raised); border: 1px solid var(--hairline); border-radius: var(--radius);
+  padding: 32px 36px; line-height: 1.75; font-size: 1rem;
+}
+.lesson-content h2 {
+  font-size: 1.25rem; margin: 28px 0 12px 0; padding-top: 14px; border-top: 1px solid var(--hairline);
+}
+.lesson-content h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.lesson-content h3 {
+  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--gold-deep); margin: 22px 0 8px 0;
+}
+.lesson-content p { margin: 0 0 14px 0; }
+.lesson-content ul, .lesson-content ol { margin: 0 0 16px 0; padding-left: 22px; }
+.lesson-content li { margin-bottom: 8px; }
+.lesson-content strong { color: var(--ink); }
+.lesson-content code {
+  background: var(--paper); padding: 1px 6px; border-radius: 3px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88em;
+}
+.lesson-content blockquote {
+  margin: 16px 0; padding: 12px 18px; border-left: 3px solid var(--gold); background: var(--paper);
+  border-radius: 0 var(--radius) var(--radius) 0; color: var(--ink-soft); font-size: 0.94rem;
+}
+.lesson-content img {
+  max-width: 100%; height: auto; display: block; margin: 20px auto; border: 1px solid var(--hairline);
+  border-radius: var(--radius); background: #fff;
+}
+.lesson-content figcaption, .lesson-content .img-caption {
+  text-align: center; font-size: 0.8rem; color: var(--ink-soft); margin-top: -12px; margin-bottom: 20px;
+}
+.lesson-content table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+.lesson-content th {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--ink);
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft);
+}
+.lesson-content td { padding: 8px 10px; border-bottom: 1px solid var(--hairline); }
 
 .section { padding: 44px 0; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }

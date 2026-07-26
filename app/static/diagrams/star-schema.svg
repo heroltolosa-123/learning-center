@@ -1,0 +1,32 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="400" fill="#FFFFFF"/>
+  <g stroke="#D3D8E4" stroke-width="1.5">
+    <line x1="350" y1="200" x2="200" y2="90"/>
+    <line x1="350" y1="200" x2="500" y2="90"/>
+    <line x1="350" y1="200" x2="200" y2="310"/>
+    <line x1="350" y1="200" x2="500" y2="310"/>
+  </g>
+  <g>
+    <rect x="280" y="160" width="140" height="80" rx="4" fill="#16213E"/>
+    <text x="350" y="188" text-anchor="middle" font-size="12" fill="#fff" font-weight="600">Sales Fact</text>
+    <text x="350" y="205" text-anchor="middle" font-size="9.5" fill="#D3D8E4">Table</text>
+    <text x="350" y="222" text-anchor="middle" font-size="9" fill="#D3D8E4">amount, quantity</text>
+
+    <rect x="120" y="50" width="140" height="70" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="190" y="80" text-anchor="middle" font-size="11.5" fill="#16213E" font-weight="600">Customer</text>
+    <text x="190" y="96" text-anchor="middle" font-size="9.5" fill="#4A5578">Dimension</text>
+
+    <rect x="440" y="50" width="140" height="70" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="510" y="80" text-anchor="middle" font-size="11.5" fill="#16213E" font-weight="600">Product</text>
+    <text x="510" y="96" text-anchor="middle" font-size="9.5" fill="#4A5578">Dimension</text>
+
+    <rect x="120" y="270" width="140" height="70" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="190" y="300" text-anchor="middle" font-size="11.5" fill="#16213E" font-weight="600">Date</text>
+    <text x="190" y="316" text-anchor="middle" font-size="9.5" fill="#4A5578">Dimension</text>
+
+    <rect x="440" y="270" width="140" height="70" rx="4" fill="#EEF1F6" stroke="#16213E"/>
+    <text x="510" y="300" text-anchor="middle" font-size="11.5" fill="#16213E" font-weight="600">Location</text>
+    <text x="510" y="316" text-anchor="middle" font-size="9.5" fill="#4A5578">Dimension</text>
+  </g>
+  <text x="350" y="375" text-anchor="middle" font-size="12" fill="#4A5578">Star Schema: One Fact Table, Several Dimension Tables</text>
+</svg>

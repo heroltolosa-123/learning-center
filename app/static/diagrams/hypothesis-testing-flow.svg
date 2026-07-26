@@ -1,0 +1,41 @@
+<svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="220" fill="#FFFFFF"/>
+  <g font-size="12.5" fill="#16213E">
+    <rect x="20" y="70" width="120" height="60" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="80" y="95" text-anchor="middle" font-weight="600">State H0</text>
+    <text x="80" y="112" text-anchor="middle" font-size="10.5" fill="#4A5578">and H1</text>
+
+    <rect x="170" y="70" width="120" height="60" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="230" y="95" text-anchor="middle" font-weight="600">Collect</text>
+    <text x="230" y="112" text-anchor="middle" font-size="10.5" fill="#4A5578">sample data</text>
+
+    <rect x="320" y="70" width="120" height="60" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="380" y="95" text-anchor="middle" font-weight="600">Compute</text>
+    <text x="380" y="112" text-anchor="middle" font-size="10.5" fill="#4A5578">test statistic</text>
+
+    <rect x="470" y="70" width="105" height="60" rx="4" fill="#B9822F" opacity="0.15" stroke="#B9822F"/>
+    <text x="522" y="95" text-anchor="middle" font-weight="600" fill="#8F6421">Get</text>
+    <text x="522" y="112" text-anchor="middle" font-size="10.5" fill="#8F6421">p-value</text>
+
+    <rect x="595" y="55" width="85" height="45" rx="4" fill="#2F7A4F" opacity="0.12" stroke="#2F7A4F"/>
+    <text x="637" y="72" text-anchor="middle" font-size="10.5" fill="#1F5236" font-weight="600">p &lt; .05:</text>
+    <text x="637" y="86" text-anchor="middle" font-size="10.5" fill="#1F5236">Reject H0</text>
+
+    <rect x="595" y="115" width="85" height="45" rx="4" fill="#4A5578" opacity="0.10" stroke="#4A5578"/>
+    <text x="637" y="132" text-anchor="middle" font-size="10.5" fill="#4A5578" font-weight="600">p &#8805; .05:</text>
+    <text x="637" y="146" text-anchor="middle" font-size="10.5" fill="#4A5578">Fail to reject</text>
+  </g>
+  <g stroke="#8F6421" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <line x1="140" y1="100" x2="168" y2="100"/>
+    <line x1="290" y1="100" x2="318" y2="100"/>
+    <line x1="440" y1="100" x2="468" y2="100"/>
+    <line x1="575" y1="85" x2="593" y2="78"/>
+    <line x1="575" y1="115" x2="593" y2="122"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#8F6421"/>
+    </marker>
+  </defs>
+  <text x="350" y="195" text-anchor="middle" font-size="12" fill="#4A5578">The Hypothesis Testing Process</text>
+</svg>

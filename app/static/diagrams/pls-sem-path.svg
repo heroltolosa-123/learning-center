@@ -1,0 +1,39 @@
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="340" fill="#FFFFFF"/>
+  <g>
+    <ellipse cx="130" cy="170" rx="65" ry="42" fill="#EEF1F6" stroke="#16213E" stroke-width="1.5"/>
+    <text x="130" y="166" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Latent</text>
+    <text x="130" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Construct A</text>
+    <rect x="10" y="100" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="27" y="113" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 1</text>
+    <rect x="10" y="125" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="27" y="138" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 2</text>
+    <rect x="10" y="150" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="27" y="163" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 3</text>
+    <line x1="44" y1="109" x2="70" y2="150" stroke="#D3D8E4" stroke-width="1"/>
+    <line x1="44" y1="134" x2="68" y2="165" stroke="#D3D8E4" stroke-width="1"/>
+    <line x1="44" y1="159" x2="68" y2="175" stroke="#D3D8E4" stroke-width="1"/>
+
+    <ellipse cx="560" cy="170" rx="65" ry="42" fill="#EEF1F6" stroke="#16213E" stroke-width="1.5"/>
+    <text x="560" y="166" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Latent</text>
+    <text x="560" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Construct B</text>
+    <rect x="656" y="100" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="673" y="113" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 1</text>
+    <rect x="656" y="125" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="673" y="138" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 2</text>
+    <rect x="656" y="150" width="34" height="18" rx="2" fill="#fff" stroke="#D3D8E4"/><text x="673" y="163" text-anchor="middle" font-size="9.5" fill="#4A5578">Ind. 3</text>
+    <line x1="656" y1="109" x2="628" y2="150" stroke="#D3D8E4" stroke-width="1"/>
+    <line x1="656" y1="134" x2="630" y2="165" stroke="#D3D8E4" stroke-width="1"/>
+    <line x1="656" y1="159" x2="630" y2="175" stroke="#D3D8E4" stroke-width="1"/>
+
+    <ellipse cx="345" cy="260" rx="65" ry="42" fill="#B9822F" opacity="0.14" stroke="#B9822F" stroke-width="1.5"/>
+    <text x="345" y="256" text-anchor="middle" font-size="13" font-weight="600" fill="#8F6421">Mediating</text>
+    <text x="345" y="272" text-anchor="middle" font-size="13" font-weight="600" fill="#8F6421">Construct M</text>
+
+    <line x1="195" y1="170" x2="495" y2="170" stroke="#16213E" stroke-width="1.75" marker-end="url(#arrow2)"/>
+    <text x="345" y="160" text-anchor="middle" font-size="11.5" fill="#16213E" font-weight="600">Direct path (&#946;)</text>
+
+    <line x1="170" y1="200" x2="300" y2="240" stroke="#8F6421" stroke-width="1.5" marker-end="url(#arrow3)"/>
+    <line x1="390" y1="240" x2="520" y2="200" stroke="#8F6421" stroke-width="1.5" marker-end="url(#arrow3)"/>
+  </g>
+  <defs>
+    <marker id="arrow2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#16213E"/></marker>
+    <marker id="arrow3" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8F6421"/></marker>
+  </defs>
+  <text x="350" y="320" text-anchor="middle" font-size="12" fill="#4A5578">PLS-SEM: Measurement Model (indicators) + Structural Model (paths)</text>
+</svg>

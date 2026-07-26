@@ -1,4 +1,5 @@
 import datetime
+import markdown
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
@@ -8,6 +9,10 @@ from ..auth import get_current_user
 from ..certificates import generate_certificate_pdf
 
 router = APIRouter()
+
+
+def render_lesson_content(raw_content: str) -> str:
+    return markdown.markdown(raw_content or "", extensions=["extra", "sane_lists"])
 
 
 def course_progress(db: Session, user: models.User, course: models.Course):
@@ -151,6 +156,7 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db))
         {
             "request": request, "user": user, "lesson": lesson, "course": course,
             "lesson_index": idx + 1, "prev_lesson": prev_lesson, "next_lesson": next_lesson,
+            "lesson_html": render_lesson_content(lesson.content),
             "site_name": request.app.state.site_name,
         },
     )

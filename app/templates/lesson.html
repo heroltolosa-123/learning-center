@@ -12,7 +12,7 @@
   </div>
   {% endif %}
 
-  <div class="card" style="white-space:pre-wrap; line-height:1.7;">{{ lesson.content }}</div>
+  <div class="lesson-content">{{ lesson_html | safe }}</div>
 
   <div style="margin-top:28px; display:flex; justify-content:space-between;">
     {% if prev_lesson %}<a href="/lessons/{{ prev_lesson.id }}" class="btn btn-outline btn-sm">&larr; Previous</a>{% else %}<span></span>{% endif %}

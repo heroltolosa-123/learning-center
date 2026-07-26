@@ -1,0 +1,31 @@
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="200" fill="#FFFFFF"/>
+  <g font-size="11.5" fill="#16213E">
+    <rect x="20" y="65" width="140" height="60" rx="4" fill="#B23A3A" opacity="0.10" stroke="#B23A3A"/>
+    <text x="90" y="90" text-anchor="middle" font-weight="600" fill="#7A2727">Raw Data</text>
+    <text x="90" y="105" text-anchor="middle" font-size="10" fill="#7A2727">messy, inconsistent</text>
+
+    <rect x="200" y="65" width="140" height="60" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="270" y="90" text-anchor="middle" font-weight="600">Validate</text>
+    <text x="270" y="105" text-anchor="middle" font-size="10" fill="#4A5578">range &amp; format checks</text>
+
+    <rect x="380" y="65" width="140" height="60" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="450" y="90" text-anchor="middle" font-weight="600">Clean</text>
+    <text x="450" y="105" text-anchor="middle" font-size="10" fill="#4A5578">dedupe, standardize</text>
+
+    <rect x="560" y="65" width="120" height="60" rx="4" fill="#2F7A4F" opacity="0.12" stroke="#2F7A4F"/>
+    <text x="620" y="90" text-anchor="middle" font-weight="600" fill="#1F5236">Documented</text>
+    <text x="620" y="105" text-anchor="middle" font-size="10" fill="#1F5236">Dataset</text>
+  </g>
+  <g stroke="#8F6421" stroke-width="1.5" marker-end="url(#dcarrow)">
+    <line x1="160" y1="95" x2="198" y2="95"/>
+    <line x1="340" y1="95" x2="378" y2="95"/>
+    <line x1="520" y1="95" x2="558" y2="95"/>
+  </g>
+  <defs>
+    <marker id="dcarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#8F6421"/>
+    </marker>
+  </defs>
+  <text x="350" y="175" text-anchor="middle" font-size="12" fill="#4A5578">The Data Cleaning Pipeline</text>
+</svg>
