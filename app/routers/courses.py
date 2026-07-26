@@ -10,18 +10,32 @@ router = APIRouter()
 
 
 @router.get("/")
-def homepage(request: Request, db: Session = Depends(get_db)):
+def homepage(request: Request, db: Session = Depends(get_db), q: str = "", category: str = ""):
     from ..main import templates
     user = get_current_user(request, db)
-    courses = (
-        db.query(models.Course)
-        .filter(models.Course.is_published == True)  # noqa: E712
-        .order_by(models.Course.created_at.desc())
-        .all()
-    )
+
+    base_query = db.query(models.Course).filter(models.Course.is_published == True)  # noqa: E712
+    all_published = base_query.all()
+    categories = sorted({c.category for c in all_published if c.category})
+
+    query = base_query
+    if q:
+        like = f"%{q.strip()}%"
+        query = query.filter(
+            (models.Course.title.ilike(like)) | (models.Course.description.ilike(like))
+        )
+    if category:
+        query = query.filter(models.Course.category == category)
+
+    courses = query.order_by(models.Course.created_at.desc()).all()
+
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "user": user, "courses": courses, "site_name": request.app.state.site_name},
+        {
+            "request": request, "user": user, "courses": courses, "site_name": request.app.state.site_name,
+            "categories": categories, "q": q, "active_category": category,
+            "total_count": len(all_published),
+        },
     )
 
 

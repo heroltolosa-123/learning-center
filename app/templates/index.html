@@ -5,7 +5,12 @@
   <div class="wrap">
     <span class="eyebrow">Est. by a licensed statistician, 16+ years in the field</span>
     <h1 class="display" style="font-size:2.5rem; max-width:680px;">Research and data skills, taught by someone who does this for a living.</h1>
-    <p style="max-width:600px;">From your first regression to defending a PLS-SEM model in front of a panel — structured courses in research, statistics, AI/ML, and business intelligence. Enroll once, keep access for good, learn at your own pace.</p>
+    <p style="max-width:600px;">From your first regression to defending a PLS-SEM model in front of a panel — structured courses in research, statistics, AI/ML, and business intelligence.</p>
+
+    <form method="get" action="/" class="search-bar">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search courses — e.g. &quot;regression&quot;, &quot;PLS-SEM&quot;, &quot;dashboards&quot;">
+      <button type="submit" class="btn btn-gold">Search</button>
+    </form>
 
     <div class="trust-strip">
       <div class="trust-item">
@@ -26,32 +31,48 @@
 
 <div class="wrap section">
   <div class="section-head">
-    <h2 style="font-size:1.1rem;">Course catalog</h2>
-    <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} listed</span>
+    <h2 style="font-size:1.1rem;">
+      {% if q %}Results for "{{ q }}"{% elif active_category %}{{ active_category }}{% else %}Course catalog{% endif %}
+    </h2>
+    <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} of {{ total_count }}</span>
   </div>
 
+  {% if categories %}
+  <div class="chip-row">
+    <a href="/{% if q %}?q={{ q }}{% endif %}" class="chip {% if not active_category %}chip-active{% endif %}">All</a>
+    {% for cat in categories %}
+    <a href="/?category={{ cat|urlencode }}{% if q %}&q={{ q }}{% endif %}" class="chip {% if active_category == cat %}chip-active{% endif %}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if courses %}
-  <div class="ledger">
+  <div class="course-grid">
     {% for course in courses %}
-    <a href="/courses/{{ course.slug }}" class="ledger-row">
-      <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
-      <span class="ledger-body">
-        <div class="ledger-title">{{ course.title }}</div>
-        <div class="ledger-meta">
-          {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
-          {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
-          <span>{{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</span>
+    <a href="/courses/{{ course.slug }}" class="course-card">
+      <div class="course-card-banner cat-{{ course.category|lower|replace(' & ', '-')|replace(' ', '-') }}">
+        <span class="course-card-initial">{{ course.title[0] }}</span>
+      </div>
+      <div class="course-card-body">
+        {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
+        {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
+        <div class="course-card-title">{{ course.title }}</div>
+        <div class="course-card-meta">{{ course.instructor_name or "Self-paced" }} · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</div>
+        <div class="course-card-footer">
+          <span class="mono">{% if course.is_free %}<span class="free">Free</span>{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}</span>
+          <span class="course-card-cta">View course →</span>
         </div>
-      </span>
-      <span class="ledger-price">
-        {% if course.is_free %}<span class="free">Free</span>{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}
-      </span>
+      </div>
     </a>
     {% endfor %}
   </div>
   {% else %}
   <div class="empty-state">
+    {% if q or active_category %}
+    <p>No courses match{% if q %} "{{ q }}"{% endif %}{% if active_category %} in {{ active_category }}{% endif %}. <a href="/">Clear filters</a></p>
+    {% else %}
     <p>No courses published yet.{% if user and user.is_admin %} <a href="/admin/courses/new">Create your first one →</a>{% endif %}</p>
+    {% endif %}
   </div>
   {% endif %}
 </div>
