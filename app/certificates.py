@@ -1,9 +1,11 @@
 import io
+import os
 import datetime
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.lib.colors import HexColor, Color
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
 
 INK = HexColor("#16213E")
 GOLD = HexColor("#B9822F")
@@ -12,6 +14,9 @@ INK_SOFT = HexColor("#4A5578")
 HAIRLINE = HexColor("#D3D8E4")
 PALE_GOLD = Color(0.725, 0.510, 0.184, alpha=0.08)
 PALE_INK = Color(0.086, 0.129, 0.243, alpha=0.05)
+
+SIGNATURE_PATH = os.path.join(os.path.dirname(__file__), "static", "certificate_assets", "signature.png")
+DEFAULT_ISSUER_NAME = "Dr. Hero Laurenciano Tolosa"
 
 
 def _draw_seal_mark(c, cx, cy, radius, alpha=1.0, label_size=None):
@@ -52,7 +57,7 @@ def _draw_corner_flourish(c, x, y, size, flip_x=1, flip_y=1, color=GOLD):
     c.restoreState()
 
 
-def generate_certificate_pdf(*, student_name: str, course_title: str, site_name: str, completed_date: datetime.date) -> bytes:
+def generate_certificate_pdf(*, student_name: str, course_title: str, site_name: str, completed_date: datetime.date, issuer_name: str = DEFAULT_ISSUER_NAME) -> bytes:
     """Renders a landscape, branded certificate of completion and returns the raw PDF bytes."""
     buffer = io.BytesIO()
     width, height = landscape(letter)
@@ -142,17 +147,37 @@ def generate_certificate_pdf(*, student_name: str, course_title: str, site_name:
     c.setLineWidth(0.6)
     c.circle(stamp_cx, stamp_cy, 0.58 * inch, stroke=1, fill=0)
 
-    # Signature line (bottom left/center)
+    # Signature block (bottom left/center) — real signature image + name + title
     sig_x = center_x - 1.3 * inch
-    sig_y = 1.1 * inch
+    sig_line_y = 1.1 * inch
+
+    if os.path.exists(SIGNATURE_PATH):
+        try:
+            sig_img = ImageReader(SIGNATURE_PATH)
+            iw, ih = sig_img.getSize()
+            draw_w = 1.7 * inch
+            draw_h = draw_w * (ih / iw)
+            c.drawImage(
+                sig_img,
+                sig_x - draw_w / 2,
+                sig_line_y + 0.06 * inch,
+                width=draw_w,
+                height=draw_h,
+                mask="auto",
+                preserveAspectRatio=True,
+            )
+        except Exception:
+            pass  # fall back to just the line + name if the image can't be read
+
     c.setStrokeColor(INK_SOFT)
     c.setLineWidth(0.75)
-    c.line(sig_x - 1.5 * inch, sig_y, sig_x + 1.5 * inch, sig_y)
-    c.setFont("Helvetica", 10)
-    c.setFillColor(INK_SOFT)
-    c.drawCentredString(sig_x, sig_y - 0.2 * inch, site_name)
+    c.line(sig_x - 1.5 * inch, sig_line_y, sig_x + 1.5 * inch, sig_line_y)
+    c.setFont("Helvetica-Bold", 10)
+    c.setFillColor(INK)
+    c.drawCentredString(sig_x, sig_line_y - 0.2 * inch, issuer_name)
     c.setFont("Helvetica", 8)
-    c.drawCentredString(sig_x, sig_y - 0.36 * inch, "Issuing Authority")
+    c.setFillColor(INK_SOFT)
+    c.drawCentredString(sig_x, sig_line_y - 0.36 * inch, "Founder & Lead Instructor")
 
     c.showPage()
     c.save()

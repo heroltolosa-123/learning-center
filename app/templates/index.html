@@ -49,7 +49,7 @@
   {% if courses %}
   <div class="course-grid">
     {% for course in courses %}
-    <a href="/courses/{{ course.slug }}" class="course-card">
+    <a href="/courses/{{ course.slug }}" class="course-card reveal" style="transition-delay: {{ (loop.index0 * 0.05)|round(2) }}s;">
       <div class="course-card-banner cat-{{ course.category|lower|replace(' & ', '-')|replace(' ', '-') }}">
         <span class="course-card-initial">{{ course.title[0] }}</span>
       </div>
