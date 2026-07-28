@@ -1,0 +1,25 @@
+<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="280" fill="#FFFFFF"/>
+  <text x="350" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Smoking Status vs. Diagnosis: A Contingency Table</text>
+  <g font-size="12">
+    <rect x="200" y="60" width="150" height="40" fill="#16213E"/>
+    <text x="275" y="85" text-anchor="middle" fill="#fff" font-weight="600">Diagnosed</text>
+    <rect x="350" y="60" width="150" height="40" fill="#16213E"/>
+    <text x="425" y="85" text-anchor="middle" fill="#fff" font-weight="600">Not Diagnosed</text>
+
+    <rect x="50" y="100" width="150" height="40" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="125" y="125" text-anchor="middle" font-weight="600">Smoker</text>
+    <rect x="200" y="100" width="150" height="40" fill="#B9822F" opacity="0.15" stroke="#B9822F"/>
+    <text x="275" y="125" text-anchor="middle" font-weight="700" fill="#8F6421">48</text>
+    <rect x="350" y="100" width="150" height="40" fill="#fff" stroke="#D3D8E4"/>
+    <text x="425" y="125" text-anchor="middle">32</text>
+
+    <rect x="50" y="140" width="150" height="40" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="125" y="165" text-anchor="middle" font-weight="600">Non-Smoker</text>
+    <rect x="200" y="140" width="150" height="40" fill="#fff" stroke="#D3D8E4"/>
+    <text x="275" y="165" text-anchor="middle">20</text>
+    <rect x="350" y="140" width="150" height="40" fill="#2F7A4F" opacity="0.12" stroke="#2F7A4F"/>
+    <text x="425" y="165" text-anchor="middle" font-weight="700" fill="#1F5236">100</text>
+  </g>
+  <text x="350" y="215" text-anchor="middle" font-size="12" fill="#4A5578">Chi-square asks: are these counts different from what pure chance would produce?</text>
+</svg>

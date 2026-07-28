@@ -1,0 +1,31 @@
+<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="260" fill="#FFFFFF"/>
+  <text x="350" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#16213E">Flipping a Coin Twice: All Possible Outcomes</text>
+  <g font-size="12" fill="#16213E">
+    <rect x="60" y="60" width="140" height="50" rx="4" fill="#16213E"/>
+    <text x="130" y="90" text-anchor="middle" fill="#fff" font-weight="600">Start</text>
+
+    <rect x="270" y="60" width="120" height="45" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="330" y="87" text-anchor="middle">1st flip: Heads</text>
+    <rect x="270" y="115" width="120" height="45" rx="4" fill="#EEF1F6" stroke="#D3D8E4"/>
+    <text x="330" y="142" text-anchor="middle">1st flip: Tails</text>
+
+    <rect x="480" y="35" width="130" height="40" rx="18" fill="#2F7A4F" opacity="0.15" stroke="#2F7A4F"/>
+    <text x="545" y="60" text-anchor="middle" fill="#1F5236">HH -- 1 in 4</text>
+    <rect x="480" y="80" width="130" height="40" rx="18" fill="#B9822F" opacity="0.15" stroke="#B9822F"/>
+    <text x="545" y="105" text-anchor="middle" fill="#8F6421">HT -- 1 in 4</text>
+    <rect x="480" y="125" width="130" height="40" rx="18" fill="#B9822F" opacity="0.15" stroke="#B9822F"/>
+    <text x="545" y="150" text-anchor="middle" fill="#8F6421">TH -- 1 in 4</text>
+    <rect x="480" y="170" width="130" height="40" rx="18" fill="#4A5578" opacity="0.12" stroke="#4A5578"/>
+    <text x="545" y="195" text-anchor="middle" fill="#4A5578">TT -- 1 in 4</text>
+  </g>
+  <g stroke="#8F6421" stroke-width="1.3" fill="none">
+    <line x1="200" y1="85" x2="268" y2="83"/>
+    <line x1="200" y1="85" x2="268" y2="137"/>
+    <line x1="390" y1="83" x2="478" y2="55"/>
+    <line x1="390" y1="83" x2="478" y2="100"/>
+    <line x1="390" y1="137" x2="478" y2="145"/>
+    <line x1="390" y1="137" x2="478" y2="190"/>
+  </g>
+  <text x="350" y="240" text-anchor="middle" font-size="12" fill="#4A5578">Each of the 4 outcomes is equally likely: probability = 1 out of 4, or 25%</text>
+</svg>

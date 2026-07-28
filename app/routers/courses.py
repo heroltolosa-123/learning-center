@@ -1,4 +1,5 @@
 import datetime
+import json
 import markdown
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import RedirectResponse, Response
@@ -110,7 +111,7 @@ def enroll_free(slug: str, request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/lessons/{lesson_id}")
-def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db)):
+def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db), quiz: str = ""):
     from ..main import templates
     user = get_current_user(request, db)
     lesson = db.query(models.Lesson).filter(models.Lesson.id == lesson_id).first()
@@ -141,7 +142,81 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db))
     prev_lesson = ordered_lessons[idx - 1] if idx > 0 else None
     next_lesson = ordered_lessons[idx + 1] if idx < len(ordered_lessons) - 1 else None
 
+    # Enforce sequential progression: can't skip ahead of an unpassed quiz, unless admin.
+    if user and not user.is_admin and prev_lesson:
+        prev_has_quiz = bool(prev_lesson.quiz_json)
+        if prev_has_quiz:
+            prev_passed = (
+                db.query(models.LessonProgress)
+                .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id == prev_lesson.id)
+                .first()
+            ) is not None
+            if not prev_passed:
+                return RedirectResponse(
+                    f"/lessons/{prev_lesson.id}?error=Pass+this+lesson's+quiz+first+to+continue", status_code=303
+                )
+
+    quiz_questions = []
+    if lesson.quiz_json:
+        try:
+            quiz_questions = json.loads(lesson.quiz_json)
+        except (ValueError, TypeError):
+            quiz_questions = []
+
+    already_passed = False
     if user:
+        already_passed = (
+            db.query(models.LessonProgress)
+            .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id == lesson.id)
+            .first()
+        ) is not None
+
+        if not quiz_questions and not already_passed:
+            # No quiz on this lesson (e.g. a "Further Reading" lesson) -- viewing it is enough.
+            db.add(models.LessonProgress(user_id=user.id, lesson_id=lesson.id))
+            db.commit()
+            already_passed = True
+
+    return templates.TemplateResponse(
+        "lesson.html",
+        {
+            "request": request, "user": user, "lesson": lesson, "course": course,
+            "lesson_index": idx + 1, "prev_lesson": prev_lesson, "next_lesson": next_lesson,
+            "lesson_html": render_lesson_content(lesson.content),
+            "quiz_questions": quiz_questions, "already_passed": already_passed, "quiz_result": quiz,
+            "site_name": request.app.state.site_name,
+        },
+    )
+
+
+@router.post("/lessons/{lesson_id}/quiz-submit")
+async def submit_quiz(lesson_id: int, request: Request, db: Session = Depends(get_db)):
+    lesson = db.query(models.Lesson).filter(models.Lesson.id == lesson_id).first()
+    if not lesson:
+        return RedirectResponse("/?error=Lesson+not+found", status_code=303)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(f"/login?next=/lessons/{lesson_id}", status_code=303)
+
+    quiz_questions = []
+    if lesson.quiz_json:
+        try:
+            quiz_questions = json.loads(lesson.quiz_json)
+        except (ValueError, TypeError):
+            quiz_questions = []
+
+    if not quiz_questions:
+        return RedirectResponse(f"/lessons/{lesson_id}", status_code=303)
+
+    form = await request.form()
+    all_correct = True
+    for i, q in enumerate(quiz_questions):
+        submitted = form.get(f"q{i}")
+        if submitted is None or int(submitted) != int(q["correct"]):
+            all_correct = False
+            break
+
+    if all_correct:
         already = (
             db.query(models.LessonProgress)
             .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id == lesson.id)
@@ -150,16 +225,9 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db))
         if not already:
             db.add(models.LessonProgress(user_id=user.id, lesson_id=lesson.id))
             db.commit()
+        return RedirectResponse(f"/lessons/{lesson_id}?quiz=pass", status_code=303)
 
-    return templates.TemplateResponse(
-        "lesson.html",
-        {
-            "request": request, "user": user, "lesson": lesson, "course": course,
-            "lesson_index": idx + 1, "prev_lesson": prev_lesson, "next_lesson": next_lesson,
-            "lesson_html": render_lesson_content(lesson.content),
-            "site_name": request.app.state.site_name,
-        },
-    )
+    return RedirectResponse(f"/lessons/{lesson_id}?quiz=fail", status_code=303)
 
 
 @router.get("/dashboard")

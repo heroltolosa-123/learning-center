@@ -56,6 +56,7 @@ class Lesson(Base):
     video_url = Column(String(500), default="")  # embeddable video URL (YouTube/Vimeo/etc)
     order = Column(Integer, default=0, nullable=False)
     is_preview = Column(Boolean, default=False, nullable=False)  # viewable without purchase
+    quiz_json = Column(Text, default="")  # JSON list of {"question","choices","correct"} -- empty = no quiz gate
 
     course = relationship("Course", back_populates="lessons")
 

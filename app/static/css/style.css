@@ -322,6 +322,21 @@ label { font-size: 0.82rem; font-weight: 500; color: var(--ink-soft); display: b
   }
 }
 
+/* Quiz gate */
+.quiz-box {
+  margin-top: 28px; padding: 24px 28px; background: var(--paper-raised); border: 1.5px solid var(--gold);
+  border-radius: var(--radius);
+}
+.quiz-question { margin-bottom: 18px; }
+.quiz-question-text { font-weight: 600; margin-bottom: 10px; }
+.quiz-choice {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease;
+}
+.quiz-choice:hover { border-color: var(--gold); background: var(--paper); }
+.quiz-choice input[type="radio"] { width: auto; margin: 0; flex-shrink: 0; }
+.quiz-passed-banner { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--ink-soft); }
+
 .section { padding: 44px 0; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
 

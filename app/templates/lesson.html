@@ -14,9 +14,49 @@
 
   <div class="lesson-content">{{ lesson_html | safe }}</div>
 
-  <div style="margin-top:28px; display:flex; justify-content:space-between;">
+  {% if quiz_questions %}
+  <div class="quiz-box">
+    {% if already_passed %}
+      <div class="quiz-passed-banner">
+        <span class="seal">Quiz passed</span>
+        <span>You've unlocked the next lesson.</span>
+      </div>
+    {% else %}
+      <span class="eyebrow">Quick Check</span>
+      <h3 style="font-family:'Fraunces',serif; font-weight:600; font-size:1.1rem; margin:6px 0 4px 0;">
+        Answer correctly to unlock the next lesson
+      </h3>
+      {% if quiz_result == 'fail' %}
+      <div class="flash flash-error" style="margin:12px 0;">Not quite — review the lesson above and try again.</div>
+      {% endif %}
+      <form method="post" action="/lessons/{{ lesson.id }}/quiz-submit">
+        {% for q in quiz_questions %}
+        {% set qi = loop.index0 %}
+        <div class="quiz-question">
+          <p class="quiz-question-text">{{ loop.index }}. {{ q.question }}</p>
+          {% for choice in q.choices %}
+          <label class="quiz-choice">
+            <input type="radio" name="q{{ qi }}" value="{{ loop.index0 }}" required>
+            <span>{{ choice }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-gold">Check My Answer</button>
+      </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:center;">
     {% if prev_lesson %}<a href="/lessons/{{ prev_lesson.id }}" class="btn btn-outline btn-sm">&larr; Previous</a>{% else %}<span></span>{% endif %}
-    {% if next_lesson %}<a href="/lessons/{{ next_lesson.id }}" class="btn btn-outline btn-sm">Next &rarr;</a>{% endif %}
+    {% if next_lesson %}
+      {% if already_passed %}
+        <a href="/lessons/{{ next_lesson.id }}" class="btn btn-outline btn-sm">Next &rarr;</a>
+      {% else %}
+        <span class="btn btn-outline btn-sm" style="opacity:0.4; cursor:not-allowed;" title="Pass the quiz above to continue">Next &rarr; (locked)</span>
+      {% endif %}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
