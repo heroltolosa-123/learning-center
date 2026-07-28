@@ -16,28 +16,34 @@
           <div class="ledger-title">{{ e.course.title }}</div>
         </a>
         <div class="ledger-meta" style="margin-bottom:8px;">{{ e.course.lessons|length }} lessons</div>
-        {% if e.status == 'paid' and p.total > 0 %}
+        {% if p.total > 0 %}
         <div class="progress-track">
           <div class="progress-fill" style="width:{{ p.percent }}%;"></div>
         </div>
         <div class="progress-label">{{ p.completed }}/{{ p.total }} lessons complete</div>
         {% endif %}
       </span>
-      <span class="ledger-price">
-        {% if e.status == 'paid' %}
-          {% if p.is_complete %}
-            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Get certificate</a>
+      <span class="ledger-price" style="text-align:right;">
+        {% if p.is_complete %}
+          {% if e.certificate_paid_at %}
+            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Download certificate</a>
+          {% elif e.course.is_free %}
+            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Get free certificate</a>
           {% else %}
-            <span class="seal">Enrolled</span>
+            <form method="post" action="/courses/{{ e.course.slug }}/certificate/checkout">
+              <button type="submit" class="btn btn-gold btn-sm">Get certificate — ₱{{ "%.2f"|format(e.course.price_php) }}</button>
+            </form>
           {% endif %}
-        {% else %}<span class="seal seal-pending">Pending</span>{% endif %}
+        {% else %}
+          <span class="seal seal-pending">In progress</span>
+        {% endif %}
       </span>
     </div>
     {% endfor %}
   </div>
   {% else %}
   <div class="empty-state">
-    <p>You haven't enrolled in anything yet. <a href="/" style="color:var(--gold-deep);">Browse courses →</a></p>
+    <p>You haven't enrolled in anything yet — every course is free to start. <a href="/" style="color:var(--gold-deep);">Browse courses →</a></p>
   </div>
   {% endif %}
 </div>

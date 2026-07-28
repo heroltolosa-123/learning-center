@@ -59,7 +59,10 @@
         <div class="course-card-title">{{ course.title }}</div>
         <div class="course-card-meta">{{ course.instructor_name or "Self-paced" }} · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</div>
         <div class="course-card-footer">
-          <span class="mono">{% if course.is_free %}<span class="free">Free</span>{% else %}₱{{ "%.2f"|format(course.price_php) }}{% endif %}</span>
+          <span class="mono">
+            <span class="free">Free</span>
+            {% if not course.is_free %}<span style="color:var(--ink-soft); font-size:0.78rem;"> · cert ₱{{ "%.0f"|format(course.price_php) }}</span>{% endif %}
+          </span>
           <span class="course-card-cta">View course →</span>
         </div>
       </div>

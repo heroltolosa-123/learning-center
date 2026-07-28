@@ -93,8 +93,8 @@ def enroll_free(slug: str, request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(f"/login?next=/courses/{slug}", status_code=303)
 
     course = db.query(models.Course).filter(models.Course.slug == slug).first()
-    if not course or not course.is_free:
-        return RedirectResponse(f"/courses/{slug}?error=This+course+is+not+free", status_code=303)
+    if not course:
+        return RedirectResponse("/?error=Course+not+found", status_code=303)
 
     enrollment = (
         db.query(models.Enrollment)
@@ -104,10 +104,10 @@ def enroll_free(slug: str, request: Request, db: Session = Depends(get_db)):
     if not enrollment:
         enrollment = models.Enrollment(user_id=user.id, course_id=course.id)
         db.add(enrollment)
-    enrollment.status = "paid"
+    enrollment.status = "paid"  # "paid" here just means "active enrollment" -- course access itself is free
     enrollment.paid_at = datetime.datetime.utcnow()
     db.commit()
-    return RedirectResponse(f"/courses/{slug}?flash=Enrolled!", status_code=303)
+    return RedirectResponse(f"/courses/{slug}?flash=You're+enrolled+—+start+learning!", status_code=303)
 
 
 @router.get("/lessons/{lesson_id}")
@@ -279,7 +279,7 @@ def download_certificate(slug: str, request: Request, db: Session = Depends(get_
         .first()
     )
     if not enrollment:
-        return RedirectResponse(f"/courses/{slug}?error=Enroll+to+earn+a+certificate", status_code=303)
+        return RedirectResponse(f"/courses/{slug}?error=Enroll+first+—+it's+free", status_code=303)
 
     completed, total, percent, is_complete = course_progress(db, user, course)
     if not is_complete:
@@ -288,11 +288,22 @@ def download_certificate(slug: str, request: Request, db: Session = Depends(get_
             status_code=303,
         )
 
+    if not enrollment.certificate_paid_at:
+        if float(course.price_php or 0) <= 0:
+            # Certificate fee is free for this course -- grant it automatically.
+            enrollment.certificate_paid_at = datetime.datetime.utcnow()
+            db.commit()
+        else:
+            return RedirectResponse(
+                f"/dashboard?error=Pay+the+certificate+fee+for+{course.title.replace(' ', '+')}+to+download+it",
+                status_code=303,
+            )
+
     pdf_bytes = generate_certificate_pdf(
         student_name=user.name,
         course_title=course.title,
         site_name=request.app.state.site_name,
-        completed_date=(enrollment.paid_at or datetime.datetime.utcnow()).date(),
+        completed_date=enrollment.certificate_paid_at.date(),
     )
     filename = f"certificate-{course.slug}.pdf"
     return Response(

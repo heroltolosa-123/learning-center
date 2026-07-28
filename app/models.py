@@ -71,6 +71,7 @@ class Enrollment(Base):
     status = Column(String(20), default="pending", nullable=False)  # pending | paid | failed
     created_at = Column(DateTime, default=now)
     paid_at = Column(DateTime, nullable=True)
+    certificate_paid_at = Column(DateTime, nullable=True)  # set once the certificate fee is paid (course access itself is free)
 
     user = relationship("User", back_populates="enrollments")
     course = relationship("Course", back_populates="enrollments")

@@ -7,42 +7,30 @@ from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
-INK = HexColor("#16213E")
+INK = HexColor("#0B2E6B")
 GOLD = HexColor("#B9822F")
 GOLD_DEEP = HexColor("#8F6421")
-INK_SOFT = HexColor("#4A5578")
+INK_SOFT = HexColor("#4A5F8A")
 HAIRLINE = HexColor("#D3D8E4")
 PALE_GOLD = Color(0.725, 0.510, 0.184, alpha=0.08)
-PALE_INK = Color(0.086, 0.129, 0.243, alpha=0.05)
+PALE_INK = Color(0.043, 0.180, 0.420, alpha=0.05)
 
 SIGNATURE_PATH = os.path.join(os.path.dirname(__file__), "static", "certificate_assets", "signature.png")
+LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "logo", "hero-academy-logo-transparent.png")
+LOGO_WATERMARK_PATH = os.path.join(os.path.dirname(__file__), "static", "logo", "hero-academy-logo-watermark.png")
 DEFAULT_ISSUER_NAME = "Dr. Hero Laurenciano Tolosa"
 
 
-def _draw_seal_mark(c, cx, cy, radius, alpha=1.0, label_size=None):
-    """Draws the Hero Academy seal mark (circle + HA monogram + ascending bars) at the given center/radius."""
-    stroke_color = Color(0.725, 0.510, 0.184, alpha=alpha)
-    fill_color = Color(0.561, 0.392, 0.129, alpha=alpha)
-    c.setStrokeColor(stroke_color)
-    c.setLineWidth(max(1, radius * 0.03))
-    c.circle(cx, cy, radius, stroke=1, fill=0)
-
-    label_size = label_size or radius * 0.55
-    c.setFillColor(fill_color)
-    c.setFont("Helvetica-Bold", label_size)
-    c.drawCentredString(cx, cy - label_size * 0.32, "HA")
-
-    # ascending bars motif beneath the monogram
-    bar_w = radius * 0.11
-    bar_gap = radius * 0.06
-    bar_heights = [radius * 0.22, radius * 0.34, radius * 0.46, radius * 0.58]
-    total_w = len(bar_heights) * bar_w + (len(bar_heights) - 1) * bar_gap
-    start_x = cx - total_w / 2
-    base_y = cy - radius * 0.55
-    c.setFillColor(fill_color)
-    for i, h in enumerate(bar_heights):
-        x = start_x + i * (bar_w + bar_gap)
-        c.rect(x, base_y, bar_w, h, stroke=0, fill=1)
+def _draw_logo(c, cx, cy, size, watermark=False):
+    """Draws the real Hero Academy logo (square, centered) at the given center point."""
+    path = LOGO_WATERMARK_PATH if watermark else LOGO_PATH
+    if not os.path.exists(path):
+        return
+    try:
+        img = ImageReader(path)
+        c.drawImage(img, cx - size / 2, cy - size / 2, width=size, height=size, mask="auto", preserveAspectRatio=True)
+    except Exception:
+        pass
 
 
 def _draw_corner_flourish(c, x, y, size, flip_x=1, flip_y=1, color=GOLD):
@@ -72,7 +60,7 @@ def generate_certificate_pdf(*, student_name: str, course_title: str, site_name:
     c.rect(0.15 * inch, 0.15 * inch, width - 0.3 * inch, height - 0.3 * inch, stroke=0, fill=1)
 
     # Large pale watermark seal, centered behind all text
-    _draw_seal_mark(c, center_x, center_y, radius=1.9 * inch, alpha=0.05, label_size=1.05 * inch)
+    _draw_logo(c, center_x, center_y, size=3.6 * inch, watermark=True)
 
     # Outer border
     margin = 0.4 * inch
@@ -95,7 +83,7 @@ def generate_certificate_pdf(*, student_name: str, course_title: str, site_name:
     _draw_corner_flourish(c, width - fl_inset, fl_inset, fl_size, flip_x=-1, flip_y=1)
 
     # Small seal mark at top center, above the eyebrow
-    _draw_seal_mark(c, center_x, height - 1.05 * inch, radius=0.32 * inch, alpha=1.0, label_size=0.17 * inch)
+    _draw_logo(c, center_x, height - 1.05 * inch, size=0.64 * inch)
 
     # Eyebrow
     c.setFillColor(GOLD_DEEP)
@@ -142,7 +130,7 @@ def generate_certificate_pdf(*, student_name: str, course_title: str, site_name:
     # Official seal stamp near the signature (bottom right)
     stamp_cx = width - 2.1 * inch
     stamp_cy = 1.15 * inch
-    _draw_seal_mark(c, stamp_cx, stamp_cy, radius=0.5 * inch, alpha=0.85, label_size=0.24 * inch)
+    _draw_logo(c, stamp_cx, stamp_cy, size=0.92 * inch)
     c.setStrokeColor(GOLD)
     c.setLineWidth(0.6)
     c.circle(stamp_cx, stamp_cy, 0.58 * inch, stroke=1, fill=0)
