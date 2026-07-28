@@ -3,33 +3,82 @@
 {% block content %}
 <div class="hero">
   <div class="wrap">
-    <span class="eyebrow">PD 997 Civil Service Eligible, Statistics · 16+ years in the field</span>
-    <h1 class="display" style="font-size:2.5rem; max-width:680px;">Research and data skills, taught by someone who does this for a living.</h1>
-    <p style="max-width:600px;">From your first regression to defending a PLS-SEM model in front of a panel — structured courses in research, statistics, AI/ML, and business intelligence.</p>
+    <div class="hero-grid">
+      <div>
+        <span class="pill-badge">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.6H18l-4.6 3.4 1.8 5.6L10 13.2l-5.2 3.4 1.8-5.6L2 7.6h6.2L10 2z" fill="#0B2E6B"/></svg>
+          Expert-Led Learning Platform
+        </span>
+        <h1 class="display" style="font-size:2.6rem; max-width:560px; line-height:1.12;">Master Statistics, Research &amp; Data Analytics</h1>
+        <p>Learn from Dr. Hero Tolosa — PD 997 Civil Service Eligible in Statistics, with 16+ years across banking, government, and academe. Structured courses built from real thesis and consulting work, not generic slides.</p>
 
-    <form method="get" action="/" class="search-bar">
-      <input type="text" name="q" value="{{ q }}" placeholder="Search courses — e.g. &quot;regression&quot;, &quot;PLS-SEM&quot;, &quot;dashboards&quot;">
-      <button type="submit" class="btn btn-gold">Search</button>
-    </form>
+        <div class="hero-cta-row">
+          {% if user %}
+            <a href="#catalog" class="btn btn-gold">Browse Courses</a>
+          {% else %}
+            <a href="/register" class="btn btn-gold">Start Learning — Free</a>
+            <a href="#catalog" class="btn btn-outline">Browse Courses</a>
+          {% endif %}
+        </div>
+      </div>
 
-    <div class="trust-strip">
-      <div class="trust-item">
-        <span class="trust-num">16+</span>
-        <span class="trust-label">years across banking, government &amp; academe</span>
-      </div>
-      <div class="trust-item">
-        <span class="trust-num">RIS</span>
-        <span class="trust-label">Senior Member, Royal Institute of Statisticians</span>
-      </div>
-      <div class="trust-item">
-        <span class="trust-num">1:1</span>
-        <span class="trust-label">built from real thesis &amp; consulting work, not slides</span>
+      <div class="hero-visual">
+        <div class="hero-visual-frame">
+          <img src="/static/diagrams/dashboard-mockup.svg" alt="Data dashboard preview" style="background:#fff;">
+        </div>
+        <div class="floating-badge fb-1">
+          <span class="fb-num">{{ total_count }}+</span>
+          <span class="fb-label">Expert Courses</span>
+        </div>
+        <div class="floating-badge fb-2">
+          <span class="fb-num">Free</span>
+          <span class="fb-label">To start learning</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="wrap section">
+<div class="feature-section">
+  <div class="wrap">
+    <div class="feature-section-head">
+      <h2>Why Choose Hero Academy?</h2>
+      <p>Everything you need to build real statistics and data skills, taught by someone who does this professionally.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4a2 2 0 012-2h5v14H4a2 2 0 00-2 2V4z" stroke="#0B2E6B" stroke-width="1.5"/><path d="M18 4a2 2 0 00-2-2h-5v14h5a2 2 0 012 2V4z" stroke="#0B2E6B" stroke-width="1.5"/></svg>
+        </div>
+        <h3>Comprehensive Courses</h3>
+        <p>Master statistics, research methods, AI/ML, and business intelligence with structured, in-depth lessons.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="5" stroke="#0B2E6B" stroke-width="1.5"/><path d="M6.5 11.5L5 18l5-2.5 5 2.5-1.5-6.5" stroke="#0B2E6B" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Earn Certificates</h3>
+        <p>Get a recognized certificate of completion, personally signed, once you finish a course.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3.2" stroke="#0B2E6B" stroke-width="1.5"/><path d="M3.5 17c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" stroke="#0B2E6B" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Expert Instructor</h3>
+        <p>Learn directly from a PD 997 Civil Service Eligible statistician with 16+ years of real consulting experience.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17V9M9 17V4M15 17v-6M3 17h14" stroke="#0B2E6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Track Progress</h3>
+        <p>Every lesson includes a quiz — pass it to unlock the next one, so progress reflects real understanding.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap section" id="catalog">
   <div class="section-head">
     <h2 style="font-size:1.1rem;">
       {% if q %}Results for "{{ q }}"{% elif active_category %}{{ active_category }}{% else %}Course catalog{% endif %}
@@ -37,11 +86,16 @@
     <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} of {{ total_count }}</span>
   </div>
 
+  <form method="get" action="/#catalog" class="search-bar" style="margin-top:0; max-width:480px;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search courses — e.g. &quot;regression&quot;, &quot;PLS-SEM&quot;, &quot;dashboards&quot;">
+    <button type="submit" class="btn btn-gold">Search</button>
+  </form>
+
   {% if categories %}
   <div class="chip-row">
-    <a href="/{% if q %}?q={{ q }}{% endif %}" class="chip {% if not active_category %}chip-active{% endif %}">All</a>
+    <a href="/{% if q %}?q={{ q }}{% endif %}#catalog" class="chip {% if not active_category %}chip-active{% endif %}">All</a>
     {% for cat in categories %}
-    <a href="/?category={{ cat|urlencode }}{% if q %}&q={{ q }}{% endif %}" class="chip {% if active_category == cat %}chip-active{% endif %}">{{ cat }}</a>
+    <a href="/?category={{ cat|urlencode }}{% if q %}&q={{ q }}{% endif %}#catalog" class="chip {% if active_category == cat %}chip-active{% endif %}">{{ cat }}</a>
     {% endfor %}
   </div>
   {% endif %}
