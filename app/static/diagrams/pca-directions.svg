@@ -1,0 +1,17 @@
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="320" fill="#FFFFFF"/>
+  <text x="350" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#0B2E6B">Finding the Directions Where Data Varies Most</text>
+  <g fill="#0B2E6B" opacity="0.55">
+    <circle cx="230" cy="230" r="4.5"/><circle cx="260" cy="205" r="4.5"/><circle cx="280" cy="220" r="4.5"/>
+    <circle cx="300" cy="190" r="4.5"/><circle cx="320" cy="200" r="4.5"/><circle cx="340" cy="170" r="4.5"/>
+    <circle cx="360" cy="180" r="4.5"/><circle cx="380" cy="150" r="4.5"/><circle cx="400" cy="160" r="4.5"/>
+    <circle cx="420" cy="130" r="4.5"/><circle cx="440" cy="140" r="4.5"/><circle cx="460" cy="110" r="4.5"/>
+    <circle cx="270" cy="240" r="4.5"/><circle cx="310" cy="215" r="4.5"/><circle cx="350" cy="195" r="4.5"/>
+    <circle cx="390" cy="170" r="4.5"/><circle cx="430" cy="150" r="4.5"/><circle cx="450" cy="125" r="4.5"/>
+  </g>
+  <line x1="200" y1="255" x2="490" y2="105" stroke="#B9822F" stroke-width="3"/>
+  <text x="500" y="98" font-size="12" fill="#8F6421" font-weight="600">PC1 (most variance)</text>
+  <line x1="300" y1="130" x2="360" y2="230" stroke="#4A5F8A" stroke-width="2"/>
+  <text x="368" y="235" font-size="12" fill="#4A5F8A" font-weight="600">PC2 (remaining variance)</text>
+  <text x="350" y="300" text-anchor="middle" font-size="12" fill="#4A5F8A">PCA rotates the axes to align with where the data actually spreads out</text>
+</svg>

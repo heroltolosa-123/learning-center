@@ -1,0 +1,12 @@
+<svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="700" height="300" fill="#FFFFFF"/>
+  <line x1="60" y1="240" x2="640" y2="240" stroke="#0B2E6B" stroke-width="1.5"/>
+  <line x1="60" y1="240" x2="60" y2="40" stroke="#0B2E6B" stroke-width="1.5"/>
+  <text x="350" y="275" text-anchor="middle" font-size="12.5" fill="#4A5F8A">Candidate parameter value</text>
+  <text x="28" y="140" text-anchor="middle" font-size="12.5" fill="#4A5F8A" transform="rotate(-90 28 140)">Likelihood</text>
+  <path d="M 100 235 C 180 235 230 60 350 60 C 470 60 520 235 600 235" fill="none" stroke="#B9822F" stroke-width="2.5"/>
+  <line x1="350" y1="60" x2="350" y2="240" stroke="#0B2E6B" stroke-width="1" stroke-dasharray="4,3"/>
+  <circle cx="350" cy="60" r="5" fill="#8F6421"/>
+  <text x="350" y="42" text-anchor="middle" font-size="12.5" fill="#8F6421" font-weight="600">Maximum likelihood estimate</text>
+  <text x="350" y="258" text-anchor="middle" font-size="11" fill="#0B2E6B" font-weight="600">The value most consistent with your data</text>
+</svg>
