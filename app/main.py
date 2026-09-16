@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
-from .database import Base, engine, SessionLocal
+from .database import Base, engine, SessionLocal, sync_columns
 from . import models, site_config
 from .auth import hash_password
 from .routers import auth as auth_router, courses as courses_router, admin as admin_router, payments as payments_router
@@ -44,6 +44,7 @@ app.include_router(payments_router.router)
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
+    sync_columns()
     _seed_admin()
 
 

@@ -90,6 +90,9 @@ def create_course(
     level: str = Form(""),
     price_php: float = Form(0),
     is_published: str = Form(None),
+    curriculum_alignment: str = Form(""),
+    prerequisites: str = Form(""),
+    learning_outcomes: str = Form(""),
     db: Session = Depends(get_db),
 ):
     user = _require_admin_or_redirect(request, db)
@@ -104,6 +107,9 @@ def create_course(
         title=title.strip(), slug=clean_slug, description=description.strip(),
         instructor_name=instructor_name.strip(), category=category.strip(), level=level.strip(),
         price_php=price_php, is_published=bool(is_published),
+        curriculum_alignment=curriculum_alignment.strip(),
+        prerequisites=prerequisites.strip(),
+        learning_outcomes=learning_outcomes.strip(),
     )
     db.add(course)
     db.commit()
@@ -139,6 +145,9 @@ def update_course(
     level: str = Form(""),
     price_php: float = Form(0),
     is_published: str = Form(None),
+    curriculum_alignment: str = Form(""),
+    prerequisites: str = Form(""),
+    learning_outcomes: str = Form(""),
     db: Session = Depends(get_db),
 ):
     user = _require_admin_or_redirect(request, db)
@@ -162,6 +171,9 @@ def update_course(
     course.level = level.strip()
     course.price_php = price_php
     course.is_published = bool(is_published)
+    course.curriculum_alignment = curriculum_alignment.strip()
+    course.prerequisites = prerequisites.strip()
+    course.learning_outcomes = learning_outcomes.strip()
     db.commit()
     return RedirectResponse(f"/admin/courses/{course_id}?flash=Saved", status_code=303)
 

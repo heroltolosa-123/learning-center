@@ -38,6 +38,12 @@ class Course(Base):
     level = Column(String(20), default="")  # Beginner | Intermediate | Advanced | ""
     created_at = Column(DateTime, default=now)
 
+    # Curriculum metadata. Plain text so it stays editable from /admin without a
+    # migration; outcomes and prerequisites are one item per line.
+    curriculum_alignment = Column(Text, default="")  # e.g. "CHED CMO 42 s. 2017 - Descriptive Statistics"
+    learning_outcomes = Column(Text, default="")     # newline-separated
+    prerequisites = Column(Text, default="")         # newline-separated
+
     lessons = relationship("Lesson", back_populates="course", order_by="Lesson.order", cascade="all, delete-orphan")
     enrollments = relationship("Enrollment", back_populates="course")
 

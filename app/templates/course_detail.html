@@ -41,6 +41,13 @@
     <h1>{{ course.title }}</h1>
     <p class="lede">{{ course.description }}</p>
 
+    {% if course.curriculum_alignment %}
+    <p class="align-note">
+      {{ icon.shield(18) }}
+      <span><strong>Curriculum alignment:</strong> {{ course.curriculum_alignment }}</span>
+    </p>
+    {% endif %}
+
     <p class="hero-trust" style="margin-top:22px;">
       <span>{{ icon.book(16) }} {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 }}</span>
       <span>{{ icon.user(16) }} {{ course.instructor_name or instructor.name }}</span>
@@ -53,6 +60,31 @@
   <div class="detail-grid">
 
     <div>
+      {% if course.learning_outcomes %}
+      <section aria-labelledby="outcomes-head" style="margin-bottom:44px;">
+        <h2 id="outcomes-head" style="font-size:1.5rem; letter-spacing:-.026em;">What you&rsquo;ll be able to do</h2>
+        <p style="color:var(--ink-2); font-size:.9375rem; margin-bottom:20px;">
+          Course outcomes, stated the way the national curriculum states them.
+        </p>
+        <ul class="outcome-list">
+          {% for outcome in course.learning_outcomes.split('\n') if outcome.strip() %}
+          <li>{{ icon.check(16) }}<span>{{ outcome.strip() }}</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if course.prerequisites %}
+      <section aria-labelledby="prereq-head" style="margin-bottom:44px;">
+        <h2 id="prereq-head" style="font-size:1.25rem; letter-spacing:-.022em;">Before you start</h2>
+        <ul class="prereq-list">
+          {% for prereq in course.prerequisites.split('\n') if prereq.strip() %}
+          <li>{{ prereq.strip() }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
       <h2 style="font-size:1.5rem; letter-spacing:-.026em;">Lessons</h2>
       <p style="color:var(--ink-2); font-size:.9375rem; margin-bottom:24px;">
         {% if enrolled %}

@@ -59,6 +59,25 @@
     </div>
 
     <div class="field">
+      <label for="f-alignment">Curriculum alignment <span class="field-optional">(optional)</span></label>
+      <input type="text" id="f-alignment" name="curriculum_alignment"
+             value="{{ course.curriculum_alignment if course else '' }}"
+             placeholder="CHED CMO 42 s. 2017 core -- Descriptive Statistics (3 units)">
+      <p class="field-hint">Shown as a callout on the course page. Leave blank to hide it.</p>
+    </div>
+
+    <div class="field">
+      <label for="f-prereq">Prerequisites <span class="field-optional">(one per line)</span></label>
+      <textarea id="f-prereq" name="prerequisites" rows="3">{{ course.prerequisites if course else '' }}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-outcomes">Learning outcomes <span class="field-optional">(one per line)</span></label>
+      <textarea id="f-outcomes" name="learning_outcomes" rows="6">{{ course.learning_outcomes if course else '' }}</textarea>
+      <p class="field-hint">Rendered as a checklist under &ldquo;What you&rsquo;ll be able to do&rdquo;.</p>
+    </div>
+
+    <div class="field">
       <label class="quiz-choice" for="f-published" style="cursor:pointer;">
         <input type="checkbox" id="f-published" name="is_published" value="1" {% if course and course.is_published %}checked{% endif %}>
         <span>

@@ -75,6 +75,11 @@ Technical constraints:
 - `price_php` = certificate fee, not course price. `Course.is_free` means the
   certificate is also free.
 - `Enrollment.status == "paid"` means "active enrollment", not "money received".
+- New model columns are applied by `sync_columns()` at startup. `create_all()`
+  only creates whole tables, so without it a new column works on a fresh
+  database and breaks every deployed one. It is additive only.
+- `Course.curriculum_alignment`, `.prerequisites` and `.learning_outcomes` are
+  plain text, newline-separated for the latter two, editable from `/admin`.
 
 Undecided / absent:
 
@@ -103,9 +108,15 @@ Undecided / absent:
 
 Real:
 
-- 9 published courses across 5 categories (Research, Statistics,
+- 13 published courses across 5 categories (Research, Statistics,
   AI & Data Science, Data Engineering, Business Intelligence), 3 difficulty
-  levels, with real long-form lesson content seeded from `seed_*.py`.
+  levels, 126 lessons with real long-form content seeded from `seed_*.py`.
+- Course coverage and learning outcomes are grounded in published curricula:
+  CHED CMO 42 s. 2017 (the PSG for the BS Statistics program, whose Annex B
+  supplies the official descriptions, prerequisites, outcomes and topic
+  sequences for the 11 core statistics areas), the UST BS Data Science &
+  Analytics curriculum, and the UP Diliman data science and MEng AI programs.
+  The catalog covers every CMO 42 statistics core area.
 - 18 hand-authored instructional SVG diagrams in `app/static/diagrams/`
   (normal distribution, regression scatter, PCA directions, star schema,
   ETL pipeline, PLS-SEM path, hypothesis-testing flow, and more).

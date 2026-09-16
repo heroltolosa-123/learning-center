@@ -18,6 +18,23 @@ finisher wants the signed PDF — it is not a price on the course.
 - **Certificates** — signed PDF, generated server-side, gated on 100% completion + certificate fee
 - **Contact form** — writes to an `Inquiry` table; messages appear at `/admin/inquiries`
 - **Admin panel** (`/admin`) — create/edit/publish courses, add/reorder lessons, triage inquiries
+- **Curriculum alignment** — each course records the national-curriculum area it maps to, its
+  prerequisites, and its learning outcomes, all shown on the course page and editable from `/admin`
+
+## Curriculum basis
+
+Course coverage, descriptions and learning outcomes are grounded in published Philippine
+higher-education curricula rather than invented:
+
+| Source | Used for |
+|---|---|
+| [CHED CMO 42 s. 2017](https://legacy.ched.gov.ph/wp-content/uploads/2017/10/CMO-42-s-2017.pdf) — PSG for the BS Statistics program | The 11 core statistics areas, their official course descriptions, prerequisites, outcomes and topic sequences (Annex B) |
+| [UST BS Data Science & Analytics](https://www.ust.edu.ph/academics/programs/bachelor-of-science-in-data-science-and-analytics/) | Information management, warehousing, big data, visualization, security and privacy strands |
+| [UP Diliman Data Science tracks](https://sites.google.com/science.upd.edu.ph/upd-data-science/1/tracks) | Graduate-level sequencing of foundational methods |
+| [UP Diliman MEng Artificial Intelligence](https://coe.upd.edu.ph/masters-of-engineering-in-artificial-intelligence/) | Applied AI/ML strand |
+
+Lesson text is written from scratch for self-paced learners. Only the coverage, course
+descriptions and outcome wording derive from those sources.
 
 ## Design system
 
@@ -86,6 +103,36 @@ then go to **/admin** to create your first course:
 3. Mark at least one lesson as **Free preview** so visitors can sample the course before buying
 4. Check **Published**, save — it now appears on the homepage
 
+Or seed the full catalog — 13 courses, 126 lessons — with the scripts below.
+
+## Seed scripts
+
+Run in this order on a fresh database. Every one is safe to re-run.
+
+```bash
+python3 seed_courses.py               # the 9 original course shells
+python3 seed_full_curriculum.py       # their core lessons
+python3 seed_extended_curriculum.py   # further lessons
+python3 seed_gap_lessons.py           # MLE, Bayesian, PCA (cites MIT OCW)
+python3 seed_quizzes.py               # quiz gates
+python3 seed_rich_content.py          # rewrites lessons in the rich format
+python3 seed_basic_stats_elementary.py
+
+python3 seed_ched_core_courses.py     # 4 CHED core courses the catalog lacked
+python3 seed_ched_deepening.py        # curriculum metadata + 15 gap lessons
+```
+
+`seed_ched_core_courses.py` adds Probability & Mathematical Statistics, Nonparametric
+Statistics, Design & Analysis of Experiments, and Time Series Analysis & Forecasting —
+the four CMO 42 core areas that were previously uncovered.
+
+`seed_ched_deepening.py` writes curriculum alignment, prerequisites and learning outcomes
+onto all nine original courses and adds the lessons that close the remaining CMO 42 gaps
+(levels of measurement, skewness and kurtosis, EDA displays, index numbers and official
+statistics, regression diagnostics, multicollinearity, dummy variables, sampling designs,
+survey operations, categorical data analysis, Bayesian depth, data privacy, big data,
+and visualization).
+
 Test the buyer flow in a second browser (or incognito window): register a student account, open
 the course, click enroll. In test mode PayMongo's checkout page accepts fake test card numbers
 (listed in their docs) so you can walk through a full payment without spending anything.
@@ -125,7 +172,8 @@ the course, click enroll. In test mode PayMongo's checkout page accepts fake tes
 app/
   main.py              FastAPI app, startup (creates tables + seeds admin)
   database.py          SQLAlchemy engine/session
-  models.py            User, Course, Lesson, Enrollment, Payment
+  models.py            User, Course, Lesson, Enrollment, Payment, LessonProgress, Inquiry
+  database.py          engine/session + sync_columns() — adds missing columns on startup
   auth.py              bcrypt hashing, session-based login
   paymongo.py           PayMongo Checkout Sessions client + webhook signature check
   routers/
