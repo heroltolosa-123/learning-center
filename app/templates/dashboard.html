@@ -1,50 +1,81 @@
 {% extends "base.html" %}
+{% import "_icons.html" as icon %}
+
 {% block title %}My Learning — {{ site_name }}{% endblock %}
+{% block meta_description %}Your enrolled courses, progress, and certificates.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block nav_modifier %} is-solid{% endblock %}
+
 {% block content %}
-<div class="wrap section">
-  <span class="eyebrow">Signed in as {{ user.name }}</span>
-  <h1 style="font-size:1.6rem;">My Learning</h1>
+<div class="wrap section-tight">
+
+  <div class="admin-head">
+    <div>
+      <h1>My Learning</h1>
+      <p style="color:var(--ink-2); margin:6px 0 0; font-size:.9375rem;">Signed in as {{ user.name }}</p>
+    </div>
+    <a href="/#catalog" class="btn btn-secondary">{{ icon.plus(16) }} Find another course</a>
+  </div>
 
   {% if enrollments %}
-  <div class="ledger">
+  <div class="enroll-grid">
     {% for e in enrollments %}
     {% set p = progress_by_enrollment[e.id] %}
-    <div class="ledger-row" style="align-items:flex-start;">
-      <span class="ledger-num">{{ "%02d"|format(loop.index) }}</span>
-      <span class="ledger-body">
-        <a href="/courses/{{ e.course.slug }}" style="text-decoration:none; color:inherit;">
-          <div class="ledger-title">{{ e.course.title }}</div>
-        </a>
-        <div class="ledger-meta" style="margin-bottom:8px;">{{ e.course.lessons|length }} lessons</div>
-        {% if p.total > 0 %}
-        <div class="progress-track">
-          <div class="progress-fill" style="width:{{ p.percent }}%;"></div>
+    <article class="enroll-row reveal">
+      <div>
+        <div class="cc-meta" style="margin-bottom:8px;">
+          {% if e.course.category %}<span class="cc-track">{{ e.course.category }}</span>{% endif %}
+          {% if e.course.level %}<span class="level level-{{ e.course.level|lower }}">{{ e.course.level }}</span>{% endif %}
         </div>
-        <div class="progress-label">{{ p.completed }}/{{ p.total }} lessons complete</div>
+        <h3><a href="/courses/{{ e.course.slug }}">{{ e.course.title }}</a></h3>
+
+        {% if p.total > 0 %}
+        <div class="progress" style="max-width:420px;" role="img" aria-label="{{ p.percent }} percent complete">
+          <div class="progress-bar {% if p.is_complete %}is-complete{% endif %}" data-percent="{{ p.percent }}" style="--pct:{{ p.percent }}%"></div>
+        </div>
+        <p class="progress-label">
+          {{ p.completed }} of {{ p.total }} lessons complete
+          {%- if p.is_complete %} · <span style="color:var(--green-ink); font-weight:500;">Finished</span>{% endif %}
+        </p>
+        {% else %}
+        <p class="progress-label">No lessons in this course yet.</p>
         {% endif %}
-      </span>
-      <span class="ledger-price" style="text-align:right;">
+      </div>
+
+      <div class="enroll-action">
         {% if p.is_complete %}
           {% if e.certificate_paid_at %}
-            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Download certificate</a>
+            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold">{{ icon.download(16) }} Download certificate</a>
           {% elif e.course.is_free %}
-            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold btn-sm">Get free certificate</a>
+            <a href="/certificates/{{ e.course.slug }}" class="btn btn-gold">{{ icon.certificate(16) }} Get your certificate</a>
           {% else %}
             <form method="post" action="/courses/{{ e.course.slug }}/certificate/checkout">
-              <button type="submit" class="btn btn-gold btn-sm">Get certificate — ₱{{ "%.2f"|format(e.course.price_php) }}</button>
+              <button type="submit" class="btn btn-gold">
+                {{ icon.certificate(16) }} Certificate — ₱{{ "{:,.0f}".format(e.course.price_php) }}
+              </button>
             </form>
+            <p class="progress-label" style="margin:0;">GCash, Maya, or card</p>
           {% endif %}
         {% else %}
-          <span class="seal seal-pending">In progress</span>
+          {% set next_lesson = (e.course.lessons | list | first) %}
+          {% if next_lesson %}
+            <a href="/courses/{{ e.course.slug }}" class="btn btn-secondary">
+              {{ 'Continue' if p.completed else 'Start' }} {{ icon.arrow(16) }}
+            </a>
+          {% endif %}
+          <p class="progress-label" style="margin:0;">{{ p.total - p.completed }} lesson{{ 's' if (p.total - p.completed) != 1 }} to go</p>
         {% endif %}
-      </span>
-    </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
   {% else %}
   <div class="empty-state">
-    <p>You haven't enrolled in anything yet — every course is free to start. <a href="/" style="color:var(--gold-deep);">Browse courses →</a></p>
+    {{ icon.book(28) }}
+    <p style="margin-bottom:18px;">You haven&rsquo;t enrolled in anything yet — and every course is free to start.</p>
+    <a href="/#catalog" class="btn">Browse the catalog {{ icon.arrow(16) }}</a>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

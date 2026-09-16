@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icon %}
+
+{% block title %}Inquiries — Admin — {{ site_name }}{% endblock %}
+{% block meta_description %}Messages from the contact form.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block nav_modifier %} is-solid{% endblock %}
+
+{% block content %}
+<div class="wrap section-tight">
+  <div class="admin-head">
+    <h1>Inquiries</h1>
+  </div>
+
+  <nav class="admin-tabs" aria-label="Admin sections">
+    <a href="/admin">Courses</a>
+    <a href="/admin/inquiries" aria-current="page">Inquiries</a>
+  </nav>
+
+  {% if inquiries %}
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th scope="col">Received</th>
+          <th scope="col">From</th>
+          <th scope="col">Working on</th>
+          <th scope="col">Interest</th>
+          <th scope="col">Message</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for q in inquiries %}
+        <tr class="{% if q.is_handled %}is-handled{% endif %}">
+          <td class="mono" style="font-size:.8125rem; white-space:nowrap;">{{ q.created_at.strftime('%d %b %Y') }}</td>
+          <td>
+            <span class="row-title">{{ q.name }}</span><br>
+            <a href="mailto:{{ q.email }}" style="font-size:.8125rem;">{{ q.email }}</a>
+            {% if q.phone %}<br><span style="font-size:.8125rem; color:var(--ink-3);">{{ q.phone }}</span>{% endif %}
+          </td>
+          <td style="font-size:.875rem; color:var(--ink-2);">{{ q.working_on or "—" }}</td>
+          <td style="font-size:.875rem; color:var(--ink-2);">{{ q.interest or "—" }}</td>
+          <td class="inquiry-msg">{{ q.message or "—" }}</td>
+          <td style="text-align:right; white-space:nowrap;">
+            <form method="post" action="/admin/inquiries/{{ q.id }}/toggle">
+              <button type="submit" class="btn btn-secondary btn-sm">
+                {% if q.is_handled %}Reopen{% else %}{{ icon.check(15) }} Mark handled{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    {{ icon.inbox(28) }}
+    <p>No messages yet. They arrive here from the contact form on the homepage.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

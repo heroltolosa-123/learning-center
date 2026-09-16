@@ -1,3 +1,4 @@
+import datetime
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -10,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 from .database import Base, engine, SessionLocal
-from . import models
+from . import models, site_config
 from .auth import hash_password
 from .routers import auth as auth_router, courses as courses_router, admin as admin_router, payments as payments_router
 
@@ -22,8 +23,17 @@ app.state.site_name = os.getenv("SITE_NAME", "Hero Academy Learning System")
 session_secret = os.getenv("SESSION_SECRET", "dev-only-insecure-secret-change-me")
 app.add_middleware(SessionMiddleware, secret_key=session_secret, same_site="lax")
 
+app.state.base_url = os.getenv("BASE_URL", "http://localhost:8000").rstrip("/")
+
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+# Site-wide copy and contact detail every template can read without each route
+# having to pass it through. Database content is never put here.
+templates.env.globals.update(site_config.as_template_context())
+templates.env.globals["site_name"] = app.state.site_name
+templates.env.globals["base_url"] = app.state.base_url
+templates.env.globals["now_year"] = lambda: datetime.date.today().year
 
 app.include_router(auth_router.router)
 app.include_router(courses_router.router)

@@ -27,9 +27,45 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     for c in courses:
         c.paid_count = sum(1 for e in c.enrollments if e.status == "paid")
 
-    return templates.TemplateResponse(
-        "admin_dashboard.html", {"request": request, "user": user, "courses": courses, "site_name": request.app.state.site_name}
+    unhandled = (
+        db.query(models.Inquiry).filter(models.Inquiry.is_handled == False).count()  # noqa: E712
     )
+
+    return templates.TemplateResponse(
+        "admin_dashboard.html",
+        {
+            "request": request, "user": user, "courses": courses,
+            "site_name": request.app.state.site_name,
+            "unhandled_inquiries": unhandled,
+        },
+    )
+
+
+@router.get("/inquiries")
+def admin_inquiries(request: Request, db: Session = Depends(get_db)):
+    from ..main import templates
+    user = _require_admin_or_redirect(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/admin/inquiries", status_code=303)
+
+    inquiries = db.query(models.Inquiry).order_by(models.Inquiry.created_at.desc()).all()
+    return templates.TemplateResponse(
+        "admin_inquiries.html",
+        {"request": request, "user": user, "inquiries": inquiries, "site_name": request.app.state.site_name},
+    )
+
+
+@router.post("/inquiries/{inquiry_id}/toggle")
+def toggle_inquiry(inquiry_id: int, request: Request, db: Session = Depends(get_db)):
+    user = _require_admin_or_redirect(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/admin/inquiries", status_code=303)
+
+    inquiry = db.query(models.Inquiry).filter(models.Inquiry.id == inquiry_id).first()
+    if inquiry:
+        inquiry.is_handled = not inquiry.is_handled
+        db.commit()
+    return RedirectResponse("/admin/inquiries", status_code=303)
 
 
 @router.get("/courses/new")

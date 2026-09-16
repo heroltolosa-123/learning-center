@@ -1,7 +1,7 @@
 import datetime
 import json
 import markdown
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -14,6 +14,32 @@ router = APIRouter()
 
 def render_lesson_content(raw_content: str) -> str:
     return markdown.markdown(raw_content or "", extensions=["extra", "sane_lists"])
+
+
+def catalog_stats(published):
+    """Facts the marketing sections are allowed to claim, all derived from the
+    database. Nothing here is a guess -- if it cannot be counted, it is not shown."""
+    lessons = sum(len(c.lessons) for c in published)
+    return {
+        "courses": len(published),
+        "lessons": lessons,
+        "tracks": len({c.category for c in published if c.category}),
+        "free_lessons": lessons,  # every lesson is free to read once enrolled
+    }
+
+
+def _completed_lesson_ids(db: Session, user: models.User, course: models.Course) -> set:
+    if not user:
+        return set()
+    lesson_ids = [l.id for l in course.lessons]
+    if not lesson_ids:
+        return set()
+    rows = (
+        db.query(models.LessonProgress.lesson_id)
+        .filter(models.LessonProgress.user_id == user.id, models.LessonProgress.lesson_id.in_(lesson_ids))
+        .all()
+    )
+    return {r[0] for r in rows}
 
 
 def course_progress(db: Session, user: models.User, course: models.Course):
@@ -57,7 +83,43 @@ def homepage(request: Request, db: Session = Depends(get_db), q: str = "", categ
             "request": request, "user": user, "courses": courses, "site_name": request.app.state.site_name,
             "categories": categories, "q": q, "active_category": category,
             "total_count": len(all_published),
+            "stats": catalog_stats(all_published),
+            "category_counts": {
+                cat: sum(1 for c in all_published if c.category == cat) for cat in categories
+            },
         },
+    )
+
+
+@router.post("/contact")
+async def submit_inquiry(
+    request: Request,
+    name: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(""),
+    working_on: str = Form(""),
+    interest: str = Form(""),
+    message: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    name, email = name.strip(), email.strip().lower()
+    if not name or "@" not in email:
+        return RedirectResponse("/?error=Please+enter+a+name+and+a+valid+email#contact", status_code=303)
+
+    db.add(
+        models.Inquiry(
+            name=name[:255],
+            email=email[:255],
+            phone=phone.strip()[:64],
+            working_on=working_on.strip()[:120],
+            interest=interest.strip()[:120],
+            message=message.strip(),
+        )
+    )
+    db.commit()
+    return RedirectResponse(
+        "/?flash=Thanks—your+message+is+in.+Expect+a+reply+within+1–2+business+days.#contact",
+        status_code=303,
     )
 
 
@@ -70,18 +132,27 @@ def course_detail(slug: str, request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/?error=Course+not+found", status_code=303)
 
     enrollment = None
+    completed_ids = set()
     if user:
         enrollment = (
             db.query(models.Enrollment)
             .filter(models.Enrollment.user_id == user.id, models.Enrollment.course_id == course.id)
             .first()
         )
+        completed_ids = _completed_lesson_ids(db, user, course)
+
+    completed, total, percent, is_complete = course_progress(db, user, course)
 
     return templates.TemplateResponse(
         "course_detail.html",
         {
             "request": request, "user": user, "course": course, "enrollment": enrollment,
             "site_name": request.app.state.site_name,
+            "completed_ids": completed_ids,
+            "progress": {
+                "completed": completed, "total": total,
+                "percent": percent, "is_complete": is_complete,
+            },
         },
     )
 
@@ -185,6 +256,9 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db),
             "lesson_html": render_lesson_content(lesson.content),
             "quiz_questions": quiz_questions, "already_passed": already_passed, "quiz_result": quiz,
             "site_name": request.app.state.site_name,
+            "all_lessons": ordered_lessons,
+            "completed_ids": _completed_lesson_ids(db, user, course),
+            "lesson_total": len(ordered_lessons),
         },
     )
 

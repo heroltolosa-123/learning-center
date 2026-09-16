@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "learning-center",
+      "runtimeExecutable": "uvicorn",
+      "runtimeArgs": ["app.main:app", "--reload", "--port", "8111"],
+      "port": 8111
+    }
+  ]
+}

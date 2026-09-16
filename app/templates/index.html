@@ -1,136 +1,587 @@
 {% extends "base.html" %}
-{% block title %}{{ site_name }} — Statistics, Research & Data Courses{% endblock %}
+{% import "_icons.html" as icon %}
+
+{% block title %}Statistics, Research &amp; Data Analytics Courses — {{ site_name }}{% endblock %}
+{% block meta_description %}Learn statistics, research methodology, and data analytics from {{ instructor.name }}, {{ instructor.credential }}. {{ stats.courses }} self-paced courses, {{ stats.lessons }} lessons, every one free to read. You only pay for the certificate.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Course catalog",
+  "numberOfItems": {{ total_count }},
+  "itemListElement": [
+    {%- for course in courses %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "Course",
+        "name": {{ course.title|tojson }},
+        "description": {{ (course.description or '')|tojson }},
+        "url": {{ (base_url ~ '/courses/' ~ course.slug)|tojson }},
+        "provider": { "@type": "EducationalOrganization", "name": {{ site_name|tojson }} },
+        "isAccessibleForFree": true
+      }
+    }{{ "," if not loop.last }}
+    {%- endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
-<div class="hero">
+
+{# ============================================================ HERO ==== #}
+<section class="hero">
   <div class="wrap">
     <div class="hero-grid">
-      <div>
-        <span class="pill-badge">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.6H18l-4.6 3.4 1.8 5.6L10 13.2l-5.2 3.4 1.8-5.6L2 7.6h6.2L10 2z" fill="#0B2E6B"/></svg>
-          Expert-Led Learning Platform
-        </span>
-        <h1 class="display" style="font-size:2.6rem; max-width:560px; line-height:1.12;">Master Statistics, Research &amp; Data Analytics</h1>
-        <p>Learn from Dr. Hero Tolosa — PD 997 Civil Service Eligible in Statistics, with 16+ years across banking, government, and academe. Structured courses built from real thesis and consulting work, not generic slides.</p>
+      <div class="hero-rise">
+        <h1>Learn the statistics you&rsquo;ll have to <em>defend</em>.</h1>
 
-        <div class="hero-cta-row">
+        <p class="hero-sub">
+          Research methodology, applied statistics, and data analytics — taught from
+          {{ instructor.years }}&nbsp;years of real thesis consulting and enterprise work,
+          not from a textbook syllabus.
+        </p>
+
+        <div class="btn-row">
           {% if user %}
-            <a href="#catalog" class="btn btn-gold">Browse Courses</a>
+            <a href="#catalog" class="btn btn-lg" data-magnetic>Browse the catalog {{ icon.arrow(17) }}</a>
+            <a href="/dashboard" class="btn btn-secondary btn-lg">Go to My Learning</a>
           {% else %}
-            <a href="/register" class="btn btn-gold">Start Learning — Free</a>
-            <a href="#catalog" class="btn btn-outline">Browse Courses</a>
+            <a href="/register" class="btn btn-lg" data-magnetic>Start learning — free {{ icon.arrow(17) }}</a>
+            <a href="#catalog" class="btn btn-secondary btn-lg">Explore courses</a>
           {% endif %}
         </div>
+
+        <p class="hero-trust">
+          <span>{{ icon.check(16) }} Every lesson free to read</span>
+          <span>{{ icon.check(16) }} Pay only for the certificate</span>
+          <span>{{ icon.check(16) }} Taught by one named statistician</span>
+        </p>
       </div>
 
-      <div class="hero-visual">
-        <div class="hero-visual-frame">
-          <img src="/static/diagrams/dashboard-mockup.svg" alt="Data dashboard preview" style="background:#fff;">
+      {# A real lesson, rendered the way a student actually sees it — not a stock photo #}
+      <div class="hero-visual" data-parallax>
+        <div class="hv-main">
+          <div class="hv-bar" aria-hidden="true">
+            <span class="hv-dots"><i></i><i></i><i></i></span>
+            <span class="hv-bar-title">Basic Statistics · Lesson 07</span>
+          </div>
+          <div class="hv-body">
+            <p class="hv-lesson">The normal distribution and the empirical rule</p>
+            <figure class="hv-figure">
+              <img src="/static/diagrams/normal-distribution.svg" alt="A normal distribution curve with the 68–95–99.7 empirical rule marked across standard deviations." width="560" height="320" loading="eager" decoding="async">
+            </figure>
+            <div class="progress" role="img" aria-label="7 of 12 lessons complete">
+              <div class="progress-bar" data-percent="58" style="--pct:58%"></div>
+            </div>
+            <p class="progress-label">7 of 12 lessons complete</p>
+          </div>
         </div>
-        <div class="floating-badge fb-1">
-          <span class="fb-num">{{ total_count }}+</span>
-          <span class="fb-label">Expert Courses</span>
-        </div>
-        <div class="floating-badge fb-2">
-          <span class="fb-num">Free</span>
-          <span class="fb-label">To start learning</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="feature-section">
-  <div class="wrap">
-    <div class="feature-section-head">
-      <h2>Why Choose Hero Academy?</h2>
-      <p>Everything you need to build real statistics and data skills, taught by someone who does this professionally.</p>
-    </div>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4a2 2 0 012-2h5v14H4a2 2 0 00-2 2V4z" stroke="#0B2E6B" stroke-width="1.5"/><path d="M18 4a2 2 0 00-2-2h-5v14h5a2 2 0 012 2V4z" stroke="#0B2E6B" stroke-width="1.5"/></svg>
-        </div>
-        <h3>Comprehensive Courses</h3>
-        <p>Master statistics, research methods, AI/ML, and business intelligence with structured, in-depth lessons.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="5" stroke="#0B2E6B" stroke-width="1.5"/><path d="M6.5 11.5L5 18l5-2.5 5 2.5-1.5-6.5" stroke="#0B2E6B" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Earn Certificates</h3>
-        <p>Get a recognized certificate of completion, personally signed, once you finish a course.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3.2" stroke="#0B2E6B" stroke-width="1.5"/><path d="M3.5 17c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" stroke="#0B2E6B" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </div>
-        <h3>Expert Instructor</h3>
-        <p>Learn directly from a PD 997 Civil Service Eligible statistician with 16+ years of real consulting experience.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17V9M9 17V4M15 17v-6M3 17h14" stroke="#0B2E6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Track Progress</h3>
-        <p>Every lesson includes a quiz — pass it to unlock the next one, so progress reflects real understanding.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="wrap section" id="catalog">
-  <div class="section-head">
-    <h2 style="font-size:1.1rem;">
-      {% if q %}Results for "{{ q }}"{% elif active_category %}{{ active_category }}{% else %}Course catalog{% endif %}
-    </h2>
-    <span class="mono" style="font-size:0.78rem; color:var(--ink-soft);">{{ courses|length }} of {{ total_count }}</span>
-  </div>
-
-  <form method="get" action="/#catalog" class="search-bar" style="margin-top:0; max-width:480px;">
-    <input type="text" name="q" value="{{ q }}" placeholder="Search courses — e.g. &quot;regression&quot;, &quot;PLS-SEM&quot;, &quot;dashboards&quot;">
-    <button type="submit" class="btn btn-gold">Search</button>
-  </form>
-
-  {% if categories %}
-  <div class="chip-row">
-    <a href="/{% if q %}?q={{ q }}{% endif %}#catalog" class="chip {% if not active_category %}chip-active{% endif %}">All</a>
-    {% for cat in categories %}
-    <a href="/?category={{ cat|urlencode }}{% if q %}&q={{ q }}{% endif %}#catalog" class="chip {% if active_category == cat %}chip-active{% endif %}">{{ cat }}</a>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  {% if courses %}
-  <div class="course-grid">
-    {% for course in courses %}
-    <a href="/courses/{{ course.slug }}" class="course-card reveal" style="transition-delay: {{ (loop.index0 * 0.05)|round(2) }}s;">
-      <div class="course-card-banner cat-{{ course.category|lower|replace(' & ', '-')|replace(' ', '-') }}">
-        <span class="course-card-initial">{{ course.title[0] }}</span>
-      </div>
-      <div class="course-card-body">
-        {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
-        {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
-        <div class="course-card-title">{{ course.title }}</div>
-        <div class="course-card-meta">{{ course.instructor_name or "Self-paced" }} · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 else '' }}</div>
-        <div class="course-card-footer">
-          <span class="mono">
-            <span class="free">Free</span>
-            {% if not course.is_free %}<span style="color:var(--ink-soft); font-size:0.78rem;"> · cert ₱{{ "%.0f"|format(course.price_php) }}</span>{% endif %}
+        <div class="hv-float hv-float-cert">
+          <span class="hv-float-icon">{{ icon.certificate(18) }}</span>
+          <span>
+            <span class="hv-float-title">Certificate on completion</span>
+            <span class="hv-float-meta">Signed, downloadable PDF</span>
           </span>
-          <span class="course-card-cta">View course →</span>
+        </div>
+
+        <div class="hv-float hv-float-quiz">
+          <span class="hv-float-icon">{{ icon.check_circle(18) }}</span>
+          <span>
+            <span class="hv-float-title">Quiz passed</span>
+            <span class="hv-float-meta">Next lesson unlocked</span>
+          </span>
         </div>
       </div>
-    </a>
+    </div>
+  </div>
+</section>
+
+{# ======================================================== TRACK RAIL ==== #}
+{% if categories %}
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {% for _ in range(2) %}
+      {% for cat in categories %}
+        <span class="marquee-item">{{ icon.spark(17) }} {{ cat }}</span>
+      {% endfor %}
+      <span class="marquee-item">{{ icon.spark(17) }} Thesis &amp; Dissertation Support</span>
+      <span class="marquee-item">{{ icon.spark(17) }} PLS-SEM</span>
+      <span class="marquee-item">{{ icon.spark(17) }} Survival Analysis</span>
+      <span class="marquee-item">{{ icon.spark(17) }} Dashboards &amp; Automation</span>
     {% endfor %}
   </div>
-  {% else %}
-  <div class="empty-state">
-    {% if q or active_category %}
-    <p>No courses match{% if q %} "{{ q }}"{% endif %}{% if active_category %} in {{ active_category }}{% endif %}. <a href="/">Clear filters</a></p>
+</div>
+{% endif %}
+
+{# ========================================================== CATALOG ==== #}
+<section class="section" id="catalog">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>
+        {% if q %}Results for &ldquo;{{ q }}&rdquo;
+        {% elif active_category %}{{ active_category }}
+        {% else %}Courses{% endif %}
+      </h2>
+      <p>
+        {% if q or active_category %}
+          Showing {{ courses|length }} of {{ total_count }} published courses.
+          <a href="/#catalog">Clear filters</a>
+        {% else %}
+          {{ stats.courses }} self-paced courses across {{ stats.tracks }} tracks. Open any lesson
+          and read it — the certificate fee is the only thing you ever pay for.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="catalog-bar reveal">
+      <form method="get" action="/" class="search-form" role="search">
+        <div class="search-input">
+          {{ icon.search(18) }}
+          <label class="visually-hidden" for="catalog-q">Search courses</label>
+          <input type="search" id="catalog-q" name="q" value="{{ q }}"
+                 placeholder="Search — regression, PLS-SEM, dashboards…">
+        </div>
+        <button type="submit" class="btn">Search</button>
+      </form>
+      <p class="catalog-count mono">{{ courses|length }} / {{ total_count }}</p>
+    </div>
+
+    {% if categories %}
+    <div class="chip-row reveal" style="margin-bottom:28px;">
+      <a href="/#catalog" class="chip" {% if not active_category %}aria-current="true"{% endif %}>
+        All <span class="chip-count">{{ total_count }}</span>
+      </a>
+      {% for cat in categories %}
+      <a href="/?category={{ cat|urlencode }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}#catalog"
+         class="chip" {% if active_category == cat %}aria-current="true"{% endif %}>
+        {{ cat }} <span class="chip-count">{{ category_counts[cat] }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if courses %}
+    <div class="course-grid stagger">
+      {% for course in courses %}
+      <a href="/courses/{{ course.slug }}" class="course-card reveal" data-tilt>
+        {# slot 1 — meta #}
+        <div class="cc-meta">
+          {% if course.category %}<span class="cc-track">{{ course.category }}</span>{% endif %}
+          {% if course.level %}<span class="level level-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
+        </div>
+        {# slot 2 — title #}
+        <h3 class="cc-title">{{ course.title }}</h3>
+        {# slot 3 — description #}
+        <p class="cc-desc">{{ course.description }}</p>
+
+        <div class="cc-foot">
+          <span class="cc-price">
+            <span class="badge badge-free">{{ icon.check(13) }} Free to learn</span>
+            <span class="fee">
+              {% if course.is_free %}Certificate free{% else %}Certificate ₱{{ "{:,.0f}".format(course.price_php) }}{% endif %}
+              · {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 }}
+            </span>
+          </span>
+          <span class="cc-go">View {{ icon.arrow(15) }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
     {% else %}
-    <p>No courses published yet.{% if user and user.is_admin %} <a href="/admin/courses/new">Create your first one →</a>{% endif %}</p>
+    <div class="empty-state">
+      {{ icon.search(28) }}
+      {% if q or active_category %}
+        <p>No courses match{% if q %} &ldquo;{{ q }}&rdquo;{% endif %}{% if active_category %} in {{ active_category }}{% endif %}.</p>
+        <a href="/#catalog" class="btn btn-secondary btn-sm">Clear filters</a>
+      {% else %}
+        <p>No courses published yet.</p>
+        {% if user and user.is_admin %}<a href="/admin/courses/new" class="btn btn-sm">Create the first one {{ icon.arrow(15) }}</a>{% endif %}
+      {% endif %}
+    </div>
     {% endif %}
   </div>
-  {% endif %}
-</div>
+</section>
+
+{# ========================================================== RESULTS ==== #}
+<section class="section band-dark" aria-labelledby="proof-head">
+  <div class="wrap">
+    <div class="section-head center reveal" style="--on-dark:#fff;">
+      <h2 id="proof-head">What&rsquo;s actually here</h2>
+      <p>Every number below is counted from the live catalog or from a verifiable credential. Nothing is estimated.</p>
+    </div>
+
+    <div class="stat-grid reveal">
+      <div class="stat">
+        <p class="stat-value" data-count-to="{{ stats.courses }}">{{ stats.courses }}</p>
+        <p class="stat-label">Published courses</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count-to="{{ stats.lessons }}">{{ stats.lessons }}</p>
+        <p class="stat-label">Lessons, all free to read</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count-to="{{ stats.tracks }}">{{ stats.tracks }}</p>
+        <p class="stat-label">Subject tracks</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count-to="{{ instructor.years }}" data-count-suffix="+">{{ instructor.years }}+</p>
+        <p class="stat-label">Years across banking, government &amp; academe</p>
+      </div>
+    </div>
+
+    {% if testimonials %}
+    <div class="carousel reveal" style="margin-top:56px;">
+      <div class="carousel-track">
+        {% for t in testimonials %}
+        <figure class="quote-card">
+          <blockquote>{{ t.quote }}</blockquote>
+          <figcaption class="quote-who">
+            <span class="quote-avatar" aria-hidden="true">{{ t.name[0]|upper }}</span>
+            <span>
+              <span class="quote-name">{{ t.name }}</span><br>
+              <span class="quote-role">{{ t.role }}</span>
+            </span>
+          </figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+    {% elif user and user.is_admin %}
+    <p class="reveal" style="margin-top:40px; text-align:center; color:var(--on-dark-2); font-size:.9375rem;">
+      Admin note: student testimonials appear here once you add real ones to
+      <code style="color:#fff;">app/site_config.py</code>. Nothing is shown until then.
+    </p>
+    {% endif %}
+  </div>
+</section>
+
+{# ========================================================= APPROACH ==== #}
+<section class="section" id="approach" aria-labelledby="approach-head">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="approach-head">Progress you have to earn</h2>
+      <p>
+        Most platforms mark a lesson complete when you scroll past it. Here, a lesson
+        stays locked until you answer its quiz correctly — so the percentage on your
+        dashboard means you actually understood the material.
+      </p>
+    </div>
+
+    <ol class="steps steps-5 reveal" style="list-style:none; padding:0; margin:0;">
+      <li class="step">
+        <span class="step-num">{{ icon.book(20) }}</span>
+        <h3>Read</h3>
+        <p>Full lessons with worked examples and the diagrams that make the idea click.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">{{ icon.check_circle(20) }}</span>
+        <h3>Check</h3>
+        <p>A short quiz at the end. Get it wrong and you review, not guess again blindly.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">{{ icon.compass(20) }}</span>
+        <h3>Unlock</h3>
+        <p>Passing opens the next lesson. The sequence is enforced, so nothing is skipped.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">{{ icon.chart(20) }}</span>
+        <h3>Track</h3>
+        <p>Your dashboard shows real completion per course — earned lessons, not time spent.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">{{ icon.certificate(20) }}</span>
+        <h3>Certify</h3>
+        <p>Finish every lesson and the signed certificate becomes available to download.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+{# ======================================================== WHY US ==== #}
+<section class="section band-tint" aria-labelledby="why-head">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="why-lead reveal">
+        <span class="why-lead-mark">{{ icon.shield(24) }}</span>
+        <h3 id="why-head">The material is free. Only the credential is paid.</h3>
+        <p>
+          A private statistician will quote you five figures to run and explain your
+          analysis once. Every lesson here is open to read the moment you create an
+          account — the fee applies only if you finish a course and want the signed
+          certificate for your file.
+        </p>
+      </div>
+
+      <div class="why-list reveal">
+        <div class="why-item">
+          <span class="why-icon">{{ icon.user(20) }}</span>
+          <div>
+            <h3>One named instructor</h3>
+            <p>Not an anonymous content team. {{ instructor.name }} — {{ instructor.credential }} — wrote and signs every course.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">{{ icon.curve(20) }}</span>
+          <div>
+            <h3>Built from real consulting work</h3>
+            <p>The examples come from actual thesis defenses and enterprise projects, including the mistakes panels catch.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">{{ icon.layers(20) }}</span>
+          <div>
+            <h3>Beginner to advanced in one place</h3>
+            <p>Start at descriptive statistics and continue through PLS-SEM, survival analysis, machine learning, and BI.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">{{ icon.check_circle(20) }}</span>
+          <div>
+            <h3>Quiz-gated, so progress is honest</h3>
+            <p>You cannot skip ahead. A completion percentage here means something a scroll-tracker never could.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">{{ icon.device(20) }}</span>
+          <div>
+            <h3>Self-paced, on any device</h3>
+            <p>No cohorts, no schedule, no live sessions to miss. Pick it up at 11pm the week before your defense.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">{{ icon.mail(20) }}</span>
+          <div>
+            <h3>You can reach the person teaching you</h3>
+            <p>Questions about which test fits your design go to {{ instructor.name }} directly, not a support queue.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ======================================================= INSTRUCTOR ==== #}
+<section class="section" id="instructor" aria-labelledby="instructor-head">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="reveal">
+        <h2 id="instructor-head" class="visually-hidden">About the instructor</h2>
+        <p class="about-quote">
+          &ldquo;Most students don&rsquo;t need more formulas. They need to know which test
+          their design calls for, and how to say why when a panel asks.&rdquo;
+        </p>
+        <p class="lede" style="margin-bottom:28px;">
+          {{ instructor.name }} is a {{ instructor.title|lower }} with {{ instructor.years }}&nbsp;years
+          of practice across {{ instructor.sectors|join(', ')|lower }}. These courses are the
+          material built up over years of walking candidates through analysis, defense
+          preparation, and the parts of a results chapter that get challenged.
+        </p>
+
+        <dl class="about-facts">
+          <div class="about-fact">
+            <dt>Credential</dt>
+            <dd>{{ instructor.credential }}</dd>
+          </div>
+          <div class="about-fact">
+            <dt>Experience</dt>
+            <dd>{{ instructor.years }}+ years — {{ instructor.sectors|join(', ') }}</dd>
+          </div>
+          <div class="about-fact">
+            <dt>Teaching</dt>
+            <dd>Research design, applied statistics, AI/ML, data engineering, BI</dd>
+          </div>
+          <div class="about-fact">
+            <dt>Based in</dt>
+            <dd>{{ contact.location }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="about-media reveal">
+        <div class="about-card">
+          <p style="font-size:.875rem; color:var(--ink-3); margin-bottom:18px;">
+            Every certificate is issued under this signature.
+          </p>
+          <img src="/static/certificate_assets/signature.png" alt="Handwritten signature of {{ instructor.name }}"
+               class="about-sig" loading="lazy" decoding="async">
+          <div class="about-sig-rule"></div>
+          <p class="about-name">{{ instructor.name }}</p>
+          <p class="about-role">{{ instructor.title }}</p>
+        </div>
+        <div class="about-badge">
+          {{ icon.certificate(20) }}
+          <span>
+            <span class="about-badge-title">{{ instructor.credential }}</span>
+            <span class="about-badge-meta">Republic of the Philippines</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ====================================================== CERTIFICATE ==== #}
+<section class="section band-dark" id="certificate" aria-labelledby="cert-head">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <h2 id="cert-head">How to get started</h2>
+      <p>Four steps, and the first three cost nothing.</p>
+    </div>
+
+    <ol class="steps steps-4 reveal" style="list-style:none; padding:0; margin:0;">
+      <li class="step">
+        <span class="step-num">01</span>
+        <h3>Create your free account</h3>
+        <p>Name, email, password. No card, no trial timer, nothing to cancel.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">02</span>
+        <h3>Enrol in any course</h3>
+        <p>One click. Enrolment is free on every course in the catalog, at every level.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">03</span>
+        <h3>Work through the lessons</h3>
+        <p>Read, pass each quiz, watch your completion climb. Take as long as you need.</p>
+      </li>
+      <li class="step">
+        <span class="step-num">04</span>
+        <h3>Claim your certificate</h3>
+        <p>Finish the course and pay the certificate fee by GCash, Maya, or card to download the signed PDF.</p>
+      </li>
+    </ol>
+
+    <div class="btn-row reveal" style="justify-content:center; margin-top:48px;">
+      {% if user %}
+        <a href="#catalog" class="btn btn-on-dark btn-lg">Browse the catalog {{ icon.arrow(17) }}</a>
+      {% else %}
+        <a href="/register" class="btn btn-on-dark btn-lg">Create a free account {{ icon.arrow(17) }}</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{# ========================================================= CONTACT ==== #}
+<section class="section" id="contact" aria-labelledby="contact-head">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="contact-head">Not sure which course fits?</h2>
+      <p>
+        Describe your study or your project and you&rsquo;ll get a straight answer about
+        which track to start with — or whether this platform is the wrong tool for what
+        you need.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <dl class="contact-details reveal">
+        <div class="contact-detail">
+          <span class="contact-detail-icon">{{ icon.mail(20) }}</span>
+          <div>
+            <dt>Email</dt>
+            <dd><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></dd>
+          </div>
+        </div>
+        {% if contact.phone %}
+        <div class="contact-detail">
+          <span class="contact-detail-icon">{{ icon.phone(20) }}</span>
+          <div>
+            <dt>Phone</dt>
+            <dd><a href="tel:{{ contact.phone|replace(' ', '') }}">{{ contact.phone }}</a></dd>
+          </div>
+        </div>
+        {% endif %}
+        <div class="contact-detail">
+          <span class="contact-detail-icon">{{ icon.pin(20) }}</span>
+          <div>
+            <dt>Where</dt>
+            <dd>{{ contact.location }}</dd>
+          </div>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-icon">{{ icon.clock(20) }}</span>
+          <div>
+            <dt>Response time</dt>
+            <dd>{{ contact.hours }}</dd>
+          </div>
+        </div>
+      </dl>
+
+      <form method="post" action="/contact" class="card reveal">
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label for="c-name">Your name</label>
+            <input type="text" id="c-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="c-email">Email</label>
+            <input type="email" id="c-email" name="email" autocomplete="email" required>
+          </div>
+        </div>
+
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label for="c-phone">Phone <span class="field-optional">(optional)</span></label>
+            <input type="tel" id="c-phone" name="phone" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="c-working">What are you working on?</label>
+            <select id="c-working" name="working_on">
+              <option value="">Choose one</option>
+              {% for opt in working_on_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="c-interest">Track you&rsquo;re interested in</label>
+          <select id="c-interest" name="interest">
+            <option value="">Not sure yet — help me choose</option>
+            {% for cat in categories %}<option value="{{ cat }}">{{ cat }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="c-message">Your question</label>
+          <textarea id="c-message" name="message" rows="5"
+                    placeholder="e.g. My design is a quasi-experiment with a pretest and posttest on two groups — which test should I be running?"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-lg btn-block">Send message {{ icon.arrow(17) }}</button>
+        <p class="field-hint" style="text-align:center; margin-top:12px;">
+          Goes straight to {{ instructor.name }}. No mailing list, no automated follow-ups.
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+{# ======================================================== FINAL CTA ==== #}
+<section class="section-tight">
+  <div class="wrap">
+    <div class="cta reveal">
+      <h2>Start with the lesson you&rsquo;re stuck on.</h2>
+      <p>
+        Creating an account takes under a minute and opens every lesson in the catalog.
+        Decide about a certificate later — or never.
+      </p>
+      <div class="btn-row">
+        {% if user %}
+          <a href="#catalog" class="btn btn-on-dark btn-lg" data-magnetic>Browse the catalog {{ icon.arrow(17) }}</a>
+          <a href="#contact" class="btn btn-outline-dark btn-lg">Ask a question</a>
+        {% else %}
+          <a href="/register" class="btn btn-on-dark btn-lg" data-magnetic>Start learning — free {{ icon.arrow(17) }}</a>
+          <a href="#contact" class="btn btn-outline-dark btn-lg">Contact us</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

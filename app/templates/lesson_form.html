@@ -1,39 +1,60 @@
 {% extends "base.html" %}
-{% block title %}{{ "Edit" if lesson else "New" }} lesson — {{ site_name }}{% endblock %}
+{% import "_icons.html" as icon %}
+
+{% block title %}{{ "Edit" if lesson else "New" }} lesson — Admin — {{ site_name }}{% endblock %}
+{% block meta_description %}Administration.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block nav_modifier %} is-solid{% endblock %}
+
 {% block content %}
-<div class="wrap section">
-  <a href="/admin/courses/{{ course.id }}" style="font-size:0.85rem; color:var(--ink-soft); text-decoration:none;">&larr; Back to {{ course.title }}</a>
-  <h1 style="font-size:1.5rem; margin-top:14px;">{{ "Edit lesson" if lesson else "New lesson" }}</h1>
+<div class="wrap section-tight">
+  <a href="/admin/courses/{{ course.id }}" class="breadcrumb">{{ icon.arrow_left(16) }} {{ course.title }}</a>
+  <h1 style="font-size:1.875rem; letter-spacing:-.03em; margin:18px 0 28px;">{{ "Edit lesson" if lesson else "New lesson" }}</h1>
 
   <form method="post"
         action="{{ '/admin/courses/' + course.id|string + '/lessons/' + lesson.id|string if lesson else '/admin/courses/' + course.id|string + '/lessons/new' }}"
-        class="card" style="max-width:640px;">
+        class="card admin-form">
     <div class="field">
-      <label>Title</label>
-      <input type="text" name="title" value="{{ lesson.title if lesson else '' }}" required>
+      <label for="l-title">Title</label>
+      <input type="text" id="l-title" name="title" value="{{ lesson.title if lesson else '' }}" required>
     </div>
+
     <div class="field">
-      <label>Video URL (embeddable — YouTube/Vimeo embed link, optional)</label>
-      <input type="text" name="video_url" value="{{ lesson.video_url if lesson else '' }}" placeholder="https://www.youtube.com/embed/...">
+      <label for="l-video">Video URL <span class="field-optional">(optional)</span></label>
+      <input type="url" id="l-video" name="video_url" value="{{ lesson.video_url if lesson else '' }}" placeholder="https://www.youtube.com/embed/...">
+      <p class="field-hint">Must be an embed link, not a watch link.</p>
     </div>
+
     <div class="field">
-      <label>Lesson content / notes</label>
-      <textarea name="content" rows="8">{{ lesson.content if lesson else '' }}</textarea>
+      <label for="l-content">Lesson content</label>
+      <textarea id="l-content" name="content" rows="14" style="font-family:'Chivo Mono', monospace; font-size:.875rem;">{{ lesson.content if lesson else '' }}</textarea>
+      <p class="field-hint">Markdown. Headings, lists, tables, code, blockquotes and images all render.</p>
     </div>
-    <div class="field">
-      <label>Order (lower numbers appear first)</label>
-      <input type="number" name="order" value="{{ lesson.order if lesson else 0 }}">
+
+    <div class="field" style="max-width:220px;">
+      <label for="l-order">Order</label>
+      <input type="number" id="l-order" name="order" value="{{ lesson.order if lesson else 0 }}">
+      <p class="field-hint">Lower numbers appear first.</p>
     </div>
+
     <div class="field">
-      <label style="display:flex; align-items:center; gap:8px;">
-        <input type="checkbox" name="is_preview" value="1" {% if lesson and lesson.is_preview %}checked{% endif %} style="width:auto;">
-        Free preview (viewable without paying)
+      <label class="quiz-choice" for="l-preview" style="cursor:pointer;">
+        <input type="checkbox" id="l-preview" name="is_preview" value="1" {% if lesson and lesson.is_preview %}checked{% endif %}>
+        <span>
+          <strong style="font-weight:500;">Free preview</strong><br>
+          <span style="font-size:.875rem; color:var(--ink-2);">Readable without enrolling — good for the first lesson.</span>
+        </span>
       </label>
     </div>
-    <button type="submit" class="btn btn-gold">{{ "Save changes" if lesson else "Add lesson" }}</button>
-    {% if lesson %}
-    <a href="/admin/courses/{{ course.id }}/lessons/{{ lesson.id }}/delete" onclick="return confirm('Delete this lesson?')" class="btn btn-outline btn-sm" style="margin-left:10px;">Delete</a>
-    {% endif %}
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn-lg">{{ "Save changes" if lesson else "Add lesson" }}</button>
+      {% if lesson %}
+      <a href="/admin/courses/{{ course.id }}/lessons/{{ lesson.id }}/delete"
+         onclick="return confirm('Delete “{{ lesson.title }}”? This cannot be undone.')"
+         class="btn btn-ghost" style="color:var(--red-ink);">Delete lesson</a>
+      {% endif %}
+    </div>
   </form>
 </div>
 {% endblock %}

@@ -1,35 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Admin — {{ site_name }}{% endblock %}
+{% import "_icons.html" as icon %}
+
+{% block title %}Courses — Admin — {{ site_name }}{% endblock %}
+{% block meta_description %}Administration.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block nav_modifier %} is-solid{% endblock %}
+
 {% block content %}
-<div class="wrap section">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow">Administration</span>
-      <h1 style="font-size:1.6rem;">Courses</h1>
-    </div>
-    <a href="/admin/courses/new" class="btn btn-gold">New course</a>
+<div class="wrap section-tight">
+  <div class="admin-head">
+    <h1>Administration</h1>
+    <a href="/admin/courses/new" class="btn">{{ icon.plus(16) }} New course</a>
   </div>
 
-  <table class="admin-table">
-    <thead>
-      <tr><th>Title</th><th>Certificate Fee</th><th>Lessons</th><th>Status</th><th>Enrollments</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for c in courses %}
-      <tr>
-        <td>{{ c.title }}</td>
-        <td class="mono">{% if c.is_free %}Free{% else %}₱{{ "%.2f"|format(c.price_php) }}{% endif %}</td>
-        <td>{{ c.lessons|length }}</td>
-        <td>
-          {% if c.is_published %}<span class="pill pill-live">Live</span>{% else %}<span class="pill pill-draft">Draft</span>{% endif %}
-        </td>
-        <td>{{ c.paid_count }}</td>
-        <td><a href="/admin/courses/{{ c.id }}" style="font-size:0.85rem; color:var(--gold-deep);">Manage →</a></td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" style="color:var(--ink-soft);">No courses yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <nav class="admin-tabs" aria-label="Admin sections">
+    <a href="/admin" aria-current="page">Courses</a>
+    <a href="/admin/inquiries">
+      Inquiries{% if unhandled_inquiries %} <span class="badge badge-brand" style="padding:1px 7px;">{{ unhandled_inquiries }}</span>{% endif %}
+    </a>
+  </nav>
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th scope="col">Course</th>
+          <th scope="col">Track</th>
+          <th scope="col" style="text-align:right;">Cert. fee</th>
+          <th scope="col" style="text-align:right;">Lessons</th>
+          <th scope="col" style="text-align:right;">Enrolled</th>
+          <th scope="col">Status</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in courses %}
+        <tr>
+          <td class="row-title">{{ c.title }}</td>
+          <td style="color:var(--ink-2); font-size:.875rem;">{{ c.category or "—" }}</td>
+          <td class="num mono">{% if c.is_free %}Free{% else %}₱{{ "{:,.0f}".format(c.price_php) }}{% endif %}</td>
+          <td class="num mono">{{ c.lessons|length }}</td>
+          <td class="num mono">{{ c.paid_count }}</td>
+          <td>
+            {% if c.is_published %}<span class="badge badge-live">Live</span>
+            {% else %}<span class="badge badge-draft">Draft</span>{% endif %}
+          </td>
+          <td style="text-align:right;">
+            <a href="/admin/courses/{{ c.id }}" class="link-arrow">Manage {{ icon.arrow(15) }}</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="color:var(--ink-3); text-align:center; padding:40px;">No courses yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

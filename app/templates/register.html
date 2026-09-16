@@ -1,28 +1,36 @@
 {% extends "base.html" %}
-{% block title %}Register — {{ site_name }}{% endblock %}
+{% import "_icons.html" as icon %}
+
+{% block title %}Create your free account — {{ site_name }}{% endblock %}
+{% block meta_description %}Create a free account to open every lesson at {{ site_name }}. No card required.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, follow">{% endblock %}
+{% block nav_modifier %} is-solid{% endblock %}
+
 {% block content %}
-<div class="wrap">
-  <div class="card narrow">
-    <span class="eyebrow">New here</span>
-    <h1 style="font-size:1.5rem;">Create your account</h1>
+<div class="auth-wrap">
+  <div class="auth-card card">
+    <h1>Create your account</h1>
+    <p class="lede">Free, and it opens every lesson in the catalog. No card required.</p>
+
     <form method="post" action="/register">
       <div class="field">
-        <label>Full name</label>
-        <input type="text" name="name" required autofocus>
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" autocomplete="name" required autofocus>
+        <p class="field-hint">This is the name printed on your certificate.</p>
       </div>
       <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
       </div>
       <div class="field">
-        <label>Password</label>
-        <input type="password" name="password" minlength="8" required>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" required>
+        <p class="field-hint">At least 8 characters.</p>
       </div>
-      <button type="submit" class="btn btn-gold btn-block">Create account</button>
+      <button type="submit" class="btn btn-lg btn-block">Create account {{ icon.arrow(17) }}</button>
     </form>
-    <p style="margin-top:16px; font-size:0.88rem; color:var(--ink-soft);">
-      Already registered? <a href="/login" style="color:var(--gold-deep);">Log in</a>
-    </p>
+
+    <p class="auth-alt">Already registered? <a href="/login">Log in</a></p>
   </div>
 </div>
 {% endblock %}

@@ -1,16 +1,39 @@
-# The Learning Center
+# Hero Academy Learning System
 
-A complete paid online-course platform: FastAPI + SQLite backend, server-rendered Jinja2 frontend,
-PayMongo checkout (GCash, Maya, cards), student accounts, course/lesson management, and an admin panel.
-No JavaScript framework, no build step — runs as one Python process.
+A self-paced online-course platform: FastAPI + SQLite backend, server-rendered Jinja2 frontend,
+PayMongo checkout (GCash, Maya, cards), student accounts, quiz-gated lesson progression, signed PDF
+certificates, and an admin panel. No JavaScript framework, no build step — runs as one Python process.
+
+**The model is free-to-learn, pay-for-the-certificate.** Every lesson of every course is readable at
+no cost once a student enrols. `Course.price_php` is the *certificate* fee, charged only when a
+finisher wants the signed PDF — it is not a price on the course.
 
 ## What's included
 
+- **Marketing homepage** — hero, catalog with search and track filters, verified stats, teaching
+  approach, instructor section, getting-started steps, contact form
 - **Public site** — course catalog, course detail pages, free preview lessons
-- **Student accounts** — register/login, "My Learning" dashboard, gated lesson access
-- **Paid enrollment** — PayMongo Checkout Sessions (GCash/Maya/card), webhook + fallback verification
-- **Admin panel** (`/admin`) — create/edit/publish courses, add/reorder lessons, see paid enrollment counts
-- **Free courses** — set price to 0 and it becomes a one-click free enrollment, no payment gateway involved
+- **Student accounts** — register/login, "My Learning" dashboard with real per-course progress
+- **Quiz-gated progression** — a lesson with a quiz must be passed before the next one unlocks
+- **Certificates** — signed PDF, generated server-side, gated on 100% completion + certificate fee
+- **Contact form** — writes to an `Inquiry` table; messages appear at `/admin/inquiries`
+- **Admin panel** (`/admin`) — create/edit/publish courses, add/reorder lessons, triage inquiries
+
+## Design system
+
+The front end follows a documented design system — see **[DESIGN.md](DESIGN.md)** for tokens,
+type scale, motion rules, and the component list, and **[PRODUCT.md](PRODUCT.md)** for product
+truth (including which claims are verifiable and which must never be fabricated).
+
+- `app/static/css/style.css` — the whole system, one file, no build step
+- `app/static/js/site.js` — nav, scroll reveals, counters, carousel; degrades without JS
+- `app/templates/_icons.html` — the drawn SVG icon set, as Jinja macros (no emoji)
+- `app/site_config.py` — editable site copy: instructor bio, contact details, social links,
+  and the (deliberately empty) `TESTIMONIALS` list
+
+**Testimonials and student statistics are not invented.** The testimonial section renders only when
+`TESTIMONIALS` in `app/site_config.py` has real entries; the stats band counts published courses,
+lessons, and tracks straight from the database. Keep it that way.
 
 ## 1. Install
 
@@ -40,6 +63,10 @@ Open `.env` and fill in:
    ```
 3. **ADMIN_EMAIL / ADMIN_PASSWORD** — whatever you want to log into `/admin` with. This account
    is created automatically the first time the app starts.
+4. **Optional site detail** — `CONTACT_EMAIL`, `CONTACT_PHONE`, `CONTACT_LOCATION`, `CONTACT_HOURS`,
+   `INSTRUCTOR_NAME`, `INSTRUCTOR_CREDENTIAL`, `INSTRUCTOR_YEARS`, and `SOCIAL_FACEBOOK` /
+   `SOCIAL_LINKEDIN` / `SOCIAL_YOUTUBE` / `SOCIAL_X`. Each falls back to the default in
+   `app/site_config.py`; social icons render only for the links you actually set.
 
 Leave `PAYMONGO_WEBHOOK_SECRET` and `BASE_URL` as placeholders for now — you only need those once
 you deploy (step 5).
@@ -112,9 +139,11 @@ app/
 
 ## Extending it
 
-- **Certificates on completion** — add a `completed_at` field to `Enrollment`, mark it when a
-  student views the last lesson, generate a PDF with the `pdf` toolkit.
-- **Progress tracking** — add a `LessonProgress` table (user_id, lesson_id, completed_at).
+- **Email the inquiries** — `POST /contact` currently only stores to the `Inquiry` table. Add a
+  transport (Resend/SendGrid/Brevo HTTP APIs work on free hosts; outbound SMTP usually does not)
+  and notify on submit.
+- **Testimonials** — fill `TESTIMONIALS` in `app/site_config.py` with real quotes; the carousel
+  component is already built and hidden until then.
 - **Discount codes** — add a `Coupon` model, apply the discount before calling
   `create_checkout_session`.
 - **Drip content** — add a `release_offset_days` field to `Lesson`, check it against

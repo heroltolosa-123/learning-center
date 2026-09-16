@@ -1,61 +1,167 @@
 {% extends "base.html" %}
+{% import "_icons.html" as icon %}
+
 {% block title %}{{ course.title }} — {{ site_name }}{% endblock %}
+{% block meta_description %}{{ course.description|truncate(155) }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": {{ course.title|tojson }},
+  "description": {{ (course.description or '')|tojson }},
+  "url": {{ (base_url ~ '/courses/' ~ course.slug)|tojson }},
+  "isAccessibleForFree": true,
+  {% if course.level %}"educationalLevel": {{ course.level|tojson }},{% endif %}
+  "provider": { "@type": "EducationalOrganization", "name": {{ site_name|tojson }}, "url": {{ base_url|tojson }} },
+  "instructor": { "@type": "Person", "name": {{ (course.instructor_name or instructor.name)|tojson }} },
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "online",
+    "courseWorkload": {{ ("PT" ~ (course.lessons|length * 30) ~ "M")|tojson }}
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
-<div class="hero">
+{% set enrolled = enrollment and enrollment.status == 'paid' %}
+
+<div class="page-head">
   <div class="wrap">
-    <span class="eyebrow">{{ course.instructor_name or "Self-paced course" }}</span>
-    <h1 class="display" style="font-size:2rem;">{{ course.title }}</h1>
-    <div style="margin-bottom:12px;">
-      {% if course.category %}<span class="tag">{{ course.category }}</span>{% endif %}
-      {% if course.level %}<span class="tag tag-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
-    </div>
-    <p>{{ course.description }}</p>
+    <a href="/#catalog" class="breadcrumb">{{ icon.arrow_left(16) }} All courses</a>
 
-    <div style="margin-top:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-      <span class="mono free" style="font-size:1.3rem;">Free to learn</span>
-
-      {% if enrollment and enrollment.status == 'paid' %}
-        <span class="seal">Enrolled</span>
-      {% elif user %}
-        <form method="post" action="/courses/{{ course.slug }}/enroll-free">
-          <button type="submit" class="btn btn-gold">Start learning — free</button>
-        </form>
-      {% else %}
-        <a href="/login?next=/courses/{{ course.slug }}" class="btn btn-gold">Log in to start</a>
-      {% endif %}
+    <div class="meta-row">
+      {% if course.category %}<span class="badge badge-brand">{{ course.category }}</span>{% endif %}
+      {% if course.level %}<span class="level level-{{ course.level|lower }}">{{ course.level }}</span>{% endif %}
+      {% if not course.is_published %}<span class="badge badge-draft">Draft — visible to admins only</span>{% endif %}
     </div>
 
-    <div style="margin-top:14px;">
-      {% if course.is_free %}
-        <span class="cert-note">Certificate of completion included at no extra cost</span>
-      {% else %}
-        <span class="cert-note">Certificate of completion available for ₱{{ "%.2f"|format(course.price_php) }} once you finish the course</span>
-      {% endif %}
-    </div>
+    <h1>{{ course.title }}</h1>
+    <p class="lede">{{ course.description }}</p>
+
+    <p class="hero-trust" style="margin-top:22px;">
+      <span>{{ icon.book(16) }} {{ course.lessons|length }} lesson{{ 's' if course.lessons|length != 1 }}</span>
+      <span>{{ icon.user(16) }} {{ course.instructor_name or instructor.name }}</span>
+      <span>{{ icon.device(16) }} Self-paced</span>
+    </p>
   </div>
 </div>
 
 <div class="wrap section">
-  <h2 style="font-size:1.05rem;">Lessons</h2>
-  <ul class="lesson-list">
-    {% for lesson in course.lessons %}
-      {% set unlocked = (enrollment and enrollment.status == 'paid') or lesson.is_preview or (user and user.is_admin) %}
-      {% if unlocked %}
-        <a href="/lessons/{{ lesson.id }}" class="lesson-item">
-          <span class="lesson-idx">{{ "%02d"|format(loop.index) }}</span>
-          <span>{{ lesson.title }}</span>
-          {% if lesson.is_preview %}<span class="preview-tag">Preview</span>{% endif %}
-        </a>
-      {% else %}
-        <span class="lesson-item locked">
-          <span class="lesson-idx">{{ "%02d"|format(loop.index) }}</span>
-          <span>{{ lesson.title }}</span>
-          <span class="lock-icon">🔒</span>
-        </span>
-      {% endif %}
-    {% else %}
-      <li style="color:var(--ink-soft); padding:14px 0;">No lessons added yet.</li>
-    {% endfor %}
-  </ul>
+  <div class="detail-grid">
+
+    <div>
+      <h2 style="font-size:1.5rem; letter-spacing:-.026em;">Lessons</h2>
+      <p style="color:var(--ink-2); font-size:.9375rem; margin-bottom:24px;">
+        {% if enrolled %}
+          Each lesson unlocks when you pass the one before it.
+        {% else %}
+          Preview lessons are open to everyone. Enrol free to read the rest.
+        {% endif %}
+      </p>
+
+      <ol class="route">
+        {% for lesson in course.lessons %}
+          {% set done = lesson.id in completed_ids %}
+          {% set unlocked = enrolled or lesson.is_preview or (user and user.is_admin) %}
+          {% set is_current = unlocked and not done and (loop.first or course.lessons[loop.index0 - 1].id in completed_ids) %}
+          <li class="route-item {% if done %}is-done{% elif not unlocked %}is-locked{% elif is_current %}is-current{% endif %}">
+            {% if unlocked %}
+            <a href="/lessons/{{ lesson.id }}" class="route-link">
+              <span class="route-dot">{% if done %}{{ icon.check(15) }}{% else %}{{ "%02d"|format(loop.index) }}{% endif %}</span>
+              <span class="route-title">{{ lesson.title }}</span>
+              <span class="route-note">
+                {% if lesson.is_preview and not enrolled %}<span class="badge badge-free">Preview</span>
+                {% elif done %}<span class="badge badge-free">{{ icon.check(13) }} Done</span>{% endif %}
+              </span>
+            </a>
+            {% else %}
+            <span class="route-link">
+              <span class="route-dot">{{ icon.lock(15) }}</span>
+              <span class="route-title">{{ lesson.title }}</span>
+              <span class="route-note"><span class="badge badge-locked">Enrol to open</span></span>
+            </span>
+            {% endif %}
+          </li>
+        {% else %}
+          <li><p style="color:var(--ink-3); padding:16px 0;">No lessons added yet.</p></li>
+        {% endfor %}
+
+        {% if course.lessons %}
+        <li class="route-end {% if progress.is_complete %}is-earned{% endif %}">
+          <span class="route-dot">{{ icon.certificate(15) }}</span>
+          <span class="route-title">
+            Certificate of completion
+            <span style="display:block; font-weight:400; color:var(--ink-3); font-size:.8125rem;">
+              {% if progress.is_complete %}Earned — claim it from My Learning
+              {% elif course.is_free %}Free once every lesson is complete
+              {% else %}₱{{ "{:,.0f}".format(course.price_php) }} once every lesson is complete{% endif %}
+            </span>
+          </span>
+        </li>
+        {% endif %}
+      </ol>
+    </div>
+
+    <aside class="detail-aside">
+      <div class="card enroll-box">
+        <p class="enroll-price">
+          <strong>Free</strong>
+          <span style="color:var(--ink-3); font-size:.9375rem;">to learn</span>
+        </p>
+        <p class="enroll-cert">
+          {% if course.is_free %}
+            Certificate of completion included at no extra cost.
+          {% else %}
+            Certificate of completion: <strong class="mono">₱{{ "{:,.0f}".format(course.price_php) }}</strong>,
+            payable only after you finish.
+          {% endif %}
+        </p>
+
+        {% if enrolled %}
+          {% if progress.total %}
+          <div class="progress" role="img" aria-label="{{ progress.percent }} percent complete">
+            <div class="progress-bar {% if progress.is_complete %}is-complete{% endif %}" data-percent="{{ progress.percent }}" style="--pct:{{ progress.percent }}%"></div>
+          </div>
+          <p class="progress-label">{{ progress.completed }} of {{ progress.total }} lessons complete</p>
+          {% endif %}
+
+          {% set next_lesson = (course.lessons | rejectattr('id', 'in', completed_ids) | list | first) or course.lessons | first %}
+          <div style="margin-top:18px;">
+            {% if progress.is_complete %}
+              <a href="/dashboard" class="btn btn-gold btn-block">{{ icon.certificate(17) }} Get your certificate</a>
+            {% elif next_lesson %}
+              <a href="/lessons/{{ next_lesson.id }}" class="btn btn-block">
+                {{ 'Continue' if progress.completed else 'Start' }} lesson {{ icon.arrow(17) }}
+              </a>
+            {% endif %}
+          </div>
+        {% elif user %}
+          <form method="post" action="/courses/{{ course.slug }}/enroll-free">
+            <button type="submit" class="btn btn-lg btn-block">Enrol free {{ icon.arrow(17) }}</button>
+          </form>
+        {% else %}
+          <a href="/register?next=/courses/{{ course.slug }}" class="btn btn-lg btn-block">Create a free account {{ icon.arrow(17) }}</a>
+          <p class="field-hint" style="text-align:center; margin-top:10px;">
+            Already registered? <a href="/login?next=/courses/{{ course.slug }}">Log in</a>
+          </p>
+        {% endif %}
+
+        <ul class="enroll-list">
+          <li>{{ icon.check(16) }} Every lesson readable at no cost</li>
+          <li>{{ icon.check(16) }} Quiz after each lesson, retake as often as you like</li>
+          <li>{{ icon.check(16) }} Lifetime access — no subscription</li>
+          <li>{{ icon.check(16) }} Signed PDF certificate on completion</li>
+        </ul>
+      </div>
+
+      <p style="margin-top:20px; font-size:.875rem; color:var(--ink-3); text-align:center;">
+        Questions first? <a href="/#contact">Ask {{ instructor.name }}</a>
+      </p>
+    </aside>
+
+  </div>
 </div>
 {% endblock %}

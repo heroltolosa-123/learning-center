@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 *.db
 learning_center.zip
+
+# Impeccable design-skill scratch (decision pages, mocks)
+.impeccable/

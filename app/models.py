@@ -102,3 +102,19 @@ class LessonProgress(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
     completed_at = Column(DateTime, default=now)
+
+
+class Inquiry(Base):
+    """A message sent from the public contact form."""
+
+    __tablename__ = "inquiries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    phone = Column(String(64), default="")
+    working_on = Column(String(120), default="")   # Thesis / Coursework / Work project / Exploring
+    interest = Column(String(120), default="")     # course category the sender named
+    message = Column(Text, default="")
+    is_handled = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=now, index=True)

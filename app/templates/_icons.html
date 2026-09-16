@@ -1,0 +1,45 @@
+{#
+  Drawn icon set — 24x24 viewBox, 1.6 stroke, round caps and joins, currentColor.
+  No emoji, no unicode glyphs. Usage:  {% import "_icons.html" as icon %}  →  {{ icon.check() }}
+#}
+
+{% macro _svg(paths, size=20, cls='', fill=false) -%}
+<svg class="{{ cls }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="{{ 'currentColor' if fill else 'none' }}"
+     stroke="{{ 'none' if fill else 'currentColor' }}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+     aria-hidden="true" focusable="false">{{ paths|safe }}</svg>
+{%- endmacro %}
+
+{% macro arrow(size=16, cls='i-arrow') %}{{ _svg('<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>', size, cls) }}{% endmacro %}
+{% macro arrow_left(size=16, cls='') %}{{ _svg('<path d="M19 12H5"/><path d="m11 18-6-6 6-6"/>', size, cls) }}{% endmacro %}
+{% macro check(size=20, cls='') %}{{ _svg('<path d="M20 6 9 17l-5-5"/>', size, cls) }}{% endmacro %}
+{% macro check_circle(size=20, cls='') %}{{ _svg('<circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/>', size, cls) }}{% endmacro %}
+{% macro alert(size=20, cls='') %}{{ _svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v4.5"/><path d="M12 16h.01"/>', size, cls) }}{% endmacro %}
+{% macro lock(size=20, cls='') %}{{ _svg('<rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>', size, cls) }}{% endmacro %}
+{% macro search(size=20, cls='') %}{{ _svg('<circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.6-3.6"/>', size, cls) }}{% endmacro %}
+{% macro book(size=20, cls='') %}{{ _svg('<path d="M4 5.5A2 2 0 0 1 6 3.5h5.5v17H6a2 2 0 0 0-2 2z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5.5v17H18a2 2 0 0 1 2 2z"/>', size, cls) }}{% endmacro %}
+{% macro certificate(size=20, cls='') %}{{ _svg('<circle cx="12" cy="9" r="5.2"/><path d="m8.6 13.4-1.1 7 4.5-2.3 4.5 2.3-1.1-7"/>', size, cls) }}{% endmacro %}
+{% macro chart(size=20, cls='') %}{{ _svg('<path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 20v-6"/><path d="M13 20V8"/><path d="M18 20v-9"/>', size, cls) }}{% endmacro %}
+{% macro curve(size=20, cls='') %}{{ _svg('<path d="M3 18h18"/><path d="M3 17c3.5 0 3.5-11 9-11s5.5 11 9 11"/>', size, cls) }}{% endmacro %}
+{% macro user(size=20, cls='') %}{{ _svg('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>', size, cls) }}{% endmacro %}
+{% macro compass(size=20, cls='') %}{{ _svg('<circle cx="12" cy="12" r="9"/><path d="m15.2 8.8-1.7 4.7-4.7 1.7 1.7-4.7z"/>', size, cls) }}{% endmacro %}
+{% macro layers(size=20, cls='') %}{{ _svg('<path d="m12 3 8.5 4.6L12 12.2 3.5 7.6z"/><path d="m4 12 8 4.4 8-4.4"/><path d="m4 16.4 8 4.4 8-4.4"/>', size, cls) }}{% endmacro %}
+{% macro device(size=20, cls='') %}{{ _svg('<rect x="2.5" y="4" width="14" height="12" rx="1.8"/><path d="M6 20h7"/><rect x="17.5" y="10" width="4.5" height="10" rx="1.4"/>', size, cls) }}{% endmacro %}
+{% macro shield(size=20, cls='') %}{{ _svg('<path d="M12 3 5 6v5.5c0 4.3 2.9 8.1 7 9.5 4.1-1.4 7-5.2 7-9.5V6z"/><path d="m9.2 12 2 2 3.6-4"/>', size, cls) }}{% endmacro %}
+{% macro mail(size=20, cls='') %}{{ _svg('<rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="m3.6 6.7 7.3 5.2a2 2 0 0 0 2.2 0l7.3-5.2"/>', size, cls) }}{% endmacro %}
+{% macro phone(size=20, cls='') %}{{ _svg('<path d="M6.3 3.5h2.4l1.6 4-2 1.3a12 12 0 0 0 5.4 5.4l1.3-2 4 1.6v2.4a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.3 5.7a2 2 0 0 1 2-2.2z"/>', size, cls) }}{% endmacro %}
+{% macro pin(size=20, cls='') %}{{ _svg('<path d="M12 21s7-5.3 7-10.5a7 7 0 1 0-14 0C5 15.7 12 21 12 21z"/><circle cx="12" cy="10.3" r="2.6"/>', size, cls) }}{% endmacro %}
+{% macro clock(size=20, cls='') %}{{ _svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.2V12l3.2 2"/>', size, cls) }}{% endmacro %}
+{% macro spark(size=20, cls='') %}{{ _svg('<path d="M12 3.5 13.9 9l5.6 1.9-5.6 1.9L12 18.4l-1.9-5.6L4.5 11l5.6-1.9z"/>', size, cls) }}{% endmacro %}
+{% macro inbox(size=20, cls='') %}{{ _svg('<path d="M3.5 13.5h4l1.3 2.4h6.4l1.3-2.4h4"/><path d="M5.6 5.2h12.8l2.1 8.3v3.3a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-3.3z"/>', size, cls) }}{% endmacro %}
+{% macro plus(size=20, cls='') %}{{ _svg('<path d="M12 5v14"/><path d="M5 12h14"/>', size, cls) }}{% endmacro %}
+{% macro download(size=20, cls='') %}{{ _svg('<path d="M12 3.5v11"/><path d="m7.8 10.6 4.2 4.2 4.2-4.2"/><path d="M4.5 19.5h15"/>', size, cls) }}{% endmacro %}
+{% macro quote(size=20, cls='') %}{{ _svg('<path d="M9.5 6.5C6.9 7.8 5.5 10 5.5 13v4.5h5.2V11H8.3c0-1.7.6-2.9 2-3.6zM19.5 6.5c-2.6 1.3-4 3.5-4 6.5v4.5h5.2V11h-2.4c0-1.7.6-2.9 2-3.6z"/>', size, cls, true) }}{% endmacro %}
+
+{# Brand marks — these are logos, drawn to each brand's own path, so they are filled #}
+{% macro social(network, size=18) %}
+  {% if network == 'facebook' %}{{ _svg('<path d="M14.5 21v-7.4h2.5l.4-2.9h-2.9V8.9c0-.85.24-1.43 1.45-1.43h1.55V4.88A20 20 0 0 0 15.24 4.7c-2.24 0-3.77 1.37-3.77 3.88v2.16H9v2.9h2.47V21z"/>', size, '', true) }}
+  {% elif network == 'linkedin' %}{{ _svg('<path d="M6.94 8.4H4.2V20h2.74zM5.57 3.9a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2M20 13.6c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.4H10.4c.04.77 0 11.6 0 11.6h2.71v-6.48c0-.24.02-.49.09-.66.2-.49.64-.99 1.4-.99 1 0 1.4.76 1.4 1.87V20H20z"/>', size, '', true) }}
+  {% elif network == 'youtube' %}{{ _svg('<path d="M21.5 8.2a2.5 2.5 0 0 0-1.76-1.77C18.18 6 12 6 12 6s-6.18 0-7.74.43A2.5 2.5 0 0 0 2.5 8.2 26 26 0 0 0 2.07 12c0 1.28.15 2.55.43 3.8a2.5 2.5 0 0 0 1.76 1.77C5.82 18 12 18 12 18s6.18 0 7.74-.43a2.5 2.5 0 0 0 1.76-1.77c.28-1.25.43-2.52.43-3.8s-.15-2.55-.43-3.8M10.02 14.97V9.03L15.2 12z"/>', size, '', true) }}
+  {% elif network == 'x' %}{{ _svg('<path d="M17.53 4h2.9l-6.34 7.24L21.5 20h-5.8l-4.06-5.3L6.98 20H4.07l6.66-7.6L3.8 4h5.94l3.66 4.84zm-1.02 14.3h1.6L8.1 5.6H6.38z"/>', size, '', true) }}
+  {% endif %}
+{% endmacro %}
