@@ -406,10 +406,9 @@
       <div class="about-media reveal">
         <div class="about-card">
           <p style="font-size:.875rem; color:var(--ink-3); margin-bottom:18px;">
-            Every certificate is issued under this signature.
+            Every certificate is issued and personally signed by the instructor.
           </p>
-          <img src="/static/certificate_assets/signature.png" alt="Handwritten signature of {{ instructor.name }}"
-               class="about-sig" loading="lazy" decoding="async">
+          <span class="about-seal">{{ icon.shield(28) }}</span>
           <div class="about-sig-rule"></div>
           <p class="about-name">{{ instructor.name }}</p>
           <p class="about-role">{{ instructor.title }}</p>

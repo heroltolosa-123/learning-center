@@ -835,7 +835,14 @@ body.nav-open { overflow: hidden; }
   background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--r-xl); box-shadow: var(--sh-lg);
 }
-.about-sig { max-width: 190px; margin-bottom: 14px; opacity: .88; mix-blend-mode: multiply; }
+.about-seal {
+  display: grid; place-items: center;
+  width: 62px; height: 62px; margin-bottom: 18px;
+  border-radius: 50%;
+  background: var(--brand-050);
+  border: 1px solid var(--brand-100);
+  color: var(--brand);
+}
 .about-sig-rule { height: 1px; background: var(--line); margin-bottom: 12px; }
 .about-name { font-size: 1.0625rem; font-weight: 600; letter-spacing: -.02em; }
 .about-role { font-size: .875rem; color: var(--ink-3); }

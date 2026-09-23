@@ -7,3 +7,8 @@ learning_center.zip
 
 # Impeccable design-skill scratch (decision pages, mocks)
 .impeccable/
+
+# Personal signature used on generated certificates. Kept out of the repo on
+# purpose: drop the file in locally (or set it via the deploy host) and the
+# certificate picks it up; without it the PDF prints a signature line and name.
+app/static/certificate_assets/
