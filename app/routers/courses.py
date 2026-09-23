@@ -1,5 +1,7 @@
 import datetime
 import json
+import re
+
 import markdown
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import RedirectResponse, Response
@@ -12,8 +14,32 @@ from ..certificates import generate_certificate_pdf
 router = APIRouter()
 
 
+# "- [ ] item" is GitHub task-list syntax. python-markdown leaves the brackets as
+# literal text, and the alternative is a whole extra dependency (pymdown-extensions)
+# for one feature, so the rendered list items are converted here instead. The boxes
+# are for a learner to tick while self-checking; nothing is submitted or stored.
+_TASK_ITEM = re.compile(r"<li>\[([ xX])\]\s*")
+
+
+def _task_list_item(match: "re.Match") -> str:
+    checked = " checked" if match.group(1).lower() == "x" else ""
+    return f'<li class="task"><input type="checkbox" tabindex="-1"{checked}><span>'
+
+
 def render_lesson_content(raw_content: str) -> str:
-    return markdown.markdown(raw_content or "", extensions=["extra", "sane_lists"])
+    html = markdown.markdown(raw_content or "", extensions=["extra", "sane_lists", "smarty"])
+    html, count = _TASK_ITEM.subn(_task_list_item, html)
+    if count:
+        # close the span opened above; only touches list items we just rewrote
+        html = re.sub(r'(<li class="task">.*?)</li>', r"\1</span></li>", html, flags=re.S)
+    return html
+
+
+def reading_minutes(raw_content: str) -> int:
+    """Rough read time at 200 wpm. These lessons are long; saying so up front
+    lets a learner set aside a real block of time instead of bouncing."""
+    words = len((raw_content or "").split())
+    return max(1, round(words / 200))
 
 
 def catalog_stats(published):
@@ -259,6 +285,7 @@ def view_lesson(lesson_id: int, request: Request, db: Session = Depends(get_db),
             "all_lessons": ordered_lessons,
             "completed_ids": _completed_lesson_ids(db, user, course),
             "lesson_total": len(ordered_lessons),
+            "reading_minutes": reading_minutes(lesson.content),
         },
     )
 
