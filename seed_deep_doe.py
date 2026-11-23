@@ -2117,6 +2117,434 @@ It is also a free arithmetic check. If your two simple-effects sums of squares d
     },
 )
 
+
+# ===========================================================================
+L(
+    "Split-Plot Designed Experiments",
+    """## What you will be able to do
+
+Recognise when a design has **two different experimental units** and therefore two error terms, build the split-plot ANOVA table by hand, test each effect against the correct error, and see exactly what goes wrong when the two errors are pooled.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+Two irrigation systems and three crop varieties, in four blocks.
+
+Irrigation cannot be applied to a small plot -- the pipework serves a whole strip, and water spreads. So each block is divided into two large strips, one per irrigation system, and each strip is then divided into three small plots, one per variety.
+
+| Block | Irrigation | V1 | V2 | V3 |
+|---|---|---|---|---|
+| 1 | I1 | 31.2 | 33.0 | 37.4 |
+| 1 | I2 | 33.4 | 40.6 | 43.8 |
+| 2 | I1 | 26.4 | 31.1 | 32.0 |
+| 2 | I2 | 35.0 | 38.7 | 44.5 |
+| 3 | I1 | 33.1 | 34.6 | 39.5 |
+| 3 | I2 | 34.8 | 42.0 | 45.3 |
+| 4 | I1 | 29.3 | 34.1 | 35.3 |
+| 4 | I2 | 33.8 | 38.1 | 42.6 |
+
+Grand total 869.6, *N* = 24, grand mean 36.2333.
+</div>
+
+**This is not a factorial with blocks.** In a factorial, every treatment combination is assigned to its own independently randomised unit. Here irrigation was randomised to **strips** and variety to **plots within strips**. Two levels of randomisation means two sizes of experimental unit, and therefore two error terms.
+
+## The idea: two experimental units, two errors
+
+| Level | Experimental unit | Factor assigned to it | Error term |
+|---|---|---|---|
+| **Whole plot** | The strip (8 of them) | Irrigation | **Error A** (block x irrigation) |
+| **Sub-plot** | The small plot (24 of them) | Variety, and irrigation x variety | **Error B** (residual) |
+
+The replication differs too. Irrigation has **4 replications** -- one strip per block. Variety has **8** -- one plot in each of the eight strips.
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">The one sentence that makes split-plot analysis make sense</span>
+
+**Every effect must be tested against the error term of the unit it was randomised to.**
+
+Irrigation was randomised to strips, so it is tested against strip-to-strip error (Error A). Variety was randomised to plots within strips, so it is tested against plot-to-plot error (Error B). The interaction involves comparing varieties *within* strips, so it too belongs at the sub-plot level and is tested against Error B.
+
+Error A has 3 df and is large. Error B has 12 df and is small. Using the wrong one does not give a slightly wrong answer -- it gives a badly wrong one, as the calculation below shows.
+</div>
+
+## Why anyone would choose this design
+
+Rarely for statistical reasons. Usually because of a physical constraint:
+
+- **Machinery.** A tillage implement, a sprayer, an irrigation line covers a wide strip. You cannot till one square metre.
+- **Spillover.** Water, fertiliser drift, smoke, temperature -- treatments that cannot be confined to a small plot.
+- **Logistics.** An oven temperature, a kiln setting, a classroom-level intervention.
+- **A deliberate precision trade.** You accept low precision on the whole-plot factor in exchange for high precision on the sub-plot factor and the interaction. If variety is your real interest and irrigation is background, that trade is a win.
+
+The cost is stated plainly: **the whole-plot factor is tested with few degrees of freedom and a large error.** If irrigation is the factor you care most about, a split-plot is the wrong design.
+
+## The model
+
+<div class="formula" markdown="1">
+**Y&#7522;&#11388;&#8342; = &mu; + &rho;&#8342; + &alpha;&#7522; + (&rho;&alpha;)&#7522;&#8342; + &beta;&#11388; + (&alpha;&beta;)&#7522;&#11388; + &epsilon;&#7522;&#11388;&#8342;**
+<span class="formula-note">&rho; = block, &alpha; = whole-plot factor, (&rho;&alpha;) = Error A, &beta; = sub-plot factor, (&alpha;&beta;) = interaction, &epsilon; = Error B</span>
+</div>
+
+The term that does the work is **(&rho;&alpha;)&#7522;&#8342;**, the block x whole-plot-factor interaction. It *is* Error A -- there is no replication of strips within a block, so that interaction and whole-plot error are the same thing.
+
+## Working it by hand
+
+**Step 1. Constants.**
+
+```
+G = 869.6, N = 24
+b = 4 blocks, w = 2 whole-plot levels, s = 3 sub-plot levels
+CF = 869.6^2/24 = 756204.16/24 = 31508.5067
+TSS = 582.5133
+```
+
+**Step 2. The whole-plot analysis** -- work with the eight strip totals (each over 3 plots).
+
+Strip totals:
+
+```
+block 1: I1 = 101.6   I2 = 117.8
+block 2: I1 =  89.5   I2 = 118.2
+block 3: I1 = 107.2   I2 = 122.1
+block 4: I1 =  98.7   I2 = 114.5
+```
+
+```
+SS(block)  = (block totals^2)/6 - CF        =  42.8900
+SS(irr)    = (irrigation totals^2)/12 - CF  = 238.1400
+SS(strips) = (strip totals^2)/3 - CF        = 302.5200
+
+SS(Error A) = SS(strips) - SS(block) - SS(irr)
+            = 302.5200 - 42.8900 - 238.1400
+            = 21.4900
+```
+
+Error A is the variation among strips that neither block nor irrigation explains -- exactly the block x irrigation interaction.
+
+**Step 3. The sub-plot analysis.**
+
+```
+SS(var)     = (variety totals^2)/8 - CF             = 252.2433
+SS(irr x var) = (cell totals^2)/4 - CF - SS(irr) - SS(var)
+              = 14.4300
+
+SS(Error B) = TSS - SS(strips) - SS(var) - SS(irr x var)
+            = 582.5133 - 302.5200 - 252.2433 - 14.4300
+            = 13.3200
+```
+
+**Step 4. The ANOVA table, with the two error lines in place.**
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| Block | 42.8900 | 3 | 14.2967 | 1.996 | .292 |
+| **Irrigation** | 238.1400 | 1 | 238.1400 | **33.244** | **.0104** |
+| **Error A** (block x irr) | 21.4900 | 3 | **7.1633** | | |
+| **Variety** | 252.2433 | 2 | 126.1217 | **113.623** | **&lt; .0001** |
+| **Irrigation x Variety** | 14.4300 | 2 | 7.2150 | **6.500** | **.0122** |
+| **Error B** | 13.3200 | 12 | **1.1100** | | |
+| **Total** | **582.5133** | **23** | | | |
+
+Degrees of freedom:
+
+```
+block        : b - 1                = 3
+irrigation   : w - 1                = 1
+Error A      : (b-1)(w-1)           = 3
+variety      : s - 1                = 2
+irr x var    : (w-1)(s-1)           = 2
+Error B      : w(b-1)(s-1) = 2(3)(2)= 12
+total        : N - 1                = 23
+
+check: 3 + 1 + 3 + 2 + 2 + 12 = 23   OK
+```
+
+The *F* ratios, each against the right denominator:
+
+```
+F(irrigation)  = 238.1400 / 7.1633 = 33.244    df (1, 3)    <- Error A
+F(block)       =  14.2967 / 7.1633 =  1.996    df (3, 3)    <- Error A
+F(variety)     = 126.1217 / 1.1100 = 113.623   df (2, 12)   <- Error B
+F(irr x var)   =   7.2150 / 1.1100 =   6.500   df (2, 12)   <- Error B
+```
+
+**Notice the two mean squares for error: 7.1633 and 1.1100.** Error A is 6.5 times larger than Error B. That is the design working as designed -- strips vary a lot more than plots within a strip, which is why irrigation had to go on the strips in the first place.
+
+## What happens if you pool the errors
+
+This is the calculation that justifies the whole lesson.
+
+Suppose you ignored the structure and ran an ordinary factorial ANOVA with blocks -- one error term:
+
+```
+pooled SSE = 21.4900 + 13.3200 = 34.8100     df = 3 + 12 = 15
+pooled MSE = 34.8100/15 = 2.3207
+
+F(irrigation) = 238.1400/2.3207 = 102.62     df (1, 15)    p = 4.2e-08
+```
+
+| | MS error | df | F(irrigation) | p |
+|---|---|---|---|---|
+| **Correct** (Error A) | 7.1633 | 3 | **33.24** | **.0104** |
+| **Pooled** (wrong) | 2.3207 | 15 | **102.62** | **.00000004** |
+
+The *p*-value drops by more than five orders of magnitude -- from .01 to .00000004.
+
+Both reject here, so the *conclusion* happens to survive. But the pooled analysis is **anticonservative by a factor of three in *F***, and it would manufacture significance for a whole-plot effect that the design genuinely cannot detect. Irrigation has only four replications; pretending it has 24 is not a rounding error, it is pseudoreplication at the whole-plot level.
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">This is the most common serious error in agricultural and educational statistics</span>
+
+A classroom-level intervention delivered to 6 classes of 30 students, analysed as *n* = 180. An oven temperature applied to 4 batches of 20 items, analysed as *n* = 80. A hospital-level protocol across 8 wards, analysed per patient.
+
+Every one of these is a split-plot or a cluster design analysed as if it were fully randomised. The whole-plot factor gets tested against sub-plot error, the *F* is inflated several-fold, and the published effect is not supported by the design.
+
+The diagnostic question is always the same: **what was each factor randomised to?** If the answer differs between factors, you have more than one error term.
+</div>
+
+## Standard errors: they differ by the comparison
+
+Because there are two error terms, there is no single standard error. Which one you need depends on what you are comparing.
+
+**Comparing two whole-plot (irrigation) means** -- each is an average of *b* x *s* = 12 observations, but the relevant variation is strip-to-strip:
+
+```
+SE of difference = sqrt( 2 x MS(Error A) / (b x s) )
+                 = sqrt( 2 x 7.1633 / 12 )
+                 = sqrt( 1.19389 )
+                 = 1.0927
+```
+
+**Comparing two sub-plot (variety) means** -- each averages *b* x *w* = 8 observations, and the relevant variation is plot-to-plot:
+
+```
+SE of difference = sqrt( 2 x MS(Error B) / (b x w) )
+                 = sqrt( 2 x 1.1100 / 8 )
+                 = sqrt( 0.2775 )
+                 = 0.5268
+```
+
+The variety comparison is roughly **twice as precise** as the irrigation comparison -- despite irrigation means being averages of more observations. That is the trade the design makes, quantified.
+
+**Comparing two sub-plot means within the same whole plot** uses Error B. **Comparing two sub-plot means across different whole plots** needs a combination of both error terms, and the resulting *t* has no exact degrees of freedom -- Satterthwaite's approximation is used. Let software handle that one.
+
+## Marginal means
+
+Irrigation: I1 = 33.0833, I2 = 39.3833 (difference 6.30, SE 1.0927).
+
+Variety: V1 = 32.1250, V2 = 36.5250, V3 = 40.0500.
+
+Cell means:
+
+| | V1 | V2 | V3 | Row mean |
+|---|---|---|---|---|
+| **I1** | 30.00 | 33.20 | 36.05 | 33.0833 |
+| **I2** | 34.25 | 39.85 | 44.05 | 39.3833 |
+| Difference | 4.25 | 6.65 | 8.00 | 6.30 |
+
+The interaction (*p* = .012) is visible in that last row: the irrigation advantage **grows** from 4.25 on V1 to 8.00 on V3. The lines diverge -- an ordinal interaction, since I2 beats I1 at every variety, but the size of the gain depends on which variety you plant. V3 responds best to the better irrigation system.
+
+That is a genuinely useful agronomic finding, and it is the kind of result only a factorial structure can produce.
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+
+Base Jamovi's ANOVA cannot fit two error terms. Two routes:
+
+**GAMLj module** (install via the + menu) -> **Mixed Model**. Dependent: yield. Fixed: irrigation, variety, their interaction. Random effects: `Intercept | block` and `Intercept | block:irrigation`. That second random term is what creates Error A.
+
+**Rj module** -> paste the R code below. For a design this structured, this is often the faster path.
+</div>
+
+**SPSS.** `Analyze -> General Linear Model -> Univariate`. Dependent: yield. Fixed Factors: irrigation, variety. **Random Factor(s): block.** Then *Model -> Custom* and build:
+
+```
+block
+irrigation
+block*irrigation        <- this becomes Error A
+variety
+irrigation*variety
+```
+
+SPSS computes the expected mean squares and selects the correct error term for each line automatically once `block` is declared random and `block*irrigation` is in the model. Check the output's "Expected Mean Squares" footnotes to confirm that irrigation is being tested against `block*irrigation` and not against the residual.
+
+Alternatively `Analyze -> Mixed Models -> Linear`, which is the more modern route and handles unbalanced data.
+
+**Excel.** Not realistically. The ToolPak has no facility for multiple error terms. You can compute the six sums of squares by hand with `SUMSQ` over the strip, block, treatment and cell totals -- which is exactly what we did above and is a worthwhile exercise -- but there is no automated path, and the *F* ratios would have to be assembled manually.
+
+**R.**
+
+```r
+d <- expand.grid(var = c("V1","V2","V3"),
+                 irr = c("I1","I2"),
+                 block = factor(1:4))
+d$y <- c(31.2,33.0,37.4, 33.4,40.6,43.8,
+         26.4,31.1,32.0, 35.0,38.7,44.5,
+         33.1,34.6,39.5, 34.8,42.0,45.3,
+         29.3,34.1,35.3, 33.8,38.1,42.6)
+
+# classical aov with an explicit error stratum
+m <- aov(y ~ irr * var + Error(block/irr), data = d)
+summary(m)
+
+# Error: block
+#           Df Sum Sq Mean Sq F value Pr(>F)
+# Residuals  3  42.89   14.30
+
+# Error: block:irr
+#           Df Sum Sq Mean Sq F value Pr(>F)
+# irr        1 238.14  238.14   33.24 0.0104 *
+# Residuals  3  21.49    7.16
+
+# Error: Within
+#           Df Sum Sq Mean Sq F value   Pr(>F)
+# var        2 252.24  126.12  113.62 1.06e-08 ***
+# irr:var    2  14.43    7.22    6.50   0.0122 *
+# Residuals 12  13.32    1.11
+
+# the modern equivalent, which also handles unbalanced data
+library(lmerTest)
+m2 <- lmer(y ~ irr * var + (1|block) + (1|block:irr), data = d)
+anova(m2)
+
+library(emmeans)
+emmeans(m2, ~ irr)                  # SE uses Error A
+emmeans(m2, ~ var)                  # SE uses Error B
+emmeans(m2, ~ var | irr) |> pairs()
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">`Error(block/irr)` is the whole design, in six characters</span>
+
+The `/` means nesting: *irrigation strips are nested within blocks*. That one expression tells `aov` to build three strata -- block, block-within-irrigation (Error A), and within (Error B) -- and to place each effect in the correct one.
+
+Drop it and write `aov(y ~ block + irr * var)` and you get the pooled analysis: a single residual of 2.3207 on 15 df and *F*(irrigation) = 102.62. The output looks perfectly normal. Nothing warns you. **The structure is only in the model if you put it there.**
+
+Check the output has three `Error:` strata before reading anything else. That is your checksum for this design.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">Agronomy / APA report</span>
+
+"The experiment used a split-plot design in four randomised complete blocks. Irrigation system was assigned to whole plots (strips) because the irrigation line serves a full strip; the three varieties were assigned to sub-plots within each strip. Whole-plot and sub-plot effects were tested against their respective error terms.
+
+Irrigation significantly affected yield, *F*(1, 3) = 33.24, *p* = .010, with I2 out-yielding I1 by 6.30 t/ha (SE 1.09). Variety was also significant, *F*(2, 12) = 113.62, *p* &lt; .001, as was the irrigation x variety interaction, *F*(2, 12) = 6.50, *p* = .012. The irrigation advantage increased across varieties, from 4.25 t/ha for V1 to 6.65 for V2 and 8.00 for V3, indicating that V3 exploits the improved irrigation system most effectively.
+
+Error mean squares were 7.16 (whole plot, 3 df) and 1.11 (sub-plot, 12 df). Standard errors of a difference were 1.09 for irrigation means and 0.53 for variety means, reflecting the lower precision the design necessarily affords the whole-plot factor."
+</div>
+
+Three things that paragraph does which a split-plot write-up must: it says **why** the design was split (the physical constraint), it reports **both** error mean squares with their df, and it gives the two different standard errors. Without those, a reader cannot tell whether you analysed the design or just ran a factorial on it.
+
+## Common mistakes
+
+1. **Pooling the two error terms.** The single most consequential error here. *F* for the whole-plot factor is inflated several-fold.
+2. **Reporting one standard error for all comparisons.** There are at least two, and the across-whole-plot comparison needs a third.
+3. **Putting the factor you care about on the whole plot.** It gets the fewest df and the largest error. Put it on the sub-plot if the physics allows.
+4. **Omitting `Error(block/irr)` in R, or `block*irrigation` in SPSS.** Both silently produce the pooled analysis.
+5. **Calling it a factorial.** A split-plot is a *restricted* randomisation. The restriction is the whole point.
+6. **Confusing it with a repeated-measures design.** They are structurally similar (subjects as whole plots, time as sub-plots) but repeated measures adds a correlation structure over time that a split-plot does not assume. Repeated measures needs sphericity checks; a split-plot does not.
+7. **Interpreting a non-significant whole-plot factor as "no effect".** With 3 error df, critical *F*(1,3) at .05 is 10.13. The design has very little power there.
+
+## Practice
+
+<details markdown="1">
+<summary>1. A split-plot has 3 blocks, 2 whole-plot treatments and 4 sub-plot treatments. Give the full df breakdown.</summary>
+
+```
+block        : b - 1                   =  2
+whole-plot   : w - 1                   =  1
+Error A      : (b-1)(w-1)              =  2
+sub-plot     : s - 1                   =  3
+w x s        : (w-1)(s-1)              =  3
+Error B      : w(b-1)(s-1) = 2(2)(3)   = 12
+                                         --
+total        : N - 1 = 24 - 1          = 23
+check: 2 + 1 + 2 + 3 + 3 + 12 = 23   OK
+```
+
+**Error A has 2 df**, which is close to unusable: critical *F*(1, 2) at alpha = .05 is **18.51**. The whole-plot treatment would need a mean square more than eighteen times Error A to register.
+
+**The fix is more blocks, and only more blocks.** Error A df = (*b*&minus;1)(*w*&minus;1), so with *w* = 2 fixed it is simply *b* &minus; 1. Going to 6 blocks gives 5 error-A df and critical *F*(1,5) = 6.61; going to 9 blocks gives 8 df and *F*(1,8) = 5.32. Adding sub-plot treatments does nothing for the whole-plot test.
+
+This is the standard planning rule for split-plots: **the number of blocks is what determines whether the whole-plot factor is testable at all.**
+</details>
+
+<details markdown="1">
+<summary>2. Why is MS(Error A) = 7.16 so much larger than MS(Error B) = 1.11?</summary>
+
+Because they measure variation at two different physical scales.
+
+**Error B** is variation among small plots *inside the same strip*. Those plots share irrigation, soil type, drainage, slope, management and microclimate. They differ only in what the variety does and in small-scale measurement noise. Very little room for variation -- hence 1.11.
+
+**Error A** is variation among whole strips. Strips are large, far apart, and differ in soil depth, drainage, previous cropping, edge exposure and anything else that varies over metres rather than centimetres. All of that is in Error A -- hence 7.16.
+
+**This is not a flaw; it is the reason the design exists.** Strips vary a lot, which is precisely why you could not randomise irrigation to small plots. And because sub-plots within a strip are so uniform, variety and the interaction are tested with unusual precision.
+
+**The ratio tells you something useful.** A ratio near 1 means strips were no more variable than plots, in which case a plain factorial would have been simpler and better. A large ratio like 6.5 confirms the split was necessary. Report both mean squares and let the reader see it.
+</details>
+
+<details markdown="1">
+<summary>3. A researcher applies a reading programme to 6 classes (3 per programme) and tests 30 students per class, analysing n = 180. What is wrong and what is the correct analysis?</summary>
+
+**The error:** the programme was applied to the *class*, so the class is the whole-plot experimental unit. There are **3 classes per programme, not 90 students**. Analysing *n* = 180 tests the programme against student-to-student error when it should be tested against class-to-class error -- exactly the pooling error from this lesson.
+
+Students in a class share a teacher, a timetable, a peer group and a room. They are not independent. Treating them as independent replicates of the programme understates the standard error by roughly &radic;(1 + (*m*&minus;1)&rho;), where *m* = 30 and &rho; is the intraclass correlation. With a typical classroom ICC of .15, that factor is about 2.3 -- so the reported *t* is more than twice what it should be.
+
+**The correct analyses, in increasing sophistication:**
+
+**Aggregate.** Compute each class's mean and run a *t*-test on 6 numbers, 3 per group. Error df = 4. Low power, but valid and easy to defend.
+
+**Split-plot / nested ANOVA.** Treat class as a random effect nested within programme. The programme is tested against the class-within-programme mean square -- the Error A analogue. Same *F* as the aggregate analysis in the balanced case, but it also lets you estimate how much variance sits at each level.
+
+**Multilevel (mixed) model.** `lmer(score ~ programme + (1|class))`. This is the modern standard for clustered educational data. It keeps the student-level data (so student-level covariates like pretest can be included) while attributing the programme effect to the correct level, and it reports the ICC.
+
+**What the researcher should also report:** the ICC, and the number of clusters. With 6 clusters any of these analyses has very little power -- the real problem is the design, and more classes, not more students per class, is the only fix.
+</details>
+
+<details markdown="1">
+<summary>4. Your whole-plot factor gives F(1, 3) = 6.2, p = .088. Is there no effect?</summary>
+
+You cannot say that. What you can say is that **this design had very little power to detect one**.
+
+Critical *F*(1, 3) at alpha = .05 is **10.13**. Your 6.2 is well short of it, but 6.2 is also not a small *F* -- it corresponds to a substantial effect. With 3 error degrees of freedom the bar is simply very high.
+
+Quantify it. The effect size is *F*/(*F* + df_error) = 6.2/9.2 = **.67** as a partial eta-squared -- large by any benchmark. So you have a large estimated effect that cannot be certified at 4 whole-plot replications.
+
+**What to report:** "The whole-plot effect did not reach significance, *F*(1, 3) = 6.20, *p* = .088, though with only three whole-plot error degrees of freedom the design had limited power; the observed partial eta-squared of .67 suggests a substantial effect that a larger number of blocks would be needed to confirm."
+
+**What to do next time:** more blocks. Going from 4 blocks to 8 takes Error A df from 3 to 7, dropping the critical *F*(1,7) to 5.59 -- which your observed 6.2 would clear. Note again that adding sub-plot treatments would not have helped at all.
+
+**What not to do:** pool the errors to get more df. That is the error this lesson exists to prevent, and it would turn an honest *p* = .088 into a fabricated one.
+</details>
+
+## Before you move on
+
+- [ ] I can tell a split-plot from a factorial by asking what each factor was randomised to.
+- [ ] I can state which error term tests each effect, and why.
+- [ ] I can compute SS(Error A) as SS(strips) &minus; SS(block) &minus; SS(whole-plot factor).
+- [ ] I can verify the df breakdown sums to *N* &minus; 1.
+- [ ] I know pooling the errors inflates the whole-plot *F* -- here from 33 to 103.
+- [ ] I report both error mean squares and both standard errors of a difference.
+- [ ] I know the whole-plot test's power depends on the number of blocks, not on sub-plot treatments.
+- [ ] I can recognise the classroom, batch and ward versions of this design in the wild.""",
+    quiz={
+        "question": "In a split-plot, MS(Error A) = 7.16 on 3 df and MS(Error B) = 1.11 on 12 df. A researcher pools them to get MS = 2.32 on 15 df and reports F(irrigation) = 102.62 instead of 33.24. What has happened?",
+        "options": [
+            "A reasonable simplification, since both analyses reject the null",
+            "The whole-plot factor is now tested against sub-plot error, so its F is inflated threefold — pseudoreplication at the whole-plot level",
+            "The pooled analysis is more powerful and therefore preferable",
+            "Nothing, provided the two error mean squares are not significantly different",
+        ],
+        "answer": 1,
+        "explanation": "Irrigation was randomised to 8 strips, so it must be tested against strip-to-strip variation. Pooling tests it against plot-to-plot variation, effectively claiming 24 replications where there are 4. The p-value falls from .010 to .00000004 — anticonservative by five orders of magnitude.",
+    },
+)
+
 # ===========================================================================
 # MAIN -- new lessons are inserted above this marker
 def main():
