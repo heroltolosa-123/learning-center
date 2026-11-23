@@ -2545,6 +2545,935 @@ Quantify it. The effect size is *F*/(*F* + df_error) = 6.2/9.2 = **.67** as a pa
     },
 )
 
+
+
+# ===========================================================================
+L(
+    "Treatment Mean Comparison",
+    """## What you will be able to do
+
+Choose the right procedure for comparing treatment means, compute LSD, Tukey HSD, Dunnett and Scheffe critical differences by hand, build orthogonal contrasts for structured questions, and present the result in the letter notation every agronomy journal uses.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+The CRD from earlier in this course: four fertilisers, five plots each, MSE = 2.5 on 16 df, *F*(3, 16) = 35.33, *p* &lt; .001.
+
+Means: A 21.0, B 26.0, C 31.0, D 24.0.
+
+A is the untreated control. B and D are two formulations of the same nitrogen source at different rates. C is a competitor's product.
+
+A significant *F* says the four are not all equal. It says nothing about **which**, and the structure above means there are several different questions worth asking.
+</div>
+
+## First: what kind of question do you have?
+
+This is the decision that determines the procedure, and it comes before any formula.
+
+| Your question | Procedure |
+|---|---|
+| "Which pairs differ?" -- all of them, no prior structure | **Tukey HSD** |
+| "Does each treatment beat the control?" | **Dunnett** |
+| "Is the nitrogen group different from the competitor?" -- planned, specific | **Orthogonal contrasts** |
+| "I have a few specific pairs in mind, decided in advance" | **LSD** or **Bonferroni** |
+| "Anything that looks interesting after seeing the data" | **Scheffe** |
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Planned before, or chosen after?</span>
+
+This is the distinction that matters most, and software cannot make it for you.
+
+A comparison you specified **before collecting data** is a *planned* (a priori) comparison. You committed to one question, so you pay little or no multiplicity penalty.
+
+A comparison you chose **after looking at the means** is *post hoc*. You implicitly considered all the others and picked the biggest, so the correction must account for every comparison you could have made. That is why Scheffe's critical value is so large.
+
+Writing your comparisons into your proposal is not bureaucracy -- it buys you statistical power, legitimately.
+</div>
+
+## The procedures, computed
+
+All four use the same two ingredients: MSE = 2.5, *n* = 5, error df = 16.
+
+### LSD -- Fisher's least significant difference
+
+<div class="formula" markdown="1">
+**LSD = t&#8338;&#8338;&#8322; x &radic;(2 MSE / n)**
+<span class="formula-note">no protection beyond requiring a significant F first</span>
+</div>
+
+```
+t(.975, 16) = 2.1199
+LSD = 2.1199 x sqrt(2 x 2.5/5) = 2.1199 x sqrt(1) = 2.1199
+```
+
+### Tukey's HSD -- honest significant difference
+
+<div class="formula" markdown="1">
+**HSD = q&#8338;(k, df) x &radic;(MSE / n)**
+<span class="formula-note">q from the studentised range distribution, not from t</span>
+</div>
+
+```
+q(.05, 4, 16) = 4.05
+HSD = 4.05 x sqrt(2.5/5) = 4.05 x 0.7071 = 2.8638
+```
+
+### Dunnett -- every treatment against one control
+
+<div class="formula" markdown="1">
+**d = d&#8338;(k&minus;1, df) x &radic;(2 MSE / n)**
+<span class="formula-note">three comparisons here, not six, so the critical value is smaller than Tukey's</span>
+</div>
+
+```
+d(.05, 3, 16) = 2.59
+critical difference = 2.59 x sqrt(2 x 2.5/5) = 2.59 x 1 = 2.59
+```
+
+### Scheffe -- any contrast, including ones chosen after the fact
+
+<div class="formula" markdown="1">
+**S = &radic;[ (k&minus;1) F&#8338;(k&minus;1, df) ] x &radic;(2 MSE / n)**
+</div>
+
+```
+F(.05, 3, 16) = 3.2389
+S = sqrt(3 x 3.2389) x 1 = sqrt(9.7167) = 3.1172
+```
+
+### The four side by side
+
+| Procedure | Critical difference | Protects |
+|---|---|---|
+| **LSD** | **2.12** | Nothing beyond the *F* test |
+| **Dunnett** | **2.59** | 3 treatment-vs-control comparisons |
+| **Tukey** | **2.86** | All 6 pairwise comparisons |
+| **Scheffe** | **3.12** | Every possible contrast |
+
+The ordering is always this: **LSD &lt; Dunnett &lt; Tukey &lt; Scheffe.** More protection means a larger threshold means less power. There is no procedure that is both maximally protected and maximally powerful; you choose where on that line your question sits.
+
+## Applying them
+
+Observed differences:
+
+| Pair | Difference | LSD 2.12 | Dunnett 2.59 | Tukey 2.86 | Scheffe 3.12 |
+|---|---|---|---|---|---|
+| C &minus; A | 10.0 | yes | yes | yes | yes |
+| C &minus; D | 7.0 | yes | -- | yes | yes |
+| C &minus; B | 5.0 | yes | -- | yes | yes |
+| B &minus; A | 5.0 | yes | yes | yes | yes |
+| D &minus; A | 3.0 | yes | yes | yes | **no** |
+| B &minus; D | 2.0 | **no** | -- | **no** | **no** |
+
+Dashes mark comparisons Dunnett does not make -- it only tests against the control.
+
+Two things to notice.
+
+**B vs D (difference 2.0) fails under every procedure.** The two nitrogen formulations cannot be distinguished at this sample size.
+
+**D vs A (difference 3.0) is significant under LSD, Dunnett and Tukey but not Scheffe.** Your choice of procedure changes the conclusion for this comparison. That is exactly why the choice must be made and justified *before* you look -- otherwise you are picking the procedure that gives the answer you want.
+
+## The letter notation
+
+Agronomy and food-science journals present mean comparisons as letters. Means sharing a letter are not significantly different. Using Tukey:
+
+```
+Treatment   Mean    Group
+    C       31.0      a
+    B       26.0      b
+    D       24.0      b
+    A       21.0      c
+```
+
+**How to build it.** Sort the means descending. Give the first mean the letter 'a'. Work down: if a mean is within the critical difference of an earlier mean carrying a letter, it gets that letter too; otherwise it starts a new letter.
+
+```
+C 31.0  -> 'a'
+B 26.0  -> 31.0 - 26.0 = 5.0 > 2.86, so not 'a'   -> new letter 'b'
+D 24.0  -> 26.0 - 24.0 = 2.0 < 2.86, so shares 'b'
+           31.0 - 24.0 = 7.0 > 2.86, so not 'a'
+A 21.0  -> 24.0 - 21.0 = 3.0 > 2.86, so not 'b'   -> new letter 'c'
+```
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Letter groupings can be genuinely ambiguous</span>
+
+Suppose means were 31.0, 28.5, 26.0. With a critical difference of 2.86: 31.0 vs 28.5 is 2.5 (not different), 28.5 vs 26.0 is 2.5 (not different), but 31.0 vs 26.0 is 5.0 (different).
+
+So the top two share a letter, the bottom two share a letter, and the extremes do not. The notation needs overlapping groups:
+
+```
+31.0  a
+28.5  ab
+26.0   b
+```
+
+This is not a flaw in the method -- it reflects a real feature of the data. "Not significantly different" is not a transitive relation, and the overlapping letters say so honestly. Do not force a clean partition that the data does not support.
+</div>
+
+## Orthogonal contrasts: the most informative option
+
+If your treatments have structure -- and most do -- contrasts answer sharper questions than pairwise tests, with full power and no multiplicity penalty.
+
+A contrast is a weighted sum of means where the weights sum to zero:
+
+<div class="formula" markdown="1">
+**L = &Sigma;c&#7522; y&#772;&#7522;&nbsp;&nbsp;with&nbsp;&nbsp;&Sigma;c&#7522; = 0&nbsp;&nbsp;&nbsp;&nbsp;SS(L) = n L&#178; / &Sigma;c&#7522;&#178;**
+<span class="formula-note">each contrast has 1 df, so F = SS(L)/MSE</span>
+</div>
+
+Our treatment structure suggests three questions, which map onto three contrasts:
+
+| Question | A | B | C | D |
+|---|---|---|---|---|
+| L1: control vs everything else | &minus;3 | +1 | +1 | +1 |
+| L2: competitor (C) vs the two nitrogen products | 0 | &minus;1 | +2 | &minus;1 |
+| L3: the two nitrogen rates against each other | 0 | +1 | 0 | &minus;1 |
+
+**Check orthogonality** -- the cross-products of every pair of contrasts must sum to zero:
+
+```
+L1.L2 = (-3)(0) + (1)(-1) + (1)(2) + (1)(-1) = 0 - 1 + 2 - 1 = 0   OK
+L1.L3 = (-3)(0) + (1)(1)  + (1)(0) + (1)(-1) = 0 + 1 + 0 - 1 = 0   OK
+L2.L3 = (0)(0)  + (-1)(1) + (2)(0) + (-1)(-1) = 0 - 1 + 0 + 1 = 0  OK
+```
+
+All three orthogonal, so the three 1-df sums of squares will partition SS(treatment) = 265 exactly.
+
+**Compute them.**
+
+```
+L1 = -3(21.0) + 1(26.0) + 1(31.0) + 1(24.0)
+   = -63 + 81 = 18.0
+   sum of c^2 = 9 + 1 + 1 + 1 = 12
+   SS(L1) = 5 x 18.0^2 / 12 = 5 x 324/12 = 135.0
+   F = 135.0/2.5 = 54.00        p < .0001
+
+L2 = 0(21.0) - 1(26.0) + 2(31.0) - 1(24.0)
+   = -26 + 62 - 24 = 12.0
+   sum of c^2 = 0 + 1 + 4 + 1 = 6
+   SS(L2) = 5 x 144/6 = 120.0
+   F = 120.0/2.5 = 48.00        p < .0001
+
+L3 = 0(21.0) + 1(26.0) + 0(31.0) - 1(24.0)
+   = 2.0
+   sum of c^2 = 0 + 1 + 0 + 1 = 2
+   SS(L3) = 5 x 4/2 = 10.0
+   F = 10.0/2.5 = 4.00          p = .0625
+```
+
+**The partition check:**
+
+```
+135.0 + 120.0 + 10.0 = 265.0 = SS(treatment)     OK
+```
+
+That identity is the hallmark of orthogonal contrasts: they carve the treatment sum of squares into independent, interpretable pieces with nothing left over. If your three contrasts do not sum to SS(treatment), they are not orthogonal.
+
+**What the contrasts tell you that Tukey could not:**
+
+- **L1 (*F* = 54.00):** fertilising works. Any product beats no product, decisively.
+- **L2 (*F* = 48.00):** the competitor's product beats both nitrogen formulations. This is the commercially important finding, and it is a single clean test rather than two separate pairwise comparisons.
+- **L3 (*F* = 4.00, *p* = .063):** the two nitrogen rates do not differ significantly. Consistent with the pairwise result, but note that *p* = .063 is much more informative than Tukey's *p* = .229 for the same comparison -- because the contrast spends no alpha on comparisons you never cared about.
+
+Three questions, three answers, 265 units of variation fully accounted for.
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+
+**Analyses -> ANOVA -> ANOVA.** Under *Post Hoc Tests*, move the factor across and choose among **Tukey**, **Scheffe**, **Bonferroni** and **Holm**; tick *Mean difference* and *Flag significant comparisons*.
+For contrasts, open *Contrasts* and choose a built-in scheme (simple, deviation, helmert, polynomial). For fully custom weights, use the **Rj** module or the GAMLj module's custom contrast facility.
+</div>
+
+**SPSS.** `Analyze -> Compare Means -> One-Way ANOVA`:
+
+- *Post Hoc* -> tick Tukey, LSD, Scheffe, or Dunnett (and set the control category for Dunnett).
+- *Contrasts* -> type the coefficients one at a time, clicking **Next** between contrasts. For L1 enter &minus;3, 1, 1, 1 in the order the factor's levels are coded. SPSS prints the contrast value, its standard error, *t*, df and two-tailed *p*, and gives both the equal-variance and Welch versions.
+
+**Excel.** The critical differences are one formula each:
+
+```
+H1:  =T.INV.2T(0.05,16)*SQRT(2*2.5/5)              ' LSD    = 2.1199
+H2:  =SQRT(3*F.INV.RT(0.05,3,16))*SQRT(2*2.5/5)    ' Scheffe = 3.1172
+```
+
+Tukey's *q* and Dunnett's *d* have no Excel functions -- look them up in a table (*q*(.05, 4, 16) = 4.05; *d*(.05, 3, 16) = 2.59) and multiply.
+
+Contrasts are straightforward arithmetic:
+
+```
+' means in B2:B5, contrast weights in C2:C5
+H4:  =SUMPRODUCT(B2:B5,C2:C5)                      ' L = 18.0
+H5:  =5*H4^2/SUMSQ(C2:C5)                          ' SS(L) = 135.0
+H6:  =H5/2.5                                       ' F = 54.00
+H7:  =F.DIST.RT(H6,1,16)                           ' p
+```
+
+**R.**
+
+```r
+m <- aov(yield ~ trt, data = d)
+
+TukeyHSD(m)
+agricolae::LSD.test(m, "trt", console = TRUE)      # with letter groups
+agricolae::HSD.test(m, "trt", console = TRUE)
+agricolae::scheffe.test(m, "trt", console = TRUE)
+DescTools::DunnettTest(yield ~ trt, data = d, control = "A")
+
+# orthogonal contrasts
+library(emmeans)
+em <- emmeans(m, ~ trt)
+contrast(em, list(
+  "control vs rest"   = c(-3, 1, 1, 1)/1,
+  "competitor vs N"   = c( 0,-1, 2,-1)/1,
+  "N rate difference" = c( 0, 1, 0,-1)/1))
+
+# or via the model, to see the SS partition
+contrasts(d$trt) <- cbind(c(-3,1,1,1), c(0,-1,2,-1), c(0,1,0,-1))
+summary.aov(aov(yield ~ trt, data = d), split =
+  list(trt = list("ctrl vs rest" = 1, "comp vs N" = 2, "N rates" = 3)))
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Check the level order before entering weights</span>
+
+Contrast weights are applied in the order the software has coded the factor's levels -- usually alphabetical, which may not be the order in your table.
+
+Run `levels(d$trt)` in R, or check the SPSS value labels, before typing &minus;3, 1, 1, 1. Entering the right weights in the wrong order gives a perfectly valid contrast answering a question you did not ask, and nothing in the output will warn you.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">Agronomy report, with planned contrasts</span>
+
+"Treatment means were compared using three pre-planned orthogonal contrasts. Fertilised plots out-yielded the untreated control, *F*(1, 16) = 54.00, *p* &lt; .001. The competitor product C out-yielded the two nitrogen formulations, *F*(1, 16) = 48.00, *p* &lt; .001. The two nitrogen rates did not differ significantly, *F*(1, 16) = 4.00, *p* = .063. The three contrasts partition the treatment sum of squares exactly (135.0 + 120.0 + 10.0 = 265.0).
+
+Tukey's HSD (critical difference 2.86 kg) gave the grouping C (31.0 kg) a &gt; B (26.0) b = D (24.0) b &gt; A (21.0) c; means not sharing a letter differ at alpha = .05."
+</div>
+
+Reporting both is good practice: the contrasts answer your research questions, and the letter grouping gives readers the complete pairwise picture in the format their field expects.
+
+## Common mistakes
+
+1. **Running post-hoc tests after a non-significant *F*.** Fisher's protected LSD specifically requires the *F* test to pass first.
+2. **Choosing the procedure after seeing which one gives significance.** D vs A is significant under three procedures and not under Scheffe. Decide first.
+3. **Using Duncan's multiple range test.** Weak error-rate control; it persists by habit in older agronomy literature.
+4. **Using Tukey when you have a control.** Dunnett makes 3 comparisons instead of 6 and is more powerful for that question.
+5. **Non-orthogonal contrasts presented as a partition.** If the cross-products are not zero, the sums of squares overlap and will not add to SS(treatment).
+6. **Entering contrast weights in the wrong level order.**
+7. **Forcing a clean letter partition** where the data genuinely supports overlapping groups.
+8. **Reporting only the significant contrast** out of several tested. Report all the comparisons you made.
+
+## Practice
+
+<details markdown="1">
+<summary>1. Five treatments, n = 4, MSE = 6.0, error df = 15. Compute LSD and Tukey HSD. (q(.05, 5, 15) = 4.37)</summary>
+
+```
+LSD = t(.975, 15) x sqrt(2 x 6.0/4)
+    = 2.1314 x sqrt(3.0)
+    = 2.1314 x 1.7321
+    = 3.691
+
+HSD = 4.37 x sqrt(6.0/4)
+    = 4.37 x 1.2247
+    = 5.352
+```
+
+Tukey's threshold is **45% larger** than LSD's. With five treatments there are C(5,2) = 10 pairwise comparisons, so the multiplicity penalty is substantial -- considerably more than the 35% gap we saw with four treatments and six comparisons.
+
+The gap grows with *k*. That is the argument for contrasts: if you have specific questions, you can ask four orthogonal ones with 1 df each at full power, rather than paying for all ten pairwise comparisons you do not need.
+</details>
+
+<details markdown="1">
+<summary>2. Are the contrasts (1, -1, 0, 0) and (1, 1, -1, -1) orthogonal?</summary>
+
+Both sum to zero, so both are valid contrasts:
+
+```
+1 - 1 + 0 + 0 = 0    OK
+1 + 1 - 1 - 1 = 0    OK
+```
+
+Cross-product:
+
+```
+(1)(1) + (-1)(1) + (0)(-1) + (0)(-1) = 1 - 1 + 0 + 0 = 0
+```
+
+**Yes, orthogonal.** The first compares treatments 1 and 2; the second compares the pair {1, 2} against the pair {3, 4}. The two questions are independent -- knowing the difference between 1 and 2 tells you nothing about how their average compares with the average of 3 and 4.
+
+A third orthogonal contrast would be (0, 0, 1, &minus;1), comparing treatments 3 and 4. Those three together partition SS(treatment) completely, and with *k* = 4 treatments you can have at most *k* &minus; 1 = 3 mutually orthogonal contrasts -- exactly the treatment degrees of freedom.
+</details>
+
+<details markdown="1">
+<summary>3. Our L3 contrast (B vs D) gave p = .063, but Tukey gave p = .229 for the same pair. Why the difference, and which should you report?</summary>
+
+Same difference (2.0), same MSE, same df -- so the discrepancy is entirely about **how many comparisons each procedure is protecting against.**
+
+The contrast is a single planned 1-df test. You committed to this one question before collecting data, so there is no multiplicity to correct and the *p*-value is the raw *F*(1, 16) = 4.00 result: *p* = .063.
+
+Tukey's *p* is adjusted for all six pairwise comparisons. The same observed difference, viewed as "the smallest of six gaps I happened to look at", is much less surprising -- hence *p* = .229.
+
+**Which to report depends on one thing only: did you plan it?**
+
+If the B-vs-D comparison was written into your proposal as a research question, report the contrast: *F*(1, 16) = 4.00, *p* = .063. Neither is significant at .05, but the contrast is a far more honest reflection of the evidence for that specific question.
+
+If you noticed B and D were close only after seeing the means, report Tukey's *p* = .229.
+
+**What you may not do** is report whichever is smaller. The protection you are entitled to is determined by your design, not by your preferences after the fact -- and in a thesis the planned comparisons should be stated in the methods chapter, before the results, where the reader can see that you committed to them.
+</details>
+
+## Before you move on
+
+- [ ] I choose the procedure from my question, before looking at the means.
+- [ ] I can compute LSD, Tukey HSD, Dunnett and Scheffe critical differences by hand.
+- [ ] I know the ordering LSD &lt; Dunnett &lt; Tukey &lt; Scheffe and why it holds.
+- [ ] I use Dunnett when there is a control.
+- [ ] I can build orthogonal contrasts, verify the cross-products are zero, and check they partition SS(treatment).
+- [ ] I can assign letter groupings, including overlapping ones.
+- [ ] I check the factor's level order before entering contrast weights.
+- [ ] I report every comparison I made, not just the significant ones.""",
+    quiz={
+        "question": "Three contrasts give SS = 135.0, 120.0 and 10.0, and SS(treatment) = 265.0. What does the exact sum confirm?",
+        "options": [
+            "That all three contrasts are statistically significant",
+            "That the contrasts are mutually orthogonal, so they partition the treatment sum of squares into independent 1-df pieces with nothing left over",
+            "That the design was balanced",
+            "That MSE was computed correctly",
+        ],
+        "answer": 1,
+        "explanation": "Orthogonal contrasts have zero cross-products, which makes their sums of squares independent and additive. With k = 4 treatments you can have at most 3 such contrasts — exactly the treatment degrees of freedom. If they do not sum to SS(treatment), they are not orthogonal and their sums of squares overlap.",
+    },
+)
+
+# ===========================================================================
+L(
+    "Analysis of Covariance",
+    """## What you will be able to do
+
+Use a measured covariate to strip noise out of the error term, test the one assumption that decides whether ANCOVA is even legal, compute adjusted means by hand, and know the situation in which ANCOVA is the wrong tool and will mislead you.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+Three teaching methods, six students each, with a **pretest** score recorded before the intervention. The pretest is not what you are studying -- but it predicts the post-test strongly, and students vary on it.
+
+| Method | Pretest (x) | Post-test (y) | x&#772; | y&#772; |
+|---|---|---|---|---|
+| M1 | 42, 45, 38, 50, 47, 41 | 58, 56, 54, 67, 57, 52 | 43.8333 | 57.3333 |
+| M2 | 44, 39, 48, 43, 46, 41 | 64, 55, 70, 58, 67, 56 | 43.5000 | 61.6667 |
+| M3 | 40, 47, 43, 45, 38, 49 | 64, 76, 67, 74, 62, 78 | 43.6667 | 70.1667 |
+
+Grand means: x&#772; = 43.6667, y&#772; = 63.0556.
+</div>
+
+Note the pretest means: 43.83, 43.50, 43.67. Randomisation worked -- the three groups started essentially equal. So why bother with ANCOVA at all?
+
+## The idea: blocking after the fact, with a continuous variable
+
+Blocking removes identified variation by *grouping* units. ANCOVA removes it by *regressing* it out. Same purpose, continuous instead of categorical.
+
+Pretest scores range from 38 to 50. Some of the spread in the post-test is just that spread carried forward -- a student who began at 50 will likely finish higher than one who began at 38, regardless of method. In a plain ANOVA, all of that lands in the error term.
+
+ANCOVA fits the pretest-post-test relationship first, then asks whether the methods differ in what is left over.
+
+<div class="formula" markdown="1">
+**Y&#7522;&#11388; = &mu; + &tau;&#7522; + &beta;(X&#7522;&#11388; &minus; X&#772;) + &epsilon;&#7522;&#11388;**
+<span class="formula-note">&beta; = the pooled within-group regression slope of y on x</span>
+</div>
+
+**Reading the model.** The term &beta;(*X*&#7522;&#11388; &minus; X&#772;) says: for every point a student's pretest sits above the grand mean, predict their post-test to be &beta; points higher. Remove that, and &tau;&#7522; is the method effect on a level playing field.
+
+The covariate must be **measured before the treatment, or at least be unaffected by it.** That requirement is not negotiable, and it is the subject of the warning at the end of this lesson.
+
+## Step 1: the plain ANOVA, so you can see what ANCOVA buys
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| Method | 511.4444 | 2 | 255.7222 | **6.9301** | **.0074** |
+| Error | 553.5000 | 15 | **36.9000** | | |
+| Total | 1064.9444 | 17 | | | |
+
+Significant, with MSE = **36.90**.
+
+Hold onto that number.
+
+## Step 2: test the assumption that decides everything
+
+**Homogeneity of regression slopes.** ANCOVA assumes the covariate relates to the outcome **the same way in every group** -- that is, one common slope &beta;.
+
+Test it by fitting a model that *allows* different slopes and asking whether the interaction adds anything:
+
+| Source | SS | df | F | p |
+|---|---|---|---|---|
+| Method | 523.9600 | 2 | 43.6756 | &lt; .001 |
+| Pretest | 450.0372 | 1 | 75.0272 | &lt; .001 |
+| **Pretest x Method** | **31.4829** | **2** | **2.6243** | **.1134** |
+| Error | 71.9798 | 12 | | |
+
+**p = .113.** The interaction is not significant, so a single common slope is defensible. **ANCOVA is legal here.**
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Run this test first, always</span>
+
+If the slope x group interaction *is* significant, ANCOVA is **invalid** -- there is no single adjustment to make, because the covariate's effect differs by group. Adjusted means would be fiction.
+
+What to do instead:
+
+- **Report the interaction as the finding.** "Method M3 benefits high-pretest students most" is more informative than an adjusted mean.
+- **Use the Johnson-Neyman technique**, which identifies the range of covariate values over which the groups differ significantly. This is the proper tool for heterogeneous slopes.
+- **Keep the separate-slopes model** and report simple slopes per group.
+
+Most software does not run this test for you. In SPSS and Jamovi you must build the interaction model yourself, read the interaction *p*, and then remove the term. Skipping it is the most common ANCOVA error in theses.
+</div>
+
+## Step 3: the ANCOVA
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| **Pretest (covariate)** | 450.0372 | 1 | 450.0372 | **60.8965** | **&lt; .001** |
+| **Method** | 523.9600 | 2 | 261.9800 | **35.4497** | **&lt; .001** |
+| Error | 103.4628 | 14 | **7.3902** | | |
+| Total | 1064.9444 | 17 | | | |
+
+Now compare the two analyses directly:
+
+| | MSE | error df | F(method) | p |
+|---|---|---|---|---|
+| **ANOVA** | 36.9000 | 15 | 6.93 | .0074 |
+| **ANCOVA** | **7.3902** | 14 | **35.45** | **.0000030** |
+
+**The error mean square fell by a factor of five** -- from 36.90 to 7.39 -- and *F* rose from 6.93 to 35.45, even though the covariate cost one degree of freedom.
+
+What happened: 450.04 of the 553.50 error sum of squares was **pretest variation**, not method variation and not noise. ANCOVA named it and removed it. That is 81% of the original error term.
+
+```
+SSE(anova)  = 553.5000
+SS(pretest) = 450.0372
+             ----------
+SSE(ancova) = 103.4628      (and SS(method) rose slightly, 511.44 -> 523.96)
+```
+
+Note that SS(method) also changed -- from 511.44 to 523.96. The groups were not *exactly* balanced on pretest (43.83 / 43.50 / 43.67), so adjusting for it shifts the method effect a little too. With a randomised design the shift is small; in an observational study it can be large.
+
+**Partial eta-squared for method** = 523.96/(523.96 + 103.46) = **.835**.
+
+## Step 4: the pooled slope and adjusted means
+
+The regression coefficient on the pretest is the pooled within-group slope:
+
+```
+b = 1.3819     t = 7.804, p < .001
+```
+
+So each extra pretest point predicts **1.38 extra post-test points**, within any method.
+
+<div class="formula" markdown="1">
+**adjusted mean&#7522; = y&#772;&#7522; &minus; b (x&#772;&#7522; &minus; x&#772;)**
+<span class="formula-note">what group i's mean would have been had its covariate mean equalled the grand mean</span>
+</div>
+
+Worked for all three:
+
+```
+M1: 57.3333 - 1.3819(43.8333 - 43.6667)
+  = 57.3333 - 1.3819(0.1666)
+  = 57.3333 - 0.2303
+  = 57.1030
+
+M2: 61.6667 - 1.3819(43.5000 - 43.6667)
+  = 61.6667 - 1.3819(-0.1667)
+  = 61.6667 + 0.2303
+  = 61.8970
+
+M3: 70.1667 - 1.3819(43.6667 - 43.6667)
+  = 70.1667 - 0
+  = 70.1667
+```
+
+| Method | Pretest mean | Unadjusted | **Adjusted** | Shift |
+|---|---|---|---|---|
+| M1 | 43.8333 | 57.3333 | **57.1030** | &minus;0.23 |
+| M2 | 43.5000 | 61.6667 | **61.8970** | +0.23 |
+| M3 | 43.6667 | 70.1667 | **70.1667** | 0.00 |
+
+**The adjustments are tiny** -- about a quarter of a point -- and the direction makes sense: M1 started 0.17 points *above* the grand mean, so its mean is adjusted *down* slightly; M2 started below, so it is adjusted up; M3 started exactly at the grand mean, so it does not move at all.
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">The two distinct benefits, and which one you got here</span>
+
+ANCOVA does two separate things, and confusing them is common.
+
+**It increases precision** by removing covariate variation from the error term. This happens whenever the covariate correlates with the outcome, **even with perfectly balanced groups**. That is what dominated here: MSE fell fivefold while the means barely moved.
+
+**It corrects for covariate imbalance** between groups. This matters when groups started unequal -- common in quasi-experiments and observational studies, where randomisation was not possible.
+
+In a properly randomised experiment you get mostly the first benefit, and it is reason enough. Measure a strong baseline predictor and include it. The payoff here was turning *p* = .0074 into *p* = .0000030 for free.
+</div>
+
+## Step 5: pairwise comparisons on the adjusted means
+
+Use the ANCOVA MSE (7.3902, df 14), not the ANOVA one:
+
+```
+SE of a difference ~ sqrt( 2 x 7.3902/6 ) = sqrt(2.4634) = 1.5695
+t(.975, 14) = 2.1448
+LSD ~ 2.1448 x 1.5695 = 3.366
+```
+
+| Comparison | Adjusted difference | &gt; 3.37? |
+|---|---|---|
+| M3 vs M1 | 13.06 | yes |
+| M3 vs M2 | 8.27 | yes |
+| M2 vs M1 | 4.79 | yes |
+
+All three separate. From the model output, the contrasts against M1 are **+4.794 (M2, t = 3.052, p = .009)** and **+13.064 (M3, t = 8.322, p &lt; .001)**.
+
+Compare with the plain ANOVA, where MSE = 36.90 would have given an LSD of about 7.5 -- and the M2-vs-M1 difference of 4.33 would have been non-significant. **ANCOVA's precision gain resolved a comparison the ANOVA could not.**
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">A refinement for exact work</span>
+
+The SE formula above is an approximation. The exact standard error of an adjusted mean difference includes a term for how far apart the two groups' covariate means are:
+
+```
+SE = sqrt( MSE x [ 1/n1 + 1/n2 + (x1bar - x2bar)^2 / SSw(x) ] )
+```
+
+where SS&#8347;(*x*) is the within-group sum of squares of the covariate. When the covariate means are close -- as here, differing by at most 0.33 -- the extra term is negligible. When they differ substantially, it matters, and the interval widens. `emmeans` in R and SPSS's EMMEANS both use the exact formula.
+</div>
+
+## When ANCOVA is the wrong tool
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Never use a covariate measured after the treatment</span>
+
+If the treatment affected the covariate, adjusting for the covariate removes part of the treatment effect itself. You are controlling for a consequence of the thing you are studying.
+
+Example: a reading programme is tested, and the analyst adjusts for "hours spent reading during the term". But the programme *caused* more reading. Adjusting for it removes the mechanism through which the programme worked, and the treatment effect shrinks toward zero. The conclusion -- "no effect" -- is an artefact of the analysis.
+
+This is sometimes called **over-adjustment** or conditioning on a mediator. The rule is simple: **the covariate must be measured before treatment assignment, or be something the treatment cannot possibly have changed** (age, sex, baseline score, prior year's grade).
+
+If you genuinely want to know how much of the effect runs through a post-treatment variable, that is a mediation analysis, not an ANCOVA -- and it needs its own design and assumptions.
+</div>
+
+**The second trap: ANCOVA does not fix a broken quasi-experiment.** If intact groups differ substantially at baseline, adjusting for the baseline score does *not* make them exchangeable. It adjusts for *that one measured variable*, leaving every unmeasured difference intact. Worse, measurement error in the covariate biases the adjustment toward zero (Lord's paradox is the classic illustration). ANCOVA on non-equivalent groups is a precision tool, not a randomisation substitute, and the write-up must say so.
+
+## All the assumptions
+
+| Assumption | How to check | If violated |
+|---|---|---|
+| **Homogeneity of slopes** | covariate x group interaction | ANCOVA invalid; use Johnson-Neyman |
+| **Covariate unaffected by treatment** | Design logic -- measured before? | Do not use that covariate |
+| **Linear covariate-outcome relation** | Scatterplot per group | Add a quadratic term, or transform |
+| **Covariate measured reliably** | Reliability coefficient | Adjustment is attenuated; use latent methods |
+| **Normal residuals** | Shapiro-Wilk, Q-Q on residuals | Robust regression, or transform |
+| **Equal error variances** | Levene on residuals | Heteroskedasticity-robust SEs |
+| **Independence** | Design | Mixed model |
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+
+**Analyses -> ANOVA -> ANCOVA.**
+Dependent: posttest. Fixed Factors: method. **Covariates: pretest.**
+
+First, test the slopes. Open *Model*, and add the `pretest * method` interaction to the model terms. Read its *p* (.113 here). Then **remove it** and read the clean ANCOVA.
+
+Under *Estimated Marginal Means* add method -- Jamovi reports the **adjusted** means with confidence intervals, and its plot shows them. Under *Post Hoc Tests* move method across with a Tukey or Bonferroni correction.
+</div>
+
+**SPSS.** `Analyze -> General Linear Model -> Univariate`. Dependent: posttest. Fixed Factor: method. Covariate(s): pretest.
+
+Slope test: click **Model -> Custom**, move in `method`, `pretest`, and `pretest*method` (select both and choose the *Interaction* build type). Run it, read the interaction *p*, then rebuild the model without it.
+
+For the clean run: *Model -> Full factorial* (with a covariate this gives method + pretest), then *Options* -> move `method` into *Display Means for*, tick **Compare main effects** with a Bonferroni adjustment, and tick **Estimates of effect size** and **Parameter estimates** (the latter gives you *b* = 1.3819).
+
+**Excel.** Possible but awkward. ANCOVA is a regression with dummy variables, so:
+
+```
+' D = dummy for M2, E = dummy for M3, C = pretest
+' then LINEST on y against C, D, E
+=LINEST(B2:B19, C2:E19, TRUE, TRUE)
+```
+
+Entered as an array formula over a 5 x 4 range, `LINEST` returns the coefficients (including *b* = 1.3819 on the pretest and the two method contrasts 4.794 and 13.064), their standard errors, R&#178;, the overall *F*, and the residual SS and df. From those you can assemble the ANCOVA table by hand.
+
+The `Regression` tool in the Analysis ToolPak gives the same thing in a readable layout with *t*-statistics and *p*-values -- which is the more practical route. Compute adjusted means with the formula above. Excel cannot test slope homogeneity automatically; add interaction columns (`=C2*D2`, `=C2*E2`) and compare the two regressions' residual sums of squares with a partial *F*.
+
+**R.**
+
+```r
+d <- data.frame(
+  g = factor(rep(c("M1","M2","M3"), each = 6)),
+  x = c(42,45,38,50,47,41, 44,39,48,43,46,41, 40,47,43,45,38,49),
+  y = c(58,56,54,67,57,52, 64,55,70,58,67,56, 64,76,67,74,62,78))
+
+# 1. plain ANOVA, for comparison
+anova(lm(y ~ g, data = d))            # F(2,15) = 6.93, MSE = 36.90
+
+# 2. THE ASSUMPTION TEST -- do this first
+anova(lm(y ~ x * g, data = d))        # x:g  F(2,12) = 2.624, p = .113  OK
+
+# 3. the ANCOVA
+m <- lm(y ~ x + g, data = d)
+car::Anova(m, type = "III")
+#        Sum Sq Df F value    Pr(>F)
+# x      450.04  1  60.897 2.0e-06 ***
+# g      523.96  2  35.450 3.0e-06 ***
+# Residuals 103.46 14
+
+coef(m)["x"]                          # 1.3819  = the pooled slope
+
+# 4. adjusted means and comparisons
+library(emmeans)
+emmeans(m, ~ g)                       # 57.10, 61.90, 70.17
+pairs(emmeans(m, ~ g), adjust = "tukey")
+
+effectsize::eta_squared(m, partial = TRUE)   # g: .835
+
+# 5. diagnostics
+par(mfrow = c(2,2)); plot(m)
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Order matters with Type I sums of squares</span>
+
+`anova(lm(y ~ x + g))` gives **sequential** (Type I) sums of squares: *x* is entered first, then *g* is tested after adjusting for *x*. For ANCOVA that happens to be what you want.
+
+But `anova(lm(y ~ g + x))` reverses it -- *g* is tested first, *unadjusted*, giving the plain ANOVA's SS of 511.44 instead of 523.96. Same model, different table, different answer to "is there a method effect".
+
+Use `car::Anova(m, type = "III")` to get order-independent sums of squares, and state in your write-up which type you report. With balanced groups and a near-balanced covariate the difference is small; with real imbalance it is not.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">APA, ANCOVA</span>
+
+"Post-test scores were analysed by ANCOVA with teaching method as the factor and pretest score as a covariate. The homogeneity-of-slopes assumption was satisfied, *F*(2, 12) = 2.62, *p* = .113, so a common-slope model was fitted.
+
+The covariate was a strong predictor, *F*(1, 14) = 60.90, *p* &lt; .001, *b* = 1.38, and adjusting for it reduced the error mean square from 36.90 to 7.39. Method had a significant effect on adjusted post-test scores, *F*(2, 14) = 35.45, *p* &lt; .001, partial eta&#178; = .84.
+
+Adjusted means were 57.10 (M1), 61.90 (M2) and 70.17 (M3). All pairwise comparisons were significant after Tukey adjustment: M3 exceeded M1 by 13.06 points (*t*(14) = 8.32, *p* &lt; .001) and M2 by 8.27 points; M2 exceeded M1 by 4.79 points (*t*(14) = 3.05, *p* = .009). Because groups were randomly assigned and pretest means were closely matched (43.83, 43.50, 43.67), the adjustment altered the means by less than 0.25 points; the benefit of the covariate was almost entirely in precision rather than in correcting imbalance."
+</div>
+
+That final sentence is the mark of an author who understands the method. It tells the reader which of ANCOVA's two functions was operating, and it pre-empts the suspicion that the covariate was used to manufacture a result.
+
+## Common mistakes
+
+1. **Not testing slope homogeneity.** If slopes differ, adjusted means are meaningless. Test first, every time.
+2. **Using a post-treatment covariate.** Removes part of the effect you are measuring.
+3. **Treating ANCOVA as a fix for non-equivalent groups.** It adjusts for one measured variable and nothing else.
+4. **Reporting unadjusted means beside an ANCOVA *F*.** Report the adjusted means -- they are what the test is about. Give both if space allows.
+5. **Using the ANOVA MSE for post-hoc comparisons.** Use the ANCOVA MSE and its df.
+6. **Adding many covariates to hunt for significance.** Each costs a degree of freedom and widens the scope for a spurious result. Choose covariates a priori on theoretical grounds.
+7. **Ignoring covariate measurement error.** An unreliable covariate under-adjusts, and with unequal groups that bias has a direction.
+8. **Relying on Type I sums of squares without checking the term order.**
+
+## Practice
+
+<details markdown="1">
+<summary>1. The slope x group interaction is significant, F(2, 24) = 5.8, p = .009. What do you do?</summary>
+
+**Do not run ANCOVA.** The covariate relates to the outcome differently in each group, so there is no single slope to adjust by and no meaningful set of adjusted means. Reporting them anyway would be reporting numbers that describe no group.
+
+**What to do instead:**
+
+**Report the interaction as a substantive finding.** "The relationship between pretest and post-test differed by method" is often more interesting than an average effect. It means one method suits high-baseline students and another suits low-baseline students -- directly actionable.
+
+**Report the simple slopes.** Fit the separate-slopes model and give *b* for each group with its CI. Plot the three regression lines on one scatterplot; that figure is the result.
+
+**Use the Johnson-Neyman technique.** It identifies the *regions of significance* -- the range of pretest values over which two methods differ significantly. The output is a statement like "M3 outperforms M1 for students with pretest above 41, and the two do not differ below that." `interactions::johnson_neyman()` in R, or PROCESS for SPSS.
+
+**What not to do:** remove the interaction term because it is inconvenient and report the common-slope ANCOVA. If you have tested the assumption and it failed, you cannot then assume it holds.
+</details>
+
+<details markdown="1">
+<summary>2. ANOVA MSE = 80, ANCOVA MSE = 76 on the same data. Was the covariate worth including?</summary>
+
+Barely, and arguably not.
+
+A 5% reduction in MSE for the loss of one error degree of freedom is close to a wash. The covariate correlates only weakly with the outcome -- the variance reduction is approximately *r*&#178;, so a 5% reduction implies *r* is only about .22.
+
+**The calculation that settles it.** ANCOVA is worth it when the precision gained exceeds the df lost. A rough threshold: the covariate should reduce error variance by more than roughly 1/df_error. With, say, 20 error df, that is 5% -- so this case is exactly at the break-even point.
+
+**The real question is whether it was pre-specified.** If you planned to adjust for the pretest, do so and report it; that is a clean analysis whatever the gain turns out to be. If you are deciding *after* seeing the results, you are choosing the model that gives the answer you prefer, which is a different and worse activity.
+
+**What to report:** state that the covariate was weakly related to the outcome and that adjustment produced little precision gain. A null result honestly reported about your covariate costs you nothing.
+</details>
+
+<details markdown="1">
+<summary>3. Our pretest means were 43.83, 43.50, 43.67 — nearly identical. So why run ANCOVA at all?</summary>
+
+Because ANCOVA's two benefits are independent, and the one that mattered here was **precision**, not balance.
+
+Balanced groups mean the *adjustment* to the means was trivial -- under 0.25 points, as the table shows. If that were the only thing ANCOVA did, it would indeed have been pointless.
+
+But the error term is a different matter. Of the 553.50 error sum of squares in the plain ANOVA, **450.04 was pretest variation** -- 81% of it. Students differed on where they started, and in the plain ANOVA that difference was noise. ANCOVA identified it as pretest variation and removed it:
+
+```
+MSE:  36.90  ->  7.39     (a fivefold reduction)
+F:     6.93  ->  35.45
+p:    .0074  ->  .0000030
+```
+
+And it had a practical consequence: the ANOVA's LSD would have been about 7.5 points, so the M2-vs-M1 difference of 4.33 would have been **non-significant**. With ANCOVA's LSD of 3.37 it is significant at *p* = .009. A real difference that the plain ANOVA could not resolve.
+
+**The general lesson:** in a randomised experiment, measure a strong baseline predictor of your outcome and include it as a covariate. You will almost never need it for balance, and you will almost always gain precision. It is the cheapest power available.
+</details>
+
+<details markdown="1">
+<summary>4. A researcher compares two schools' exam results, adjusting for "hours of homework completed during the year". What is wrong?</summary>
+
+The covariate is **post-treatment**, and it is almost certainly affected by the thing being compared.
+
+If school A's culture, teaching or expectations produce more homework, then homework hours are partly a *consequence* of attending school A. Adjusting for it asks: "comparing students who did the same amount of homework, do the schools differ?" -- which removes exactly the mechanism through which school A might be better. The school effect is absorbed into the covariate and shrinks toward zero.
+
+A researcher who then reports "no difference between schools after controlling for homework" has not controlled for a confounder; they have controlled away the effect.
+
+**What a valid covariate would look like:** the previous year's exam results, entry test scores, age, or socioeconomic indicators recorded at enrolment -- anything fixed before the school could influence it.
+
+**If homework is genuinely of interest**, the question is a mediation question: *how much of the school difference operates through homework?* That requires a mediation model (see **Intermediate Statistics**), explicit causal assumptions, and ideally longitudinal data. It is a different analysis with a different interpretation, and it should be framed as such rather than smuggled in as a covariate.
+
+**The underlying rule:** a covariate is legitimate only if the treatment could not have changed it. Ask "could the treatment have affected this variable?" If yes, or if you cannot rule it out, do not adjust for it.
+</details>
+
+## Before you move on
+
+- [ ] I test slope homogeneity **before** running any ANCOVA.
+- [ ] I can compute adjusted means from y&#772;&#7522; &minus; *b*(x&#772;&#7522; &minus; x&#772;) and check the direction of each shift.
+- [ ] I can state the two separate benefits of ANCOVA and say which one a given analysis got.
+- [ ] I compare ANOVA MSE with ANCOVA MSE to quantify the precision gain.
+- [ ] I use the ANCOVA MSE and df for post-hoc comparisons.
+- [ ] I never adjust for a variable the treatment could have affected.
+- [ ] I know ANCOVA does not make non-equivalent groups equivalent.
+- [ ] I state which sum-of-squares type I report.""",
+    quiz={
+        "question": "Pretest means are 43.83, 43.50 and 43.67 across three randomly assigned groups. Adding the pretest as a covariate drops MSE from 36.90 to 7.39. What did ANCOVA mainly do here?",
+        "options": [
+            "It corrected for baseline imbalance between the groups",
+            "It increased precision by removing pretest variation from the error term; with balanced groups the adjustment to the means was under 0.25 points",
+            "Nothing useful, since the groups were already balanced",
+            "It introduced bias, because the covariate was related to the outcome",
+        ],
+        "answer": 1,
+        "explanation": "ANCOVA has two independent benefits. Correction for imbalance was negligible here because randomisation worked. The precision gain was large: 450.04 of the 553.50 error sum of squares was pretest variation, so removing it cut MSE fivefold and resolved a pairwise comparison the plain ANOVA could not.",
+    },
+)
+
+
+# ===========================================================================
+L(
+    "Further Reading (Free & Open)",
+    """## What you now know how to do
+
+You came in with "run an ANOVA" and you leave with five designs you can lay out, randomise, compute by hand and defend.
+
+| Design | Removes | Error df | Use when |
+|---|---|---|---|
+| **CRD** | Nothing | *N* &minus; *k* | Units homogeneous |
+| **RCBD** | One nuisance factor | (*t*&minus;1)(*b*&minus;1) | One known gradient |
+| **Latin square** | Two nuisance factors | (*p*&minus;1)(*p*&minus;2) | Two crossing gradients, 4 &le; *p* &le; 6 |
+| **Factorial** | -- (adds interaction) | *ab*(*n*&minus;1) | Two factors, interaction of interest |
+| **Split-plot** | -- (two unit sizes) | two error terms | A factor cannot go on a small plot |
+| **ANCOVA** | A continuous covariate | *N* &minus; *k* &minus; 1 | A measured baseline predictor exists |
+
+Plus the comparison machinery -- LSD, Tukey, Dunnett, Scheffe and orthogonal contrasts -- and the judgement about which belongs to which question.
+
+## The seven habits that matter most
+
+1. **Design first, analyse second.** Every failure in this course's scenarios was a design failure that no analysis could repair. The teaching-method study confounded with time of day; the one-tank-per-treatment fish experiment; the greenhouse trial with zero error df.
+
+2. **Ask what each factor was randomised to.** That answers three questions at once: what the experimental unit is, what your real *n* is, and how many error terms you need. It is the single most useful question in experimental design.
+
+3. **Check the df column before reading any *F*.** A 4x4 Latin square must show 3-3-3-6. A split-plot must show three error strata. An RCBD must not show an interaction line. The df are your checksum, and they catch the errors that silently produce plausible-looking output.
+
+4. **Verify your sums of squares.** &Sigma;*Y*&#178; &ge; CF always. SS(treatment) + SS(block) + SSE = TSS. Orthogonal contrasts sum to SS(treatment). Simple effects of B sum to SS(B) + SS(AxB). Each of these is free error detection.
+
+5. **Report CV% and an unbiased effect size.** The *p*-value tells a reader whether to believe you; the CV tells them whether the experiment was well executed; omega-squared or partial eta-squared tells them whether it matters.
+
+6. **Never pool error terms across levels of randomisation.** In our split-plot that inflated *F* from 33 to 103. The classroom, batch and hospital-ward versions of this error are everywhere in the published literature.
+
+7. **Test assumptions on the residuals, and say what you found.** Including when a block effect turned out not to matter, or when a Latin square's double blocking did not pay off. Reporting a design that did not earn its keep is more credible than silence.
+
+## Free textbooks
+
+- **Design and Analysis of Experiments**, Montgomery -- the standard reference. Not free, but in every engineering library. The split-plot and factorial chapters are the clearest treatments in print.
+- **Statistical Procedures for Agricultural Research**, Gomez & Gomez -- free PDF widely available, and the single most practical book for field trials. Written for rice researchers at IRRI; the worked examples are all real field data, and it covers the CV conventions and relative-efficiency calculations this course uses.
+- **A First Course in Design and Analysis of Experiments**, Oehlert -- **free PDF from the author** (users.stat.umn.edu/~gary/Book.html). A full graduate text, released at no cost. The best free option for this subject.
+- **Design of Comparative Experiments**, Bailey -- rigorous on randomisation structure and why it determines the analysis. Strong on the split-plot logic.
+- **Introduction to Modern Statistics** (openintro.org/book/ims) -- free, and the best free treatment of randomisation as the basis of inference.
+
+## Software, all free
+
+- **R** with **agricolae** -- the package built for this course's content. `design.crd`, `design.rcbd`, `design.lsd` and `design.split` generate randomised field books; `LSD.test`, `HSD.test`, `duncan.test` and `scheffe.test` run the comparisons with letter groupings already assembled.
+- **R** with **emmeans** for adjusted means, simple effects and custom contrasts on any model; **lmerTest** for split-plot and multilevel designs; **car** for Type III sums of squares; **effectsize** for omega-squared and partial eta-squared.
+- **Jamovi** (jamovi.org) -- point-and-click for CRD, RCBD, Latin square, factorial and ANCOVA. Add the **GAMLj** module for split-plot and mixed models, and **Rj** to run R code inside it.
+- **PSPP** (gnu.org/software/pspp) -- free, and close enough to SPSS that its menu paths mostly transfer.
+- **G*Power** (gpower.hhu.de) -- free, and the standard tool for the power calculations that set your replication before you start.
+- **Python** with `statsmodels` and `scipy.stats`. Every ANOVA table in this course was computed with `statsmodels.formula.api.ols` and `anova_lm`, and every *p*-value with `scipy.stats`.
+
+## A planning checklist for your own experiment
+
+Work through this before you collect anything.
+
+- [ ] **What is the response variable, and how precisely can I measure it?**
+- [ ] **What are the treatments, and do they have structure?** (Structure means contrasts, which means more power.)
+- [ ] **What is the experimental unit?** What will each treatment be independently applied to?
+- [ ] **Is there a nuisance factor I can identify?** One &rarr; RCBD. Two crossing &rarr; Latin square. None &rarr; CRD.
+- [ ] **Can every treatment be applied to every unit?** No &rarr; split-plot, and put the factor you care about on the sub-plot if the physics allows.
+- [ ] **Is there a baseline variable I can measure before treatment?** Yes &rarr; ANCOVA, for free precision.
+- [ ] **How many replications do I need?** Power analysis, with a floor of about 10-12 error df.
+- [ ] **How will I randomise, and how will I record it?** Seed or allocation sheet, kept.
+- [ ] **Which comparisons will I make?** Written down now, before the data exist.
+- [ ] **What will I do if an assumption fails?** Decided now, so the decision is not driven by the result.
+
+## Where to go next in this catalogue
+
+| If you want to... | Take |
+|---|---|
+| Design the study that generates the data | **Foundations of Research Methodology** |
+| Choose and run the right test from scratch | **Applied Statistics for Research** |
+| Firm up means, variances and distributions | **Basic Statistics: A Practical Start** |
+| Model relationships rather than compare groups | **Intermediate Statistics: Building Real Models** |
+| Handle ordinal or non-normal response data | **Nonparametric Statistics** |
+| Understand where *F*, *t* and chi-square come from | **Probability & Mathematical Statistics** |
+| Do SEM, PLS-SEM or survival analysis | **Advanced Statistics** |
+
+## One closing idea worth carrying forward
+
+Every design in this course is the same model with a different set of terms:
+
+```
+CRD          y ~ treatment
+RCBD         y ~ block + treatment
+Latin square y ~ row + column + treatment
+Factorial    y ~ A * B
+ANCOVA       y ~ covariate + treatment
+Split-plot   y ~ A * B + Error(block/A)
+```
+
+That is not a coincidence or a convenience of notation. They are all **linear models**, and ANOVA is what you call a linear model whose predictors are all categorical. The sums of squares you computed by hand are what least squares produces when the design matrix is made of zeros and ones.
+
+Which means the whole subject generalises in one step. Replace the normal error with a binomial and you have logistic regression for a yes/no response. Replace it with a Poisson and you have count models for insect counts or defect counts. Add random effects and you have the mixed models that handle any nesting structure you like -- the split-plot's two error terms are the simplest case of exactly that.
+
+```r
+glmer(survived ~ treatment + (1|block), family = binomial, data = d)
+glmer(count ~ treatment * variety + (1|block/treatment),
+      family = poisson, data = d)
+```
+
+The designs stay the same. What changes is the distribution you assume for the response. Everything you learned about randomisation, replication and local control carries over unchanged -- because those are properties of the experiment, not of the arithmetic.""",
+)
+
 # ===========================================================================
 # MAIN -- new lessons are inserted above this marker
 def main():
