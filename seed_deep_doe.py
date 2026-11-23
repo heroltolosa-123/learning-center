@@ -1623,6 +1623,500 @@ Rows = panellists, columns = position, treatments = products.
 )
 
 
+
+# ===========================================================================
+L(
+    "Factorial Experiments and Interaction",
+    """## What you will be able to do
+
+Analyse two factors at once, partition the treatment sum of squares into main effects and interaction, read an interaction plot correctly, and -- the decision most students get wrong -- know when a significant interaction means you must stop interpreting the main effects.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+A study tests two factors on exam scores:
+
+- **Factor A -- prior preparation:** Low or High (2 levels)
+- **Factor B -- teaching method:** M1, M2 or M3 (3 levels)
+
+Every combination is run, four students per cell. That is a **2 x 3 factorial** with *n* = 4, so 24 students.
+
+Cell means:
+
+| | M1 | M2 | M3 | Row mean |
+|---|---|---|---|---|
+| **Low** | 13.0 | 19.0 | 23.0 | 18.3333 |
+| **High** | 21.0 | 24.0 | 25.0 | 23.3333 |
+| **Column mean** | 17.0 | 21.5 | 24.0 | **20.8333** |
+
+Raw data, four observations per cell:
+
+```
+Low  M1: 12, 14, 13, 13      High M1: 20, 22, 21, 21
+Low  M2: 18, 20, 19, 19      High M2: 24, 25, 23, 24
+Low  M3: 22, 24, 23, 23      High M3: 25, 26, 24, 25
+```
+</div>
+
+## Why run two factors together rather than two experiments
+
+Three reasons, and the third is the one that only a factorial can give you.
+
+**Efficiency.** Twenty-four students give you a 6-replicate comparison of preparation levels *and* a 4-replicate comparison of methods, simultaneously. Two separate experiments of 24 students each would cost twice as much for the same precision. Every observation works for both factors -- this is called **hidden replication**.
+
+**Wider validity.** A one-factor method experiment run only on well-prepared students tells you about well-prepared students. The factorial tests methods across both preparation levels, so the conclusion generalises further.
+
+**Interaction.** Only a factorial can detect whether the effect of one factor **depends on the level of the other**. Two separate experiments cannot answer that question at all, no matter how large they are. And it is frequently the most important question in the study.
+
+## The model
+
+<div class="formula" markdown="1">
+**Y&#7522;&#11388;&#8342; = &mu; + &alpha;&#7522; + &beta;&#11388; + (&alpha;&beta;)&#7522;&#11388; + &epsilon;&#7522;&#11388;&#8342;**
+<span class="formula-note">&alpha; = main effect of A, &beta; = main effect of B, (&alpha;&beta;) = interaction, &epsilon; = error</span>
+</div>
+
+The interaction term is what separates a factorial from an RCBD with two blocking factors. It needs **replication within cells** to be estimable -- with *n* = 1 per cell, interaction and error are inseparable, exactly as in the RCBD.
+
+## Working the ANOVA by hand
+
+Cell totals (each over *n* = 4):
+
+| | M1 | M2 | M3 | Row total |
+|---|---|---|---|---|
+| **Low** | 52 | 76 | 92 | 220 |
+| **High** | 84 | 96 | 100 | 280 |
+| **Column total** | 136 | 172 | 192 | **500** |
+
+**Step 1. Constants.**
+
+```
+G = 500, N = 24, a = 2 levels of A, b = 3 levels of B, n = 4
+CF = 500^2/24 = 250000/24 = 10416.6667
+```
+
+**Step 2. Total sum of squares.**
+
+```
+sum of all squared observations = 10816
+TSS = 10816 - 10416.6667 = 399.3333
+```
+
+**Step 3. Main effect of A -- divide each row total by the number of observations behind it, which is b x n = 12.**
+
+```
+SS(A) = (220^2 + 280^2)/12 - 10416.6667
+      = (48400 + 78400)/12 - 10416.6667
+      = 126800/12 - 10416.6667
+      = 10566.6667 - 10416.6667
+      = 150.0
+```
+
+**Step 4. Main effect of B -- each column total is over a x n = 8 observations.**
+
+```
+SS(B) = (136^2 + 172^2 + 192^2)/8 - 10416.6667
+      = (18496 + 29584 + 36864)/8 - 10416.6667
+      = 84944/8 - 10416.6667
+      = 10618.0 - 10416.6667
+      = 201.3333
+```
+
+**Step 5. The cell (subtotal) sum of squares, then interaction by subtraction.**
+
+```
+SS(cells) = (52^2 + 76^2 + 92^2 + 84^2 + 96^2 + 100^2)/4 - 10416.6667
+          = (2704 + 5776 + 8464 + 7056 + 9216 + 10000)/4 - 10416.6667
+          = 43216/4 - 10416.6667
+          = 10804.0 - 10416.6667
+          = 387.3333
+
+SS(A x B) = SS(cells) - SS(A) - SS(B)
+          = 387.3333 - 150.0 - 201.3333
+          = 36.0
+```
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">What the interaction sum of squares is</span>
+
+SS(cells) captures **all** the variation among the six cell means. SS(A) and SS(B) capture the part explained by the two factors acting additively.
+
+What is left over -- 36.0 -- is the variation among cell means that **cannot** be explained by adding the two main effects. That is the interaction, defined by subtraction, which is exactly what "the effect of A depends on B" means arithmetically.
+</div>
+
+**Step 6. Error by subtraction.**
+
+```
+SSE = TSS - SS(cells) = 399.3333 - 387.3333 = 12.0
+```
+
+**Step 7. The ANOVA table.**
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| A (preparation) | 150.0000 | 1 | 150.0000 | **225.00** | **1.29e-11** |
+| B (method) | 201.3333 | 2 | 100.6667 | **151.00** | **5.64e-12** |
+| A x B | 36.0000 | 2 | 18.0000 | **27.00** | **3.81e-06** |
+| Error | 12.0000 | 18 | 0.6667 | | |
+| **Total** | **399.3333** | **23** | | | |
+
+Degrees of freedom: A = *a*&minus;1 = 1; B = *b*&minus;1 = 2; A x B = (*a*&minus;1)(*b*&minus;1) = 2; error = *ab*(*n*&minus;1) = 6(3) = 18; total = *N*&minus;1 = 23.
+
+```
+MSE = 12.0/18 = 0.6667
+F(A)   = 150.0000/0.6667 = 225.00
+F(B)   = 100.6667/0.6667 = 151.00
+F(AxB) =  18.0000/0.6667 =  27.00
+```
+
+**All three are significant**, and the interaction is the one to interpret first.
+
+## Effect sizes
+
+Partial eta-squared is the standard report for factorials:
+
+<div class="formula" markdown="1">
+**partial eta&#178; = SS(effect) / [ SS(effect) + SSE ]**
+<span class="formula-note">the proportion of variation explained by this effect, after removing the other effects</span>
+</div>
+
+```
+partial eta^2 (A)   = 150.0/(150.0 + 12.0)     = .926
+partial eta^2 (B)   = 201.3333/(201.3333 + 12) = .944
+partial eta^2 (AxB) =  36.0/(36.0 + 12.0)      = .750
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Partial eta-squared does not sum to 1</span>
+
+Here the three values add to 2.62. That is not an error -- each one uses a *different* denominator, because each removes the other effects before computing its share.
+
+If you want values that partition the total, use plain eta-squared: SS(effect)/TSS, giving .376, .504 and .090, which sum to .970 with the remaining .030 being error. Report partial eta-squared (the convention, and what SPSS prints) but never describe it as a share of total variance.
+</div>
+
+## The interaction: reading it properly
+
+**Step 1. Compute the simple effects** -- the effect of one factor *at each level* of the other.
+
+Effect of preparation (High &minus; Low) at each method:
+
+```
+at M1:  21.0 - 13.0 = +8.0
+at M2:  24.0 - 19.0 = +5.0
+at M3:  25.0 - 23.0 = +2.0
+```
+
+Effect of method within each preparation level:
+
+```
+Low:   M1 13.0 -> M2 19.0 -> M3 23.0     spread = 10.0
+High:  M1 21.0 -> M2 24.0 -> M3 25.0     spread =  4.0
+```
+
+**Step 2. Describe the pattern in words.** Both factors help, but **their benefits overlap**. Preparation matters a great deal under M1 (+8) and barely at all under M3 (+2). Equivalently: method choice matters a lot for poorly prepared students (a 10-point spread) and much less for well-prepared ones (4 points).
+
+The mechanism is a **ceiling**: M3 and High preparation each get students close to the maximum, so combining them adds little. This is the most common interaction shape in education research and it has a name -- *ordinal* (or non-crossing) interaction, because the ordering of the levels never reverses.
+
+**Step 3. The interaction plot.** Plot cell means with one factor on the x-axis and one line per level of the other.
+
+```
+score
+  26 |                                  High M3  *
+  25 |                       High M2 *        o  Low M3
+  24 |                                        
+  23 |                                 
+  22 |            High M1 *            
+  21 |                                 
+  20 |                        o  Low M2
+  19 |                                 
+     |                                 
+  14 |                                 
+  13 |    o  Low M1                    
+     +--------------------------------------------
+          M1            M2            M3
+
+  *  High preparation     o  Low preparation
+```
+
+**Parallel lines mean no interaction.** These lines converge -- the gap narrows from 8 to 5 to 2 -- so the interaction is real, and the convergence is its signature.
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Two kinds of interaction, and why the distinction matters</span>
+
+**Ordinal (converging or diverging, non-crossing).** The ranking of levels is the same at every level of the other factor -- High always beats Low, M3 always beats M1. Main effects are still *meaningful* here: "High preparation is better" is true everywhere, it just varies in size.
+
+**Disordinal (crossing lines).** The ranking reverses. Method M1 best for prepared students, M3 best for unprepared ones. Now the main effect of method is **actively misleading** -- the average across preparation levels describes no one, and reporting it would hide the finding.
+
+Ours is ordinal, so we may still report the main effects -- with the interaction stated alongside. If the lines had crossed, the honest report would be the simple effects only.
+</div>
+
+## Simple-effects tests: the correct follow-up
+
+With a significant interaction, test the effect of one factor *within* each level of the other rather than averaging over it.
+
+Effect of method within the Low group (three means, *n* = 4, using the full-model MSE = 0.6667 with its 18 df):
+
+```
+SS(B within Low) = (52^2 + 76^2 + 92^2)/4 - 220^2/12
+                 = (2704 + 5776 + 8464)/4 - 48400/12
+                 = 16944/4 - 4033.3333
+                 = 4236.0 - 4033.3333
+                 = 202.6667
+
+MS = 202.6667/2 = 101.3333
+F(2, 18) = 101.3333/0.6667 = 152.00     p < .0001
+```
+
+Effect of method within the High group:
+
+```
+SS(B within High) = (84^2 + 96^2 + 100^2)/4 - 280^2/12
+                  = (7056 + 9216 + 10000)/4 - 78400/12
+                  = 26272/4 - 6533.3333
+                  = 6568.0 - 6533.3333
+                  = 34.6667
+
+MS = 34.6667/2 = 17.3333
+F(2, 18) = 17.3333/0.6667 = 26.00       p < .0001
+```
+
+Check your work: 202.6667 + 34.6667 = 237.3333 = SS(B) + SS(AxB) = 201.3333 + 36.0. &#10003;
+
+That identity is worth noticing -- **the two simple effects of B together contain exactly the main effect of B plus the interaction**. It is why simple effects are the right decomposition when the interaction is significant.
+
+Both are significant, but the *F* values differ by a factor of six (152 against 26). Method matters in both groups, far more so for the unprepared.
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Use the pooled MSE, and correct for multiplicity</span>
+
+Two details that separate a correct simple-effects analysis from a wrong one.
+
+**Pooled MSE.** Use MSE from the full model (0.6667, df 18), not a fresh one-way ANOVA within each subgroup. The full model's error estimate uses all 24 observations and has 18 df; a within-subgroup ANOVA would have only 9. Pooling assumes equal variances across all cells -- which you should check, and which is already an ANOVA assumption.
+
+**Multiplicity.** You are running *a* = 2 simple-effects tests, so adjust. Bonferroni at alpha = .05/2 = .025 is the simple option. Both of ours survive easily, but a borderline result would not.
+</div>
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+
+**Analyses -> ANOVA -> ANOVA.**
+Dependent: score. Fixed Factors: prep and method.
+Here you **keep** the default full factorial model -- unlike the RCBD and Latin square, the interaction is the point.
+Under *Effect size* tick **partial eta-squared**.
+Under *Estimated Marginal Means*, add a term containing **both** factors to get the interaction plot; tick *Observed scores* to overlay the data.
+Under *Post Hoc Tests* move the interaction term across for cell-by-cell comparisons, or use **Simple Effects** in the *Estimated Marginal Means* panel.
+</div>
+
+**SPSS.** `Analyze -> General Linear Model -> Univariate`. Fixed Factors: prep and method. Leave the model as *Full factorial*. Then:
+
+- *Options* -> tick **Descriptive statistics**, **Estimates of effect size**, **Homogeneity tests**.
+- *Plots* -> put method on the *Horizontal Axis* and prep in *Separate Lines*, click Add. This is the interaction plot.
+- *EM Means* -> move `prep*method` into *Display Means for*, tick **Compare main effects**, and set the confidence-interval adjustment to Bonferroni.
+
+For proper simple-effects tests, SPSS needs syntax:
+
+```
+UNIANOVA score BY prep method
+  /EMMEANS = TABLES(prep*method) COMPARE(method) ADJ(BONFERRONI)
+  /PRINT = ETASQ DESCRIPTIVE
+  /DESIGN = prep method prep*method.
+```
+
+The `COMPARE(method)` keyword is what produces the method comparisons *within* each preparation level.
+
+**Excel.** The ToolPak handles balanced factorials: `Data -> Data Analysis -> Anova: Two-Factor With Replication`.
+
+Lay the data out with factor A levels as row blocks (4 rows each) and factor B levels as columns, with labels in the first row and first column. Set *Rows per sample* to 4. The output:
+
+```
+Source         SS        df   MS        F        P-value
+Sample        150.0000    1  150.0000  225.00   1.29E-11     <- factor A
+Columns       201.3333    2  100.6667  151.00   5.64E-12     <- factor B
+Interaction    36.0000    2   18.0000   27.00   3.81E-06
+Within         12.0000   18    0.6667
+Total         399.3333   23
+```
+
+"Sample" is the row factor, "Columns" the column factor, "Within" is error. Excel gives no plot and no post-hoc tests, but the table is exactly right -- and this is the one design where Excel's ToolPak genuinely does the whole analysis. Build the interaction plot manually from the cell means with a line chart.
+
+**R.**
+
+```r
+d <- data.frame(
+  prep   = factor(rep(c("Low","High"), each = 12), levels = c("Low","High")),
+  method = factor(rep(rep(c("M1","M2","M3"), each = 4), 2)),
+  score  = c(12,14,13,13, 18,20,19,19, 22,24,23,23,
+             20,22,21,21, 24,25,23,24, 25,26,24,25))
+
+m <- aov(score ~ prep * method, data = d)
+summary(m)
+#              Df Sum Sq Mean Sq F value   Pr(>F)
+# prep          1  150.0  150.00     225 1.29e-11 ***
+# method        2  201.3  100.67     151 5.64e-12 ***
+# prep:method   2   36.0   18.00      27 3.81e-06 ***
+# Residuals    18   12.0    0.67
+
+effectsize::eta_squared(m, partial = TRUE)    # .926, .944, .750
+
+# the interaction plot
+interaction.plot(d$method, d$prep, d$score,
+                 ylab = "score", xlab = "method", trace.label = "prep")
+
+# simple effects, done properly
+library(emmeans)
+em <- emmeans(m, ~ method | prep)
+joint_tests(m, by = "prep")       # F(2,18) = 152 for Low, 26 for High
+pairs(em, adjust = "bonferroni")  # method comparisons within each prep level
+
+emmeans(m, ~ prep | method) |> pairs()   # prep effect at each method: 8, 5, 2
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">`prep * method` versus `prep + method`</span>
+
+In R's formula notation, `*` means "both main effects **and** their interaction"; `+` means main effects only.
+
+Writing `score ~ prep + method` fits the additive model, which forces the 36.0 of interaction into the error term: SSE becomes 48.0 on 20 df, MSE becomes 2.40, and every *F* shrinks by a factor of 3.6. You would still find both main effects here because they are enormous, but you would miss the interaction entirely -- and the interaction is the finding.
+
+Use `*` whenever the design has replication within cells. Use `+` only when you *cannot* estimate the interaction (RCBD, Latin square) or have a specific reason to assume additivity.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">APA, factorial with a significant interaction</span>
+
+"A 2 x 3 between-subjects ANOVA found significant main effects of prior preparation, *F*(1, 18) = 225.00, *p* &lt; .001, partial eta&#178; = .93, and teaching method, *F*(2, 18) = 151.00, *p* &lt; .001, partial eta&#178; = .94, together with a significant interaction, *F*(2, 18) = 27.00, *p* &lt; .001, partial eta&#178; = .75.
+
+The interaction was ordinal: the advantage of high preparation declined across methods, from 8.0 points under M1 to 5.0 under M2 and 2.0 under M3. Simple-effects tests confirmed that method mattered in both groups but far more for less-prepared students, *F*(2, 18) = 152.00, *p* &lt; .001, than for well-prepared ones, *F*(2, 18) = 26.00, *p* &lt; .001 (Bonferroni-adjusted). The pattern is consistent with a ceiling: M3 and high preparation each bring students close to the maximum attainable score, so their benefits do not accumulate.
+
+Practically, method choice matters most where preparation is weakest -- the 10-point spread across methods in the low-preparation group narrows to 4 points in the high-preparation group."
+</div>
+
+Note the structure: the full table first, then the interaction described in plain language with its numbers, then the simple effects, then one sentence on what it means for practice. The interaction is reported *before* being interpreted, and the main effects are not abandoned because the interaction is ordinal.
+
+## Common mistakes
+
+1. **Interpreting main effects without checking the interaction first.** Always read the interaction line first.
+2. **Reporting main effects after a *disordinal* interaction.** If the lines cross, the average effect describes nobody. Report simple effects.
+3. **Fitting `+` instead of `*`.** The interaction sum of squares lands in error, inflating MSE and deflating every *F*.
+4. **Claiming "no interaction" from a non-significant *F*.** With small *n*, interaction tests are badly underpowered -- interaction effects typically need around four times the sample size of main effects. Say "no interaction was detected", and report the effect size.
+5. **Saying partial eta-squared values partition the variance.** Different denominators; they can sum past 1.
+6. **Running separate one-way ANOVAs within each subgroup for simple effects.** Use the pooled MSE from the full model, with its larger df.
+7. **Forgetting to adjust for multiplicity across simple-effects tests.**
+8. **Removing the interaction term because it is not significant, then reporting the simplified model as if planned.** If you do pool it into error, say so.
+
+## Practice
+
+<details markdown="1">
+<summary>1. A 2 x 2 factorial with n = 5 per cell. What are the four degrees of freedom in the ANOVA table?</summary>
+
+```
+A         : a - 1           = 1
+B         : b - 1           = 1
+A x B     : (a-1)(b-1)      = 1
+Error     : ab(n-1) = 4(4)  = 16
+Total     : N - 1 = 20 - 1  = 19
+
+check: 1 + 1 + 1 + 16 = 19   OK
+```
+
+A 2 x 2 is the smallest useful factorial and it has a convenient property: every effect has 1 df, so each *F* has a corresponding *t* with *F* = *t*&#178;, and each effect is a single contrast with an unambiguous direction. No post-hoc tests are ever needed -- with two levels, a significant *F* already tells you which is higher.
+</details>
+
+<details markdown="1">
+<summary>2. Cell means are A1B1 = 10, A1B2 = 20, A2B1 = 20, A2B2 = 30. Is there an interaction?</summary>
+
+Compute the effect of B at each level of A:
+
+```
+at A1:  20 - 10 = +10
+at A2:  30 - 20 = +10
+```
+
+**Identical.** No interaction -- the effect of B is +10 regardless of A.
+
+Formally, the interaction contrast is (A1B1 &minus; A1B2) &minus; (A2B1 &minus; A2B2) = (10&minus;20) &minus; (20&minus;30) = &minus;10 &minus; (&minus;10) = **0**, so SS(AxB) = 0 exactly.
+
+This is **perfect additivity**: the cell mean is the grand mean plus a row effect plus a column effect, with nothing left over. Plotted, the two lines are exactly parallel.
+
+Compare with our worked example, where the effect of preparation was +8, +5, +2 -- changing across levels of method, which is what made SS(AxB) = 36.0 rather than 0.
+</details>
+
+<details markdown="1">
+<summary>3. Cell means are A1B1 = 10, A1B2 = 25, A2B1 = 25, A2B2 = 10. Describe the main effects and the interaction.</summary>
+
+Marginal means:
+
+```
+A1 = (10 + 25)/2 = 17.5        A2 = (25 + 10)/2 = 17.5
+B1 = (10 + 25)/2 = 17.5        B2 = (25 + 10)/2 = 17.5
+```
+
+**Both main effects are exactly zero.** SS(A) = 0 and SS(B) = 0.
+
+But the cell means range from 10 to 25, so there is a great deal of variation among them -- and all of it is interaction. The interaction contrast is (10&minus;25) &minus; (25&minus;10) = &minus;15 &minus; 15 = &minus;30, the largest possible given these values.
+
+The pattern is **purely disordinal**: B2 is better than B1 at level A1 (25 vs 10), and worse at level A2 (10 vs 25). The lines cross in an X.
+
+**The lesson, and it is the central one of this lesson:** a factorial can find a large, important effect where both main effects are zero. Had you run two separate single-factor experiments, both would have returned "no effect" and you would have concluded nothing is going on -- when in fact the combination matters enormously.
+
+**How to report it:** the main effects are not merely uninformative, they are *actively misleading*. Report the interaction, the cell means, and the simple effects. Do not report "no effect of A" as a finding.
+</details>
+
+<details markdown="1">
+<summary>4. Your interaction is F(2, 18) = 2.4, p = .12, partial eta-squared = .21. Can you conclude the factors are additive?</summary>
+
+No. You can conclude only that **this experiment did not detect an interaction**, which is a much weaker statement.
+
+The effect size is the reason to be careful. A partial eta-squared of .21 is a *large* effect by conventional benchmarks (.01 small, .06 medium, .14 large). You have a large estimated interaction that failed to reach significance -- which is the signature of an underpowered test, not of additivity.
+
+**Why this happens so often.** Interaction tests are inherently less powerful than main-effect tests. A main effect in our 2 x 3 design is estimated from 12 observations per level; the interaction is a contrast of contrasts, estimated from the cell means, and its standard error is correspondingly larger. The usual rule of thumb is that detecting an interaction of a given size needs roughly **four times** the sample size needed for a main effect of that size.
+
+**What to report:** "No significant interaction was detected, *F*(2, 18) = 2.40, *p* = .12, though the effect size was substantial (partial eta&#178; = .21), so the study was underpowered to detect an interaction of this magnitude. Main effects are therefore reported with that caveat."
+
+**What not to do:** drop the interaction term, re-run the additive model, and present it as the planned analysis. If you do pool the interaction into error to gain degrees of freedom, state that you did and why.
+</details>
+
+<details markdown="1">
+<summary>5. Why do the two simple effects of B (202.6667 and 34.6667) sum to SS(B) + SS(AxB)?</summary>
+
+Because together they account for all the variation among the six cell means that involves B -- and that variation is exactly SS(B) + SS(AxB).
+
+Think of it as two ways to slice the same thing. SS(cells) = 387.3333 is the total variation among cell means, and it decomposes as SS(A) + SS(B) + SS(AxB) = 150 + 201.3333 + 36.
+
+The simple effects of B slice it differently: SS(B within Low) + SS(B within High) = 202.6667 + 34.6667 = 237.3333 captures all the within-row variation, leaving SS(A) = 150 as the between-row part. And 237.3333 = 201.3333 + 36 = SS(B) + SS(AxB). &#10003;
+
+**Why this matters practically.** It shows that simple effects are not an extra, optional analysis bolted on after the fact -- they are an **alternative complete decomposition** of the same sums of squares. When the interaction is significant, the simple-effects slicing is the one that describes the data honestly, because it never averages an effect over conditions where that effect differs.
+
+It is also a free arithmetic check. If your two simple-effects sums of squares do not add to SS(B) + SS(AxB), you have made an error.
+</details>
+
+## Before you move on
+
+- [ ] I can partition SS(cells) into SS(A), SS(B) and SS(AxB), getting the interaction by subtraction.
+- [ ] I divide row totals by *bn* and column totals by *an*, and I know which is which.
+- [ ] I read the interaction line of the table **before** the main effects.
+- [ ] I can tell an ordinal interaction from a disordinal one and know what each permits me to report.
+- [ ] I can compute simple effects and verify they sum to SS(B) + SS(AxB).
+- [ ] I use the pooled MSE for simple effects and adjust for multiplicity.
+- [ ] I know `*` includes the interaction and `+` does not.
+- [ ] I never read a non-significant interaction as proof of additivity, and I report its effect size.""",
+    quiz={
+        "question": "Cell means are A1B1 = 10, A1B2 = 25, A2B1 = 25, A2B2 = 10. What should you report?",
+        "options": [
+            "No effects, since both marginal means are 17.5 and SS(A) = SS(B) = 0",
+            "A large disordinal interaction with the cell means and simple effects — the zero main effects are misleading, not a finding",
+            "Only the main effects, because the interaction cannot be interpreted without more data",
+            "An ordinal interaction, since all four cell means are between 10 and 25",
+        ],
+        "answer": 1,
+        "explanation": "Both main effects are exactly zero, yet the cell means span 10 to 25 — all of that variation is interaction. B2 beats B1 at A1 and loses at A2, so the lines cross. Two separate single-factor experiments would both have reported nothing.",
+    },
+)
+
 # ===========================================================================
 # MAIN -- new lessons are inserted above this marker
 def main():
