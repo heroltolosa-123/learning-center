@@ -837,3 +837,398 @@ A CV of 28% means the within-treatment standard deviation is 28% of the mean -- 
         "explanation": "MSE estimates error variance whether or not treatments differ. MS(treatment) estimates error variance plus a treatment component. Under the null both estimate the same thing and F is near 1, so F = 35.33 is strong evidence against it. The proportion of variation explained is eta-squared = .87, a separate quantity.",
     },
 )
+
+
+# ===========================================================================
+L(
+    "Randomized Complete Block Design",
+    """## What you will be able to do
+
+Partition the total sum of squares into treatment, block and error; demonstrate with real numbers what blocking buys you; compute relative efficiency; and recognise the two situations that break an RCBD.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+The same four fertilisers, but now the field slopes. Soil moisture rises from the top of the slope to the bottom, so plots are **not** uniform.
+
+Four strips are laid out across the slope, each internally uniform. Each strip is a block and receives all four treatments, randomised within it.
+
+| Block | A | B | C | D | Block total |
+|---|---|---|---|---|---|
+| 1 | 23 | 27 | 34 | 24 | 108 |
+| 2 | 19 | 27 | 29 | 24 | 99 |
+| 3 | 25 | 31 | 34 | 28 | 118 |
+| 4 | 20 | 26 | 33 | 23 | 102 |
+| **Treatment total** | **87** | **111** | **130** | **99** | **427** |
+| **Treatment mean** | 21.75 | 27.75 | 32.50 | 24.75 | **26.6875** |
+</div>
+
+Block 3 totals 118 and block 2 totals 99 -- a 19-unit spread that has nothing to do with treatment. In a CRD that spread would sit inside the error term. Here it comes out as a named source.
+
+## The two requirements
+
+An RCBD is "complete" because **every treatment appears in every block, exactly once**. That is not a convention; the analysis depends on it.
+
+| Requirement | Why | What breaks it |
+|---|---|---|
+| Every treatment in every block | Treatment effects are estimated free of block effects | More treatments than units per block |
+| Treatments randomised **within** each block | Position inside a block is not confounded with treatment | Using the same order in each block |
+
+If you have more treatments than will fit in a homogeneous block, you need a **balanced incomplete block design** -- a different and harder analysis. Do not just drop treatments from some blocks.
+
+## The model
+
+<div class="formula" markdown="1">
+**Y&#7522;&#11388; = &mu; + &tau;&#7522; + &beta;&#11388; + &epsilon;&#7522;&#11388;**
+<span class="formula-note">one new term: &beta;&#11388;, the effect of block j</span>
+</div>
+
+There is no interaction term, and that is an assumption, not an oversight: the RCBD assumes treatments behave the **same way in every block**. If treatment C is best in block 1 but worst in block 4, that assumption fails and the error term absorbs the inconsistency, inflating MSE.
+
+With one observation per treatment-block cell, treatment x block interaction and error are inseparable. The error term *is* the interaction. This is why the RCBD's error line is sometimes written "treatment x block".
+
+## Working it by hand
+
+**Step 1. The constants.**
+
+```
+G = 427, N = 16, t = 4 treatments, b = 4 blocks
+CF = 427^2/16 = 182329/16 = 11395.5625
+```
+
+**Step 2. Total sum of squares.**
+
+```
+sum of all squared observations:
+  block 1: 529 + 729 + 1156 + 576 = 2990
+  block 2: 361 + 729 +  841 + 576 = 2507
+  block 3: 625 + 961 + 1156 + 784 = 3526
+  block 4: 400 + 676 + 1089 + 529 = 2694
+                            total = 11717
+
+TSS = 11717 - 11395.5625 = 321.4375
+```
+
+**Step 3. Treatment sum of squares -- divide by the number of *blocks*, since each treatment total is over *b* observations.**
+
+```
+SS(treat) = (87^2 + 111^2 + 130^2 + 99^2)/4 - 11395.5625
+          = (7569 + 12321 + 16900 + 9801)/4 - 11395.5625
+          = 46591/4 - 11395.5625
+          = 11647.75 - 11395.5625
+          = 252.1875
+```
+
+**Step 4. Block sum of squares -- divide by the number of *treatments*.**
+
+```
+SS(block) = (108^2 + 99^2 + 118^2 + 102^2)/4 - 11395.5625
+          = (11664 + 9801 + 13924 + 10404)/4 - 11395.5625
+          = 45793/4 - 11395.5625
+          = 11448.25 - 11395.5625
+          = 52.6875
+```
+
+**Step 5. Error by subtraction.**
+
+```
+SSE = TSS - SS(treat) - SS(block)
+    = 321.4375 - 252.1875 - 52.6875
+    = 16.5625
+```
+
+**Step 6. The ANOVA table.**
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| Block | 52.6875 | 3 | 17.5625 | **9.5434** | **.0037** |
+| Treatment | 252.1875 | 3 | 84.0625 | **45.6792** | **9.03e-06** |
+| Error | 16.5625 | 9 | 1.8403 | | |
+| **Total** | **321.4375** | **15** | | | |
+
+Error df = (*t* &minus; 1)(*b* &minus; 1) = 3 x 3 = **9**. Note what you paid: the CRD on 16 units would have had 12 error df. Blocking cost 3 df.
+
+```
+MSE = 16.5625/9 = 1.8403
+F(treat) = 84.0625/1.8403 = 45.6792
+F(block) = 17.5625/1.8403 = 9.5434
+CV% = 100 x sqrt(1.8403)/26.6875 = 5.08%
+```
+
+Both are significant. The treatments differ, **and** the blocking was worth doing.
+
+## What blocking actually bought: the same data, analysed both ways
+
+This is the most instructive calculation in the lesson. Take the identical 16 observations and ignore the blocks.
+
+```
+As a CRD:  SSE = TSS - SS(treat)
+               = 321.4375 - 252.1875
+               = 69.25     (df = 16 - 4 = 12)
+           MSE = 69.25/12 = 5.7708
+           F   = 84.0625/5.7708 = 14.5668   p = .000265
+```
+
+Side by side:
+
+| | SSE | df | MSE | F(treatment) | p |
+|---|---|---|---|---|---|
+| **RCBD** | 16.56 | 9 | **1.8403** | **45.68** | .0000090 |
+| **CRD (blocks ignored)** | 69.25 | 12 | **5.7708** | **14.57** | .00027 |
+
+The 52.69 units of block variation moved from the error term into its own line. MSE fell by a factor of 3.14 and *F* more than tripled -- **even though blocking cost 3 error degrees of freedom**.
+
+Both analyses reject, because the treatment effect is enormous. But imagine the effect were a third as large. The RCBD's *F* would be about 5.1 (significant at 9 df, where the critical value is 3.86) while the CRD's would be about 1.6 (nowhere near the 3.49 needed at 12 df). The blocked design would find it; the unblocked one would not.
+
+## Relative efficiency: pricing the gain
+
+<div class="formula" markdown="1">
+**RE = [ (b&minus;1)MS&#8342; + b(t&minus;1)MSE ] / [ (bt&minus;1) MSE ]**
+<span class="formula-note">MS&#8342; = block mean square; the result is how many CRD reps equal one RCBD rep</span>
+</div>
+
+```
+RE = [ 3 x 17.5625 + 4 x 3 x 1.8403 ] / [ 15 x 1.8403 ]
+   = [ 52.6875 + 22.0833 ] / 27.6042
+   = 74.7708 / 27.6042
+   = 2.709
+```
+
+**This 4-block experiment is worth about 10.8 CRD replications** (4 x 2.709). To match it without blocking you would need roughly 11 plots per treatment -- 44 plots instead of 16.
+
+An RE below 1 would mean blocking cost more in degrees of freedom than it saved in error, which happens when the blocks are no more homogeneous than the field as a whole.
+
+## Mean comparisons
+
+Same procedures as the CRD, with *b* in place of *n* and the RCBD's error df:
+
+```
+LSD = t(.975, 9) x sqrt(2 MSE / b)
+    = 2.2622 x sqrt(2 x 1.8403/4)
+    = 2.2622 x 0.9593
+    = 2.1699
+
+Tukey HSD = q(.05, 4, 9) x sqrt(MSE/b)
+          = 4.415 x sqrt(1.8403/4)
+          = 4.415 x 0.6783
+          = 2.9946
+```
+
+Treatment means: C 32.50, B 27.75, D 24.75, A 21.75.
+
+| Pair | Difference | > HSD 2.9946? |
+|---|---|---|
+| C vs A | 10.75 | yes |
+| C vs D | 7.75 | yes |
+| C vs B | 4.75 | yes |
+| B vs A | 6.00 | yes |
+| B vs D | 3.00 | yes (just) |
+| D vs A | 3.00 | yes (just) |
+
+```
+C  32.50  a
+B  27.75  b
+D  24.75  c
+A  21.75  d
+```
+
+All four treatments separate. Compare with the CRD lesson, where B and D could not be distinguished -- same treatments, same effect sizes, but the smaller MSE here resolves a 3-unit difference that the CRD could not. That is the power of blocking made concrete.
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Why blocks get no mean comparisons</span>
+You will see an *F* test for blocks but never a Tukey test on block means. Blocks are a nuisance factor -- you are not interested in which strip of field yielded more, only in removing that variation.
+
+Report *F*(block) because it tells the reader whether blocking was justified. Do not interpret it as a finding, and do not compare block means. If you *are* interested in the differences, it is not a block; it is a factor, and you want the factorial design in a later lesson.
+</div>
+
+## Missing data: the one real headache
+
+An RCBD with a missing plot is no longer balanced, and the hand formulas above stop working. Three options:
+
+**Estimate the missing value** (the classical approach):
+
+<div class="formula" markdown="1">
+**Y&#770; = (t T&#8242; + b B&#8242; &minus; G&#8242;) / [ (t&minus;1)(b&minus;1) ]**
+<span class="formula-note">T&#8242;, B&#8242;, G&#8242; = totals of the treatment, block and whole experiment *excluding* the missing unit</span>
+</div>
+
+Then analyse as complete, but **subtract one degree of freedom from error** -- you estimated a value, you did not observe one. Forgetting that step overstates your precision.
+
+**Fit the model by least squares** instead. `lm()` or `aov()` in R, and SPSS's GLM, handle unbalanced data correctly with no estimation step. This is the modern answer, and you should prefer it. One caution: with unbalanced data, Type I and Type III sums of squares differ, so state which you report (Type III is standard for unbalanced designs).
+
+**Analyse as a CRD**, losing the blocking. Acceptable only if the block effect was negligible, which here it is not.
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+**Analyses -> ANOVA -> ANOVA.**
+Dependent: yield. Fixed Factors: **treatment and block** -- both go in.
+Under *Model*, open the Model Terms box and make sure only the two **main effects** are included. Jamovi adds `treatment * block` by default; remove the interaction term, or you will have zero error df and no *F* tests at all.
+Under *Post Hoc Tests*, move **treatment only** across and choose Tukey.
+</div>
+
+**SPSS.** `Analyze -> General Linear Model -> Univariate`. Dependent: yield. Fixed Factor(s): treatment and block. Then click **Model**, choose *Custom*, move `treatment` and `block` into *Model* as **Main effects** (not the interaction), and set *Sum of squares* to Type III. Post hoc on treatment only.
+
+Same trap as Jamovi: the default *Full factorial* model includes the interaction, which consumes every error degree of freedom.
+
+**Excel.** The ToolPak does this one directly: `Data -> Data Analysis -> Anova: Two-Factor Without Replication`.
+
+Lay the data out as a 4 x 4 grid with block labels down the left and treatment labels across the top. The output gives:
+
+```
+Source    SS        df   MS        F        P-value
+Rows      52.6875    3   17.5625   9.5434   0.00371
+Columns  252.1875    3   84.0625  45.6792   0.0000090
+Error     16.5625    9    1.8403
+Total    321.4375   15
+```
+
+"Rows" is blocks and "Columns" is treatments in this layout. The name "Two-Factor Without Replication" **is** the RCBD -- Excel just does not call it that. No post-hoc tests, so compute LSD by hand:
+
+```
+=T.INV.2T(0.05,9)*SQRT(2*1.8403/4)       ' 2.1699
+```
+
+**R.**
+
+```r
+d <- data.frame(
+  block = factor(rep(1:4, each = 4)),
+  trt   = factor(rep(c("A","B","C","D"), 4)),
+  yield = c(23,27,34,24, 19,27,29,24, 25,31,34,28, 20,26,33,23))
+
+m <- aov(yield ~ block + trt, data = d)
+summary(m)
+#             Df Sum Sq Mean Sq F value   Pr(>F)
+# block        3  52.69  17.563   9.543  0.00371 **
+# trt          3 252.19  84.063  45.679 9.03e-06 ***
+# Residuals    9  16.56   1.840
+
+TukeyHSD(m, "trt")
+agricolae::LSD.test(m, "trt", console = TRUE)
+
+# the comparison that makes the case for blocking
+summary(aov(yield ~ trt, data = d))      # F = 14.57, MSE = 5.77
+
+# relative efficiency, computed directly
+a  <- summary(m)[[1]]
+msb <- a["block  ", "Mean Sq"]; mse <- a["Residuals", "Mean Sq"]
+(3*msb + 4*3*mse) / (15*mse)             # 2.709
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Block must be a factor</span>
+If `block` is stored as the numbers 1, 2, 3, 4 and you do not wrap it in `factor()`, R fits it as a **linear covariate with 1 df** instead of 4 levels with 3 df. The block line will show `Df 1`, the error df will be wrong, and every *F* in the table will be wrong.
+
+Check the `Df` column against what you expect before reading anything else. `Df 1` on a 4-level block is the signature of this error.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">Agronomy / APA report</span>
+"Yield was analysed as a randomised complete block design with four fertiliser treatments and four blocks defined by position along the field's moisture gradient. The treatment effect was significant, *F*(3, 9) = 45.68, *p* &lt; .001, as was the block effect, *F*(3, 9) = 9.54, *p* = .004, confirming that blocking was warranted. The coefficient of variation was 5.1%.
+
+Tukey's HSD (critical difference 2.99 kg) separated all four treatments: C (32.50 kg) &gt; B (27.75) &gt; D (24.75) &gt; A (21.75). Relative efficiency of the blocked design against a completely randomised design was 2.71, indicating that the four blocks provided precision equivalent to approximately eleven unblocked replications."
+</div>
+
+The relative-efficiency sentence is the one most student write-ups omit and the one a methods-minded examiner most appreciates. It justifies the design choice with a number.
+
+## Common mistakes
+
+1. **Leaving the treatment x block interaction in the model.** With one observation per cell it consumes all the error df and you get no tests. Remove it in both Jamovi and SPSS.
+2. **Not wrapping block in `factor()` in R.** Silently fits a 1-df linear trend instead of a 4-level factor.
+3. **Running Tukey on block means.** Blocks are a nuisance factor.
+4. **Dropping the block term because *F*(block) is non-significant.** You randomised within blocks; the analysis must reflect the design.
+5. **Dividing treatment totals by the wrong count.** Treatment totals are over *b* observations, block totals over *t*. Mixing them up is the most common hand-calculation error here.
+6. **Using an incomplete block design and analysing it as complete.** Every treatment must appear in every block.
+7. **Forgetting to subtract an error df after estimating a missing value.**
+8. **Using the same treatment order in every block.** Randomise within each block separately, or position is confounded with treatment.
+
+## Practice
+
+<details markdown="1">
+<summary>1. An RCBD has 5 treatments and 3 blocks. How many error degrees of freedom, and what is the problem?</summary>
+
+```
+error df = (t-1)(b-1) = (5-1)(3-1) = 4 x 2 = 8
+total df = 15 - 1 = 14
+```
+
+Eight error df is **workable but tight**. Critical *F*(4, 8) at .05 is 3.84, against 2.93 for *F*(4, 16). You need a substantially larger effect to reach significance.
+
+The practical consequence is in the mean comparisons: *t*(.975, 8) = 2.306 and the LSD multiplier &radic;(2/3) = 0.816, so LSD = 1.882&radic;MSE. Compare with 5 blocks, where it would be 1.482&radic;MSE -- a 27% narrower critical difference.
+
+**The fix is more blocks, not more treatments.** Going from 3 to 5 blocks takes error df from 8 to 16 and roughly halves the critical *F*. Blocks are usually the cheaper thing to add, since a block is just another strip of field or another day of testing.
+</details>
+
+<details markdown="1">
+<summary>2. F(block) = 1.2, p = .36, and relative efficiency computes to 0.93. Interpret.</summary>
+
+RE below 1 means **blocking made the experiment slightly worse**.
+
+The blocks captured almost no variation (hence the non-significant *F*), but you still paid 3 degrees of freedom for them. Those df came out of error, so MSE is marginally higher than a CRD's would have been. RE = 0.93 says the blocked experiment is worth about 93% of an unblocked one of the same size -- a 7% loss.
+
+**What you should do:** nothing to the analysis. Report the design as run, including the non-significant block effect. Do not re-analyse as a CRD, and do not present the CRD result as your primary analysis.
+
+**What you learn for next time:** the blocking variable you chose does not drive variation in this response. Either find the variable that does -- look at a map of the residuals, which often shows the real gradient -- or accept that the units are genuinely homogeneous and use a CRD, which will then give you the extra df.
+
+Worth keeping in proportion: a 7% loss is cheap insurance against the alternative outcome, where an unblocked design buries a real effect under gradient variation.
+</details>
+
+<details markdown="1">
+<summary>3. Why does the RCBD have no interaction term, and what happens if treatments really do behave differently in different blocks?</summary>
+
+**Why there is no term:** with one observation per treatment-block cell there are *tb* observations and *tb* parameters needed to describe all the cell means. Nothing is left to estimate error from. Treatment x block interaction and error are mathematically the same sum of squares, so the design can fit one or the other, not both.
+
+**What happens when the interaction is real:** it goes into the error term. MSE is inflated, *F*(treatment) is deflated, and the test loses power. You will not see a warning; you will just have a weaker experiment and possibly a missed effect.
+
+**How to detect it:** plot treatment means by block -- an interaction plot. Parallel lines mean no interaction. Lines that cross, or fan out sharply, mean the treatment effect depends on the block. Tukey's one-degree-of-freedom test for non-additivity gives a formal check.
+
+**What to do about it:** if the interaction is substantial, it is itself a finding -- "treatment C works in wet soil but not dry" is more useful than an average effect that applies nowhere. To estimate it you need **replication within blocks**: put each treatment in each block two or more times. That turns the design into a factorial with blocks and lets you test the interaction properly, at the cost of more units.
+</details>
+
+<details markdown="1">
+<summary>4. Compute the missing value for an RCBD with t = 4, b = 4, where one plot is lost. The treatment total excluding it is 66, the block total excluding it is 78, and the grand total excluding it is 400.</summary>
+
+```
+Yhat = (t T' + b B' - G') / [(t-1)(b-1)]
+     = (4 x 66 + 4 x 78 - 400) / (3 x 3)
+     = (264 + 312 - 400) / 9
+     = 176/9
+     = 19.56
+```
+
+Then analyse the completed 16-value dataset as a normal RCBD, **but with error df = 9 &minus; 1 = 8**, not 9.
+
+The df adjustment is the step people forget, and it matters: you supplied that value from the other observations, so it carries no independent information. Keeping 9 df would make MSE too small and every *F* too large.
+
+The formula itself is just the value that makes the residual for that cell exactly zero under the additive model -- in other words, the value the model predicts. That is also why it adds no information: it is a fitted value, not data.
+
+**In practice, use least squares instead.** `aov(yield ~ block + trt)` on the 15 real observations handles the imbalance correctly, gets the df right automatically, and does not require you to remember the formula. Report Type III sums of squares.
+</details>
+
+## Before you move on
+
+- [ ] I can partition TSS into treatment, block and error by hand.
+- [ ] I divide treatment totals by *b* and block totals by *t*, and I know which is which.
+- [ ] I can compute error df as (*t*&minus;1)(*b*&minus;1) and say what blocking cost me.
+- [ ] I can re-analyse the same data as a CRD to show what blocking bought.
+- [ ] I can compute relative efficiency and state it as "equivalent to N unblocked reps".
+- [ ] I remove the interaction term in Jamovi and SPSS, and wrap block in `factor()` in R.
+- [ ] I report *F*(block) but never compare block means.
+- [ ] I know what to do when a plot is missing, including the df adjustment.""",
+    quiz={
+        "question": "The same 16 observations give MSE = 1.84 as an RCBD and MSE = 5.77 analysed as a CRD, even though the RCBD has fewer error degrees of freedom. Why?",
+        "options": [
+            "The RCBD uses a different formula for the error sum of squares",
+            "Blocking moved 52.69 units of block-to-block variation out of the error term into its own line, and that gain outweighed the 3 degrees of freedom it cost",
+            "The CRD analysis is incorrect and should not be computed",
+            "Fewer degrees of freedom always produce a smaller mean square",
+        ],
+        "answer": 1,
+        "explanation": "SSE fell from 69.25 to 16.56 because the block sum of squares was extracted from it. Dividing a much smaller SS by a slightly smaller df still gives a much smaller MSE. Relative efficiency of 2.71 prices the net gain.",
+    },
+)
