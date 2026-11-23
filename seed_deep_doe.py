@@ -1232,3 +1232,432 @@ The formula itself is just the value that makes the residual for that cell exact
         "explanation": "SSE fell from 69.25 to 16.56 because the block sum of squares was extracted from it. Dividing a much smaller SS by a slightly smaller df still gives a much smaller MSE. Relative efficiency of 2.71 prices the net gain.",
     },
 )
+
+
+# ===========================================================================
+L(
+    "Latin Square Designs",
+    """## What you will be able to do
+
+Build and analyse a Latin square -- the design that removes **two** nuisance factors at once -- partition the sum of squares four ways, and judge when the design's severe constraints make it the wrong choice.
+
+## The situation
+
+<div class="callout callout-case" markdown="1">
+<span class="callout-label">Scenario</span>
+Four fertilisers again, but the field now varies in **two** directions: moisture increases down the slope (north to south) and soil depth increases west to east.
+
+One set of blocks can only remove one gradient. A Latin square removes both.
+
+Rows = moisture strips. Columns = depth strips. Each treatment appears **exactly once in every row and exactly once in every column**:
+
+| | Col 1 | Col 2 | Col 3 | Col 4 | Row total |
+|---|---|---|---|---|---|
+| **Row 1** | A 23 | B 31 | C 36 | D 28 | 118 |
+| **Row 2** | B 29 | C 35 | D 28 | A 19 | 111 |
+| **Row 3** | C 34 | D 27 | A 20 | B 30 | 111 |
+| **Row 4** | D 28 | A 19 | B 30 | C 35 | 112 |
+| **Col total** | 114 | 112 | 114 | 112 | **452** |
+
+Treatment totals: A 81, B 120, C 140, D 111. Grand total 452, grand mean 28.25.
+</div>
+
+## The defining constraint, and its cost
+
+A Latin square must be **square**: the number of treatments, rows and columns are all equal to *p*. Four treatments force exactly 4 rows and 4 columns and exactly 16 plots. You cannot choose the replication.
+
+<div class="formula" markdown="1">
+**error df = (p &minus; 1)(p &minus; 2)**
+</div>
+
+| *p* | Units | Error df | Verdict |
+|---|---|---|---|
+| 3 | 9 | **2** | Unusable |
+| 4 | 16 | **6** | Minimum workable |
+| 5 | 25 | **12** | Comfortable |
+| 6 | 36 | **20** | Good |
+| 8 | 64 | **42** | Often impractically large |
+
+This is the design's central problem. At *p* = 3 you have 2 error df and critical *F*(2,2) at .05 is 19.00 -- nothing will ever be significant. At *p* = 8 you need 64 units.
+
+**The practical range is p = 4 to 6.** Outside it, use something else.
+
+The fix for small *p* is **replicated Latin squares**: run two or more squares and pool. Two 4x4 squares give 32 plots and 13 error df (or more, depending on how rows and columns are treated across squares).
+
+## Constructing a square
+
+A standard square is built by cyclically shifting the treatment letters:
+
+```
+A B C D
+B C D A
+C D A B
+D A B C
+```
+
+Then **randomise**: shuffle the row order, shuffle the column order, and randomly reassign treatment letters to the actual treatments. Doing only one of the three leaves a systematic pattern.
+
+```r
+agricolae::design.lsd(trt = c("A","B","C","D"), seed = 2026)$book
+```
+
+Never use the standard square as laid out above. Its diagonal structure means treatment A always sits on a diagonal, which can align with a real diagonal gradient.
+
+## The model
+
+<div class="formula" markdown="1">
+**Y&#7522;&#11388;&#8342; = &mu; + &rho;&#7522; + &gamma;&#11388; + &tau;&#8342; + &epsilon;&#7522;&#11388;&#8342;**
+<span class="formula-note">&rho; = row effect, &gamma; = column effect, &tau; = treatment effect</span>
+</div>
+
+Four sources instead of three, all assumed additive with no interactions -- a stronger assumption than the RCBD's, and worth stating when you report the design.
+
+## Working it by hand
+
+**Step 1. Constants.**
+
+```
+G = 452, N = 16, p = 4
+CF = 452^2/16 = 204304/16 = 12769
+```
+
+**Step 2. Total.**
+
+```
+sum of all squared observations:
+  row 1: 529 + 961 + 1296 + 784 = 3570
+  row 2: 841 + 1225 + 784 + 361 = 3211
+  row 3: 1156 + 729 + 400 + 900 = 3185
+  row 4: 784 + 361 + 900 + 1225 = 3270
+                          total = 13236
+
+TSS = 13236 - 12769 = 467
+```
+
+**Step 3. Rows, columns and treatments -- all three divide by *p*.**
+
+```
+SS(row) = (118^2 + 111^2 + 111^2 + 112^2)/4 - 12769
+        = (13924 + 12321 + 12321 + 12544)/4 - 12769
+        = 51110/4 - 12769
+        = 12777.5 - 12769
+        = 8.5
+
+SS(col) = (114^2 + 112^2 + 114^2 + 112^2)/4 - 12769
+        = (12996 + 12544 + 12996 + 12544)/4 - 12769
+        = 51080/4 - 12769
+        = 12770 - 12769
+        = 1.0
+
+SS(trt) = (81^2 + 120^2 + 140^2 + 111^2)/4 - 12769
+        = (6561 + 14400 + 19600 + 12321)/4 - 12769
+        = 52882/4 - 12769
+        = 13220.5 - 12769
+        = 451.5
+```
+
+**Step 4. Error by subtraction.**
+
+```
+SSE = TSS - SS(row) - SS(col) - SS(trt)
+    = 467 - 8.5 - 1.0 - 451.5
+    = 6.0
+```
+
+**Step 5. The ANOVA table.**
+
+| Source | SS | df | MS | F | p |
+|---|---|---|---|---|---|
+| Row | 8.5 | 3 | 2.8333 | 2.8333 | .1285 |
+| Column | 1.0 | 3 | 0.3333 | 0.3333 | .8022 |
+| Treatment | 451.5 | 3 | 150.5000 | **150.5000** | **&lt; .0001** |
+| Error | 6.0 | 6 | 1.0000 | | |
+| **Total** | **467.0** | **15** | | | |
+
+```
+MSE = 6.0/6 = 1.0
+F(trt) = 150.5/1.0 = 150.5
+CV% = 100 x sqrt(1.0)/28.25 = 3.54%
+```
+
+Treatment means: A 20.25, B 30.00, C 35.00, D 27.75.
+
+**Step 6. Read the nuisance factors honestly.**
+
+Rows: *F* = 2.83, *p* = .13. Columns: *F* = 0.33, *p* = .80.
+
+**Neither gradient was real in this data.** The moisture strips captured 8.5 units and the depth strips only 1.0 -- almost nothing, out of a total of 467.
+
+So the double blocking bought little here, and it cost 6 error degrees of freedom (3 for rows, 3 for columns). An RCBD blocking only on rows would have had 9 error df; a CRD would have had 12.
+
+That is the honest conclusion, and it is the most useful thing this example teaches. **A Latin square is expensive insurance.** When both gradients are real it is excellent value; when neither is, you have spent half your error df for nothing.
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Why the design was still defensible</span>
+You did not know in advance. The field visibly sloped and the soil survey showed a depth gradient. Designing for what the site showed was correct; the gradients turning out not to matter for *this* response is information you only had afterwards.
+
+What you must not do is drop the row and column terms because their *F* values are small. You randomised under the Latin square constraint, so the analysis must honour it. Report all four lines.
+</div>
+
+## Mean comparisons
+
+Same machinery, with *p* in place of *n* and the Latin square's error df:
+
+```
+LSD = t(.975, 6) x sqrt(2 MSE / p)
+    = 2.4469 x sqrt(2 x 1.0/4)
+    = 2.4469 x 0.7071
+    = 1.7302
+
+Tukey HSD = q(.05, 4, 6) x sqrt(MSE/p)
+          = 4.896 x sqrt(1.0/4)
+          = 4.896 x 0.5
+          = 2.448
+```
+
+| Pair | Difference | > HSD 2.448? |
+|---|---|---|
+| C vs A | 14.75 | yes |
+| C vs D | 7.25 | yes |
+| C vs B | 5.00 | yes |
+| B vs A | 9.75 | yes |
+| B vs D | 2.25 | **no** |
+| D vs A | 7.50 | yes |
+
+```
+C  35.00  a
+B  30.00  b
+D  27.75  b
+A  20.25  c
+```
+
+B and D do not separate. Note how much larger Tukey's *q* is here -- 4.896 at 6 df against 4.415 at 9 df and 4.05 at 16 df. Few error degrees of freedom make every critical value climb.
+
+## When a Latin square is right, and when it is not
+
+| Use a Latin square when | Use something else when |
+|---|---|
+| Two identifiable nuisance factors cross | Only one nuisance factor (&rarr; RCBD) |
+| Both are genuinely substantial | Neither is substantial (&rarr; CRD) |
+| 4 &le; *p* &le; 6 | *p* = 2 or 3 (&rarr; replicate the square) |
+| You can afford exactly *p*&#178; units | *p* &ge; 7 and units are costly |
+| Treatment effects are large | You need many error df for a subtle effect |
+
+A very common and underappreciated application: **order effects in repeated-measures studies**. Four subjects each test four products in a different order. Rows = subjects, columns = testing position, treatments = products. The square removes both subject differences and position effects (fatigue, learning, carry-over) in one design. This is the standard layout in sensory evaluation and in crossover clinical trials.
+
+## Doing it in software
+
+<div class="callout callout-note" markdown="1">
+<span class="callout-label">Jamovi</span>
+**Analyses -> ANOVA -> ANOVA.**
+Dependent: yield. Fixed Factors: **row, column and treatment** -- all three.
+Under *Model*, set the model terms to the **three main effects only**. Jamovi's default full factorial would include every interaction and leave no error df, so this step is not optional.
+Post hoc on treatment only.
+</div>
+
+**SPSS.** `Analyze -> General Linear Model -> Univariate`. Fixed Factors: row, column, treatment. Click **Model -> Custom**, move all three in as *Main effects*, Type III sums of squares. Post hoc on treatment.
+
+**Excel.** No direct tool exists -- the ToolPak's two-factor routines cannot handle the Latin square constraint. Compute it by hand:
+
+```
+' data in B2:E5, with row totals in F and column totals in row 6
+H1:  =SUM(B2:E5)^2/16                     ' CF = 12769
+H2:  =SUMSQ(B2:E5)-H1                      ' TSS = 467
+H3:  =SUMSQ(F2:F5)/4-H1                    ' SS(row) = 8.5
+H4:  =SUMSQ(B6:E6)/4-H1                    ' SS(col) = 1.0
+H5:  =SUMSQ(J2:J5)/4-H1                    ' SS(trt) = 451.5, J holds treatment totals
+H6:  =H2-H3-H4-H5                          ' SSE = 6.0
+H7:  =(H5/3)/(H6/6)                        ' F(trt) = 150.5
+H8:  =F.DIST.RT(H7,3,6)                    ' p
+```
+
+Getting the treatment totals requires `SUMIF` over a parallel grid of treatment letters. `SUMSQ` is the function that makes the rest compact.
+
+**R.**
+
+```r
+d <- data.frame(
+  row = factor(rep(1:4, each = 4)),
+  col = factor(rep(1:4, times = 4)),
+  trt = factor(c("A","B","C","D", "B","C","D","A",
+                 "C","D","A","B", "D","A","B","C")),
+  y   = c(23,31,36,28, 29,35,28,19, 34,27,20,30, 28,19,30,35))
+
+m <- aov(y ~ row + col + trt, data = d)
+summary(m)
+#             Df Sum Sq Mean Sq F value  Pr(>F)
+# row          3    8.5   2.833   2.833  0.1285
+# col          3    1.0   0.333   0.333  0.8022
+# trt          3  451.5 150.500 150.500 5.2e-06 ***
+# Residuals    6    6.0   1.000
+
+TukeyHSD(m, "trt")
+agricolae::LSD.test(m, "trt", console = TRUE)
+
+# generate a randomised square for your own experiment
+agricolae::design.lsd(trt = c("A","B","C","D"), seed = 2026)$book
+```
+
+<div class="callout callout-warn" markdown="1">
+<span class="callout-label">Check the Df column, every time</span>
+A correct 4x4 Latin square ANOVA shows **3, 3, 3, 6**. If you see anything else, something is wrong: row or col was not wrapped in `factor()`, the design is not a proper square (some treatment appears twice in a row), or an interaction crept into the model.
+
+The 3-3-3-6 pattern is your checksum. Verify it before reading a single *F*.
+</div>
+
+## Writing it up
+
+<div class="callout callout-write" markdown="1">
+<span class="callout-label">Agronomy / APA report</span>
+"A 4x4 Latin square was used to control two perpendicular field gradients: soil moisture (rows) and soil depth (columns). The treatment effect on yield was significant, *F*(3, 6) = 150.50, *p* &lt; .001, with a coefficient of variation of 3.5%. Neither nuisance factor reached significance -- rows *F*(3, 6) = 2.83, *p* = .13; columns *F*(3, 6) = 0.33, *p* = .80 -- indicating that in this field the two gradients contributed little to yield variation, so the double blocking provided limited gain for the six error degrees of freedom it required.
+
+Tukey's HSD (critical difference 2.45 kg) ranked C (35.00 kg) &gt; B (30.00) = D (27.75) &gt; A (20.25)."
+</div>
+
+The second paragraph of that write-up -- naming what the design cost and admitting it did not pay off -- is what a methods-aware examiner will respect. Reporting the two non-significant lines without comment invites the question; answering it first does not.
+
+## Common mistakes
+
+1. **Using an unrandomised standard square.** Its diagonal pattern can align with a real diagonal gradient.
+2. **Running a 3x3 square.** Two error df; critical *F*(2,2) = 19.00. Replicate the square or choose another design.
+3. **Leaving interactions in the model.** Zero error df and no *F* tests.
+4. **Not wrapping row and col in `factor()`.** Fits linear trends with 1 df each.
+5. **A square that is not Latin.** Every treatment exactly once per row *and* per column. Check before analysing; the Df checksum will catch it.
+6. **Comparing row or column means.** Both are nuisance factors.
+7. **Dropping non-significant row or column terms.** The randomisation was constrained by them.
+8. **Using a Latin square when only one gradient exists.** You pay double and gain once. Use an RCBD.
+
+## Practice
+
+<details markdown="1">
+<summary>1. A 5x5 Latin square. How many units, and what is the error df?</summary>
+
+```
+units    = p^2 = 25
+error df = (p-1)(p-2) = 4 x 3 = 12
+total df = 24 = 4 (rows) + 4 (cols) + 4 (trt) + 12 (error)
+```
+
+Twelve error df is **comfortable** -- critical *F*(4, 12) at .05 is 3.26, against 4.76 for *F*(4, 6) in a 4x4. Going from *p* = 4 to *p* = 5 adds 9 units and doubles the error df, which is the best trade available in this family of designs.
+
+If 25 units are affordable, a 5x5 is the sweet spot for a Latin square. Below that you are squeezed on df; above *p* = 6 the unit count grows faster than the benefit.
+</details>
+
+<details markdown="1">
+<summary>2. Is this a valid Latin square?</summary>
+
+```
+A B C
+B C A
+C A B
+```
+
+Check rows: ABC, BCA, CAB -- each contains all three letters exactly once. &#10003;
+Check columns: ABC, BCA, CAB -- each contains all three letters exactly once. &#10003;
+
+**Yes, it is a valid 3x3 Latin square.** But it should not be used.
+
+Error df = (3&minus;1)(3&minus;2) = **2**. Critical *F*(2, 2) at alpha = .05 is 19.00. To reach significance, MS(treatment) would have to be 19 times MSE -- a bar so high that only an overwhelming effect clears it, and your confidence intervals would be useless regardless.
+
+**The fix: replicate.** Run three independent 3x3 squares (27 units). Depending on whether rows and columns are the same physical entities across squares, you get between 12 and 18 error df -- a usable experiment. `agricolae::design.lsd` will generate the squares; the analysis adds a `square` term to the model.
+</details>
+
+<details markdown="1">
+<summary>3. In our analysis, rows gave F = 2.83 (p = .13) and columns F = 0.33 (p = .80). Was the Latin square a mistake?</summary>
+
+**Not a mistake, but it did not pay off**, and those are different judgements.
+
+The design cost 6 error degrees of freedom. An RCBD on rows alone would have had 9; a CRD would have had 12. With MSE = 1.0 either way, fewer df means larger critical values: *t*(.975, 6) = 2.447 against *t*(.975, 12) = 2.179, so the CRD's LSD would have been about 11% narrower.
+
+**Why it was still the right decision ex ante:** the field visibly sloped and the soil survey documented a depth gradient. Designing to control two observed sources of heterogeneity is sound practice. That they turned out not to affect *this* response is a finding, not a design error -- and it is useful information for the next experiment on that field.
+
+**What makes it a mistake:** choosing the design out of habit, without evidence that two gradients exist. Or, worse, dropping the non-significant terms afterwards and reporting a CRD. The design you ran constrains the analysis you may report.
+
+**The practical lesson:** a Latin square is insurance with a real premium. Buy it when you have evidence of two crossing gradients and the treatment effect is large enough to survive on few error df. Otherwise an RCBD on the dominant gradient usually gives a better experiment.
+</details>
+
+<details markdown="1">
+<summary>4. Describe how a Latin square handles order effects in a repeated-measures taste test.</summary>
+
+Four panellists each taste four products, and you want the product effect free of two contaminants: panellists differ in how harshly they score, and tasting position matters (palate fatigue, the first sample anchoring the rest, carry-over flavour).
+
+```
+            Position 1   Position 2   Position 3   Position 4
+Panellist 1      A            B            C            D
+Panellist 2      B            C            D            A
+Panellist 3      C            D            A            B
+Panellist 4      D            A            B            C
+```
+
+Rows = panellists, columns = position, treatments = products.
+
+**What this buys you:** every product is tasted exactly once in every position, so position effects cancel in the product totals. And every panellist tastes every product, so panellist severity cancels too. The product effect emerges free of both.
+
+**Why it beats the alternatives.** Giving all panellists the same order confounds product with position completely -- product A is always first. Randomising each panellist's order independently removes the confound on average but leaves position variation in the error term; the Latin square removes it exactly.
+
+**The limit to watch:** the design removes the *average* position effect, but it assumes no **carry-over** -- that tasting A does not change how B scores specifically. If carry-over is likely (strong flavours, lingering aftertaste), a plain Latin square is not enough; you need a **Williams design** or another balanced crossover that also balances for the immediately preceding treatment. This is exactly why crossover clinical trials build in washout periods.
+</details>
+
+## Before you move on
+
+- [ ] I know a Latin square requires *p* treatments, *p* rows, *p* columns and *p*&#178; units.
+- [ ] I can compute error df as (*p*&minus;1)(*p*&minus;2) and say why *p* = 3 is unusable.
+- [ ] I partition TSS four ways, dividing every total by *p*.
+- [ ] I verify the 3-3-3-6 Df checksum before reading any *F*.
+- [ ] I randomise rows, columns and letter assignment, never using the standard square.
+- [ ] I report row and column *F* values honestly, including when they show the blocking did not pay.
+- [ ] I know the repeated-measures application and the carry-over limitation.""",
+    quiz={
+        "question": "Why is a 3x3 Latin square almost never usable in practice?",
+        "options": [
+            "Three treatments cannot be randomised properly",
+            "Error df = (3-1)(3-2) = 2, and critical F(2,2) at .05 is 19.00 — only an overwhelming effect could ever reach significance",
+            "Nine plots is too few for any ANOVA",
+            "The standard 3x3 square has no valid randomisation",
+        ],
+        "answer": 1,
+        "explanation": "The Latin square spends 2(p-1) degrees of freedom on its two nuisance factors, which at p = 3 leaves only 2 for error. The remedy is to replicate the square: three 3x3 squares give 27 units and enough error df to work with.",
+    },
+)
+
+
+# ===========================================================================
+# MAIN -- new lessons are inserted above this marker
+def main():
+    Base.metadata.create_all(bind=engine)
+    sync_columns()
+    db = SessionLocal()
+    try:
+        course = db.query(models.Course).filter(models.Course.slug == COURSE_SLUG).first()
+        if course is None:
+            print(f"[error] no course with slug {COURSE_SLUG!r}")
+            return
+        existing = {l.title: l for l in course.lessons}
+        added = rewritten = 0
+        for order, spec in enumerate(LESSONS):
+            lesson = existing.get(spec["title"])
+            if lesson is None:
+                lesson = models.Lesson(course_id=course.id, title=spec["title"])
+                db.add(lesson)
+                added += 1
+            else:
+                rewritten += 1
+            lesson.content = spec["content"]
+            lesson.order = order
+            lesson.is_preview = spec["preview"]
+            if spec["quiz"]:
+                lesson.quiz_json = json.dumps(spec["quiz"])
+        db.commit()
+        chars = sum(len(s["content"]) for s in LESSONS)
+        stale = [t for t in existing if t not in {s["title"] for s in LESSONS}]
+        print(f"[{course.title}]")
+        print(f"  {added} added, {rewritten} rewritten, {len(LESSONS)} total")
+        print(f"  {chars:,} characters ({chars // len(LESSONS):,} average)")
+        if stale:
+            print(f"  not yet rewritten: {', '.join(stale)}")
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()
