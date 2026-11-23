@@ -554,6 +554,7 @@ ANOVA assumes the errors are independent, normally distributed, and equal in var
 
 <div class="callout callout-warn" markdown="1">
 <span class="callout-label">What to do when an assumption fails</span>
+
 | Problem | Remedy |
 |---|---|
 | Variance rises with the mean (counts) | &radic;*Y* transform, or a Poisson GLM |
@@ -621,6 +622,7 @@ So: C is best, A is worst, and **B and D cannot be distinguished**. Note that un
 
 <div class="callout callout-note" markdown="1">
 <span class="callout-label">Choosing a comparison procedure</span>
+
 | Procedure | Protection | Use when |
 |---|---|---|
 | **LSD** | None beyond the *F* test | Few planned comparisons, decided in advance |
